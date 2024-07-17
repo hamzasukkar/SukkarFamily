@@ -1,0 +1,188 @@
+﻿@model IEnumerable<SukkarFamily.Models.News>
+@using System.Text.RegularExpressions
+@{
+    ViewBag.Title = "Home Page";
+    Layout = null;
+
+}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>iSolution</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="~/css/style.css" rel="stylesheet" />
+    <link href="~/css/coin-slider.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="~/js/cufon-yui.js"></script>
+    <script type="text/javascript" src="~/js/cufon-aller-700.js"></script>s
+    <script type="text/javascript" src="~/js/script.js"></script>
+    <script type="text/javascript" src="~/js/coin-slider.min.js"></script>
+</head>
+<body>
+    <div class="main">
+        <div class="header">
+            <div class="header_resize">
+                <div class="searchform">
+                    <form id="formsearch" name="formsearch" method="post" action="#">
+                        <span>
+                            <input name="editbox_search" class="editbox_search" id="editbox_search" maxlength="80" value="Search our ste:" type="text" />
+                        </span>
+                        <input name="button_search" src="~/img/search.gif" class="button_search" type="image" />
+                    </form>
+                </div>
+                <div class="logo">
+                    <h1><a href="index.html">S<span>ukkar Family</span> <small>Sukkar Family Web Site</small></a></h1>
+                </div>
+                <div class="clr"></div>
+                <div class="menu_nav">
+                    <ul>
+                        <li class="active"><a href="../Home/Index"><span>Home Page</span></a></li>
+                        <li><a href="../Home/News"><span>News</span></a></li>
+                        <li><a href="../Home/About"><span>About Us</span></a></li>
+                        <li><a href="../Home/Blog"><span>Blog</span></a></li>
+                        <li><a href="../Persone/Tree"><span>Tree</span></a></li>
+                    </ul>
+                </div>
+                <div class="clr"></div>
+                <div class="slider">
+                    <div id="coin-slider">
+                        <a href="#">
+                            <img src="~/img/slide1.jpg" width="960" height="360" alt="" /><span>
+                                <big>عائلة سكر.</big><br />
+                                موقع سكرموقع سكر موقع سكر موقع  موقع سكر
+                            </span>
+                        </a> <a href="#">
+                            <img src="~/img/slide2.jpg" width="960" height="360" alt="" /><span>
+                                <big>عائلة سكر.</big><br />
+                                موقع سكرموقع سكر موقع سكر موقع  موقع سكر
+                            </span>
+                        </a> <a href="#">
+                            <img src="~/img/slide3.jpg" width="960" height="360" alt="" /><span>
+                                <big>عائلة سكر.</big><br />
+                                موقع سكرموقع سكر موقع سكر موقع  موقع سكر
+                            </span>
+                        </a>
+                    </div>
+                    <div class="clr"></div>
+                </div>
+                <div class="clr"></div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="content_resize">
+                <div class="mainbar">
+                    <div class="article">
+                        <h2><span>لمحة عن العائلة</span> </h2>
+
+                        <div class="clr"></div>
+                        <div class="img"><img src="~/img/img2.jpg" width="198" height="208" alt="" class="fl" /></div>
+                        <div class="post_content">
+                            <p style="text-align: center;"><span style="color: rgb(226, 80, 65);"><strong><u><span style="font-size: 24px;">آل سكر</span></u></strong></span></p>
+                            <p style="text-align: right;"><br /></p>
+                            <p style="text-align: right;"><span style="font-size: 20px;">من الأسر الإسلاميّة البيروتيّة واللبنانيّة والعربيّة، تعود بجذورها إلى القبائل العربيّة التي أسهمت في فتوحات بلاد الشام ومصر والعراق والمغرب العربي والأندلس. كما أنّها من الأسر المنسوبة إلى آل البيت النبوي الشريف.</span></p>
+                            <p style="text-align: right;"><span style="font-size: 20px;"><br /></span></p>
+                            <p style="text-align: right;"><span style="font-size: 20px;">وفي التاريخ الحديث والمعاصر اشتهرت الأسرة بأنّها دمشقية توطنت في حي الصالحية والميدان، كما توطن فرع منها في بيروت المحروسة وبعلبك وسواها من مناطق لبنانية وسورية وعربية.</span></p>
+                            <p style="text-align: right;"><span style="font-size: 20px;"><br /></span></p>
+                            <p style="text-align: right;"><span style="font-size: 20px;">تعود بجذورها إلى جدها الأعلى السيّد حسن الملقّب بالسكر وهو ابن السيّد شرف الدين قباد بن مصطفى الأمير ابن شرف الدين موسى بن إبراهيم شيخ ابريك المهاجر من الغرب إلى دمشق... ويستمر النسب إلى القطب عز الدين أحمد الصيادي سبط الحضرة الرفاعية... الحسيني... ويستمر النسب إلى أن يصل إلى الإمام موسى الكاظم ابن الإمام جعفر الصادق ابن الإمام محمد الباقر ابن الإمام علي زين العابدين السجّاد ابن الإمام الحسين (رضي الله عنهم أجمعين) . ويشار إلى أنّ أسرة السكري تعود بدورها إلى الإمام الحسين (رضي الله عنه)</span></p>
+                            <p style="text-align: right;"><span style="font-size: 20px;"><br /></span></p>
+                            <p style="text-align: right;"><span style="font-size: 20px;"><br /></span></p>
+                        </div>
+                        <div class="clr"></div>
+                    </div>
+                </div>
+                <div class="sidebar">
+                    <div class="gadget">
+                        <h2 class="star"><span>Sidebar</span> Menu</h2>
+                        <div class="clr"></div>
+                        <ul class="sb_menu">
+                            <li><a href="#">Home</a></li>
+                            <li><a href="#">TemplateInfo</a></li>
+                            <li><a href="#">Style Demo</a></li>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Archives</a></li>
+                            <li><a href="#">Web Templates</a></li>
+                        </ul>
+                    </div>
+                    <div class="gadget">
+                        <h2 class="star"><span>News</span></h2>
+                        <div class="clr"></div>
+                        <ul class="ex_menu">
+
+                            @foreach (var item in Model)
+                            {
+
+
+                                <li>
+                                    @{
+                                        string tempurl = "/News/Details/" + @item.ID;
+                                        string[] words = Regex.Split(@item.Text, "\n");
+                                    }
+                                    <a href=@tempurl>@Html.DisplayFor(modelItem => item.Title)</a><br />
+
+                                    @if (words.Length < 10)
+                                    {
+                                        foreach (var itemtext in words)
+                                        {
+                                            @itemtext;
+                                            <br />
+                                        }
+
+
+                                    }
+                                    else
+                                    {
+                                        for (int i = 0; i < 2; i++)
+                                        {
+                                            @words[i]
+                                            <br />
+                                        }
+                                    }
+                                </li>
+                            }
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="clr"></div>
+            </div>
+        </div>
+        <div class="fbg">
+            <div class="fbg_resize">
+                <div class="col c1">
+                    <h2><span>Image</span> Gallery</h2>
+                    <a href="~/images/pic1.jpg"><img src="~/img/gal1.jpg" width="75" height="75" alt="" class="gal" /></a> <a href="#"><img src="~/img/gal2.jpg" width="75" height="75" alt="" class="gal" /></a> <a href="#"><img src="~/img/gal3.jpg" width="75" height="75" alt="" class="gal" /></a> <a href="#"><img src="~/img/gal4.jpg" width="75" height="75" alt="" class="gal" /></a> <a href="#"><img src="~/img/gal5.jpg" width="75" height="75" alt="" class="gal" /></a> <a href="#"><img src="~/img/gal6.jpg" width="75" height="75" alt="" class="gal" /></a>
+                </div>
+                <div class="col c2">
+                    <h2><span>Services</span> Overview</h2>
+                    <p>عائلة سكر الدمشقية</p>
+                    <ul class="fbg_ul">
+                        <li><a href="#">الصالحية</a></li>
+                        <li><a href="#">جامع سكر.</a></li>
+                        <li><a href="#">سوريا دمشق</a></li>
+                    </ul>
+                </div>
+                <div class="col c3">
+                    <h2><span>Contact</span> Us</h2>
+                    <p>للتواصل مع عائلة سكر.</p>
+                    <p class="contact_info">
+                        <span>Address:</span> Damascus Syria<br />
+                        <span>Telephone:</span> 00963991231134<br />
+                        <span>FAX:</span> +458-4578<br />
+                        <span>Others:</span> +301 - 0125 - 01258<br />
+                        <span>E-mail:</span> <a href="#">hamzasukkar@gmail.com</a>
+                    </p>
+                </div>
+                <div class="clr"></div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="footer_resize">
+                <p class="lf">Copyright &copy; <a href="#">Hamza Sukkar</a>. All Rights Reserved</p>
+                <p class="rf">Design by <a target="_blank" href="http://www.google.com/">Hamza Sukkar</a></p>
+                <div style="clear:both;"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+﻿@model SukkarFamily.Models.Persone
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Persone</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="name" class="control-label"></label>
+                <input asp-for="name" class="form-control" />
+                <span asp-validation-for="name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="title" class="control-label"></label>
+                <input asp-for="title" class="form-control" />
+                <span asp-validation-for="title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="image" class="control-label"></label>
+                <input asp-for="image" class="form-control" />
+                <span asp-validation-for="image" class="text-danger"></span>
+            </div>
+            @if (ViewBag.GetParents.Count == 1)
+            {
+                <div class="form-group">
+                    <label asp-for="Parent" class="control-label"></label>
+                    @Html.DropDownListFor(m => m.Parent, new SelectList(ViewBag.GetParents, "Id", "name"), new { @class = "form-control" })
+                    <span asp-validation-for="Parent" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <label asp-for="Parent" class="control-label"></label>
+                    @Html.DropDownListFor(m => m.Parent, new SelectList(ViewBag.GetParents, "Id", "name"), "Select Parent", new { @class = "form-control" })
+                    <span asp-validation-for="Parent" class="text-danger"></span>
+                </div>
+
+            }
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

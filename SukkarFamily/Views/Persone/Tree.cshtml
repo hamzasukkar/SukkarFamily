@@ -1,0 +1,31 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = null;
+}
+    <head>
+        <link rel="stylesheet" href="~/css/jquery.orgchart.css">
+        <link rel="stylesheet" href="~/css/styletree1.css">
+        <script type="text/javascript" src="~/js/jquery.min.js"></script>
+        <script type="text/javascript" src="~/js/jquery.orgchart.js"></script>
+
+        
+    </head>
+    <body>
+        <div id="chart-container"></div>
+        <script type="text/javascript">
+            $(function () {
+                $.get("Root", null, function (data) {
+                    $('#chart-container').orgchart({
+                        'data': data,
+                        'nodeContent': 'title'
+                    });
+
+                })
+
+
+            });
+        </script>
+    </body>
+
+

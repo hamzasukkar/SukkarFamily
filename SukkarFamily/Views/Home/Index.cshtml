@@ -1,188 +1,339 @@
-﻿@model IEnumerable<SukkarFamily.Models.News>
-@using System.Text.RegularExpressions
+@model IEnumerable<SukkarFamily.Models.News>
 @{
-    ViewBag.Title = "Home Page";
-    Layout = null;
-
+    ViewData["Title"] = "عائلة سكر - الصفحة الرئيسية";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
 }
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>iSolution</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link href="~/css/style.css" rel="stylesheet" />
-    <link href="~/css/coin-slider.css" rel="stylesheet" />
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="~/js/cufon-yui.js"></script>
-    <script type="text/javascript" src="~/js/cufon-aller-700.js"></script>s
-    <script type="text/javascript" src="~/js/script.js"></script>
-    <script type="text/javascript" src="~/js/coin-slider.min.js"></script>
-</head>
-<body>
-    <div class="main">
-        <div class="header">
-            <div class="header_resize">
-                <div class="searchform">
-                    <form id="formsearch" name="formsearch" method="post" action="#">
-                        <span>
-                            <input name="editbox_search" class="editbox_search" id="editbox_search" maxlength="80" value="Search our ste:" type="text" />
-                        </span>
-                        <input name="button_search" src="~/img/search.gif" class="button_search" type="image" />
-                    </form>
+<!-- Main Content Section -->
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Family Heritage Section -->
+        <section class="heritage-section fade-in-up">
+            <div class="content">
+                <h2 class="arabic-title">
+                    <i class="fas fa-star-and-crescent text-gold me-3"></i>
+                    لمحة عن عائلة سكر الكريمة
+                </h2>
+                
+                <div class="row align-items-center">
+                    <div class="col-md-4 text-center mb-4">
+                        <div class="heritage-image-container">
+                            <img src="~/img/family-heritage.jpg" alt="تراث العائلة" class="img-fluid rounded-circle shadow-lg" style="width: 200px; height: 200px; object-fit: cover; border: 4px solid var(--islamic-gold);">
+                            <div class="islamic-pattern-overlay"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="arabic-text">
+                            <p class="lead text-gold">
+                                <strong>آل سكر</strong> - من الأسر الإسلامية العريقة
+                            </p>
+                            
+                            <p>
+                                من الأسر الإسلامية البيروتية واللبنانية والعربية، تعود بجذورها إلى القبائل العربية التي أسهمت في فتوحات بلاد الشام ومصر والعراق والمغرب العربي والأندلس. كما أنها من الأسر المنسوبة إلى <strong class="text-gold">آل البيت النبوي الشريف</strong>.
+                            </p>
+                            
+                            <p>
+                                وفي التاريخ الحديث والمعاصر اشتهرت الأسرة بأنها دمشقية توطنت في حي <strong class="text-gold">الصالحية والميدان</strong>، كما توطن فرع منها في <strong class="text-gold">بيروت المحروسة وبعلبك</strong> وسواها من مناطق لبنانية وسورية وعربية.
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div class="logo">
-                    <h1><a href="index.html">S<span>ukkar Family</span> <small>Sukkar Family Web Site</small></a></h1>
+                
+                <!-- Genealogy Section -->
+                <div class="mt-4 p-4 bg-light rounded-3">
+                    <h4 class="text-gold mb-3">
+                        <i class="fas fa-scroll me-2"></i>النسب الشريف
+                    </h4>
+                    <div class="arabic-text">
+                        <p>
+                            تعود بجذورها إلى جدها الأعلى <strong class="text-gold">السيد حسن الملقب بالسكر</strong> وهو ابن السيد شرف الدين قباد بن مصطفى الأمير ابن شرف الدين موسى بن إبراهيم شيخ ابريك المهاجر من الغرب إلى دمشق...
+                        </p>
+                        <p>
+                            ويستمر النسب إلى <strong class="text-gold">القطب عز الدين أحمد الصيادي</strong> سبط الحضرة الرفاعية الحسيني... ويستمر النسب إلى أن يصل إلى <strong class="text-gold">الإمام موسى الكاظم</strong> ابن الإمام جعفر الصادق ابن الإمام محمد الباقر ابن الإمام علي زين العابدين السجاد ابن <strong class="text-gold">الإمام الحسين</strong> (رضي الله عنهم أجمعين).
+                        </p>
+                    </div>
                 </div>
-                <div class="clr"></div>
-                <div class="menu_nav">
-                    <ul>
-                        <li class="active"><a href="../Home/Index"><span>Home Page</span></a></li>
-                        <li><a href="../Home/News"><span>News</span></a></li>
-                        <li><a href="../Home/About"><span>About Us</span></a></li>
-                        <li><a href="../Home/Blog"><span>Blog</span></a></li>
-                        <li><a href="../Persone/Tree"><span>Tree</span></a></li>
-                    </ul>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions-section fade-in-up-delay">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card-islamic h-100">
+                        <div class="card-header">
+                            <h5><i class="fas fa-sitemap"></i>شجرة العائلة</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <i class="fas fa-tree text-gold mb-3" style="font-size: 3rem;"></i>
+                            <p>استكشف شجرة العائلة الكاملة مع تفاصيل الأجيال والأنساب</p>
+                            <a href="@Url.Action("Tree", "Persone")" class="btn btn-gold">
+                                <i class="fas fa-eye me-2"></i>عرض الشجرة
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="clr"></div>
-                <div class="slider">
-                    <div id="coin-slider">
-                        <a href="#">
-                            <img src="~/img/slide1.jpg" width="960" height="360" alt="" /><span>
-                                <big>عائلة سكر.</big><br />
-                                موقع سكرموقع سكر موقع سكر موقع  موقع سكر
-                            </span>
-                        </a> <a href="#">
-                            <img src="~/img/slide2.jpg" width="960" height="360" alt="" /><span>
-                                <big>عائلة سكر.</big><br />
-                                موقع سكرموقع سكر موقع سكر موقع  موقع سكر
-                            </span>
-                        </a> <a href="#">
-                            <img src="~/img/slide3.jpg" width="960" height="360" alt="" /><span>
-                                <big>عائلة سكر.</big><br />
-                                موقع سكرموقع سكر موقع سكر موقع  موقع سكر
-                            </span>
+                <div class="col-md-6 mb-4">
+                    <div class="card-islamic h-100">
+                        <div class="card-header">
+                            <h5><i class="fas fa-users"></i>أفراد العائلة</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <i class="fas fa-users text-gold mb-3" style="font-size: 3rem;"></i>
+                            <p>تصفح قائمة أفراد العائلة مع معلوماتهم وتفاصيلهم</p>
+                            <a href="@Url.Action("Index", "Persone")" class="btn btn-gold">
+                                <i class="fas fa-list me-2"></i>عرض الأفراد
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Latest News -->
+        <section class="news-sidebar fade-in-up">
+            <div class="card-islamic">
+                <div class="card-header">
+                    <h5>
+                        <i class="fas fa-newspaper"></i>آخر الأخبار
+                        <a href="@Url.Action("Index", "News")" class="btn btn-sm btn-outline-light me-auto">
+                            عرض الكل <i class="fas fa-arrow-left me-1"></i>
+                        </a>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var news in Model.Take(4))
+                        {
+                            <div class="news-item mb-3 pb-3 border-bottom">
+                                <h6 class="news-title">
+                                    <a href="@Url.Action("Details", "News", new { id = news.ID })" class="text-decoration-none text-gold">
+                                        @news.Title
+                                    </a>
+                                </h6>
+                                <p class="news-excerpt text-muted small">
+                                    @{
+                                        var excerpt = news.Text?.Length > 100 ? news.Text.Substring(0, 100) + "..." : news.Text;
+                                    }
+                                    @excerpt
+                                </p>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    @DateTime.Now.ToString("dd/MM/yyyy", new System.Globalization.CultureInfo("ar-SA"))
+                                </small>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-newspaper text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">لا توجد أخبار حاليًا</p>
+                            <a href="@Url.Action("Create", "News")" class="btn btn-gold btn-sm">
+                                <i class="fas fa-plus me-1"></i>إضافة خبر
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <!-- Family Statistics -->
+        <section class="statistics-section mt-4 fade-in-up-delay">
+            <div class="card-islamic">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i>إحصائيات العائلة</h5>
+                </div>
+                <div class="card-body">
+                    <div class="stat-item d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-users text-gold me-2"></i>
+                            <span>إجمالي الأفراد</span>
+                        </div>
+                        <span class="badge bg-gold text-dark fs-6">123</span>
+                    </div>
+                    <div class="stat-item d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-layer-group text-gold me-2"></i>
+                            <span>عدد الأجيال</span>
+                        </div>
+                        <span class="badge bg-gold text-dark fs-6">7</span>
+                    </div>
+                    <div class="stat-item d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-map-marker-alt text-gold me-2"></i>
+                            <span>المدن والمناطق</span>
+                        </div>
+                        <span class="badge bg-gold text-dark fs-6">12</span>
+                    </div>
+                    <div class="stat-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar-alt text-gold me-2"></i>
+                            <span>تاريخ التأسيس</span>
+                        </div>
+                        <span class="badge bg-gold text-dark fs-6">1800م</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Info -->
+        <section class="contact-section mt-4 fade-in-up">
+            <div class="card-islamic">
+                <div class="card-header">
+                    <h5><i class="fas fa-envelope"></i>معلومات التواصل</h5>
+                </div>
+                <div class="card-body">
+                    <div class="contact-item mb-3">
+                        <i class="fas fa-phone text-gold me-2"></i>
+                        <a href="tel:00963991231134" class="text-decoration-none text-dark">
+                            00963991231134
                         </a>
                     </div>
-                    <div class="clr"></div>
+                    <div class="contact-item mb-3">
+                        <i class="fas fa-envelope text-gold me-2"></i>
+                        <a href="mailto:hamzasukkar@gmail.com" class="text-decoration-none text-dark">
+                            hamzasukkar@gmail.com
+                        </a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt text-gold me-2"></i>
+                        <span>دمشق، سوريا</span>
+                    </div>
                 </div>
-                <div class="clr"></div>
             </div>
-        </div>
-        <div class="content">
-            <div class="content_resize">
-                <div class="mainbar">
-                    <div class="article">
-                        <h2><span>لمحة عن العائلة</span> </h2>
+        </section>
+    </div>
+</div>
 
-                        <div class="clr"></div>
-                        <div class="img"><img src="~/img/img2.jpg" width="198" height="208" alt="" class="fl" /></div>
-                        <div class="post_content">
-                            <p style="text-align: center;"><span style="color: rgb(226, 80, 65);"><strong><u><span style="font-size: 24px;">آل سكر</span></u></strong></span></p>
-                            <p style="text-align: right;"><br /></p>
-                            <p style="text-align: right;"><span style="font-size: 20px;">من الأسر الإسلاميّة البيروتيّة واللبنانيّة والعربيّة، تعود بجذورها إلى القبائل العربيّة التي أسهمت في فتوحات بلاد الشام ومصر والعراق والمغرب العربي والأندلس. كما أنّها من الأسر المنسوبة إلى آل البيت النبوي الشريف.</span></p>
-                            <p style="text-align: right;"><span style="font-size: 20px;"><br /></span></p>
-                            <p style="text-align: right;"><span style="font-size: 20px;">وفي التاريخ الحديث والمعاصر اشتهرت الأسرة بأنّها دمشقية توطنت في حي الصالحية والميدان، كما توطن فرع منها في بيروت المحروسة وبعلبك وسواها من مناطق لبنانية وسورية وعربية.</span></p>
-                            <p style="text-align: right;"><span style="font-size: 20px;"><br /></span></p>
-                            <p style="text-align: right;"><span style="font-size: 20px;">تعود بجذورها إلى جدها الأعلى السيّد حسن الملقّب بالسكر وهو ابن السيّد شرف الدين قباد بن مصطفى الأمير ابن شرف الدين موسى بن إبراهيم شيخ ابريك المهاجر من الغرب إلى دمشق... ويستمر النسب إلى القطب عز الدين أحمد الصيادي سبط الحضرة الرفاعية... الحسيني... ويستمر النسب إلى أن يصل إلى الإمام موسى الكاظم ابن الإمام جعفر الصادق ابن الإمام محمد الباقر ابن الإمام علي زين العابدين السجّاد ابن الإمام الحسين (رضي الله عنهم أجمعين) . ويشار إلى أنّ أسرة السكري تعود بدورها إلى الإمام الحسين (رضي الله عنه)</span></p>
-                            <p style="text-align: right;"><span style="font-size: 20px;"><br /></span></p>
-                            <p style="text-align: right;"><span style="font-size: 20px;"><br /></span></p>
+<!-- Image Gallery Section -->
+<section class="gallery-section mt-5 fade-in-up">
+    <div class="card-islamic">
+        <div class="card-header">
+            <h5><i class="fas fa-images"></i>معرض الصور التراثية</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                @for (int i = 1; i <= 6; i++)
+                {
+                    <div class="col-md-2 col-sm-4 col-6 mb-3">
+                        <div class="gallery-item">
+                            <img src="~/img/@($"slide{i}.jpg")" alt="صورة تراثية @i" class="img-fluid rounded shadow" style="aspect-ratio: 1; object-fit: cover;">
+                            <div class="gallery-overlay">
+                                <i class="fas fa-search-plus"></i>
+                            </div>
                         </div>
-                        <div class="clr"></div>
                     </div>
-                </div>
-                <div class="sidebar">
-                    <div class="gadget">
-                        <h2 class="star"><span>Sidebar</span> Menu</h2>
-                        <div class="clr"></div>
-                        <ul class="sb_menu">
-                            <li><a href="#">Home</a></li>
-                            <li><a href="#">TemplateInfo</a></li>
-                            <li><a href="#">Style Demo</a></li>
-                            <li><a href="#">Blog</a></li>
-                            <li><a href="#">Archives</a></li>
-                            <li><a href="#">Web Templates</a></li>
-                        </ul>
-                    </div>
-                    <div class="gadget">
-                        <h2 class="star"><span>News</span></h2>
-                        <div class="clr"></div>
-                        <ul class="ex_menu">
-
-                            @foreach (var item in Model)
-                            {
-
-
-                                <li>
-                                    @{
-                                        string tempurl = "/News/Details/" + @item.ID;
-                                        string[] words = Regex.Split(@item.Text, "\n");
-                                    }
-                                    <a href=@tempurl>@Html.DisplayFor(modelItem => item.Title)</a><br />
-
-                                    @if (words.Length < 10)
-                                    {
-                                        foreach (var itemtext in words)
-                                        {
-                                            @itemtext;
-                                            <br />
-                                        }
-
-
-                                    }
-                                    else
-                                    {
-                                        for (int i = 0; i < 2; i++)
-                                        {
-                                            @words[i]
-                                            <br />
-                                        }
-                                    }
-                                </li>
-                            }
-
-                        </ul>
-                    </div>
-                </div>
-                <div class="clr"></div>
-            </div>
-        </div>
-        <div class="fbg">
-            <div class="fbg_resize">
-                <div class="col c1">
-                    <h2><span>Image</span> Gallery</h2>
-                    <a href="~/images/pic1.jpg"><img src="~/img/gal1.jpg" width="75" height="75" alt="" class="gal" /></a> <a href="#"><img src="~/img/gal2.jpg" width="75" height="75" alt="" class="gal" /></a> <a href="#"><img src="~/img/gal3.jpg" width="75" height="75" alt="" class="gal" /></a> <a href="#"><img src="~/img/gal4.jpg" width="75" height="75" alt="" class="gal" /></a> <a href="#"><img src="~/img/gal5.jpg" width="75" height="75" alt="" class="gal" /></a> <a href="#"><img src="~/img/gal6.jpg" width="75" height="75" alt="" class="gal" /></a>
-                </div>
-                <div class="col c2">
-                    <h2><span>Services</span> Overview</h2>
-                    <p>عائلة سكر الدمشقية</p>
-                    <ul class="fbg_ul">
-                        <li><a href="#">الصالحية</a></li>
-                        <li><a href="#">جامع سكر.</a></li>
-                        <li><a href="#">سوريا دمشق</a></li>
-                    </ul>
-                </div>
-                <div class="col c3">
-                    <h2><span>Contact</span> Us</h2>
-                    <p>للتواصل مع عائلة سكر.</p>
-                    <p class="contact_info">
-                        <span>Address:</span> Damascus Syria<br />
-                        <span>Telephone:</span> 00963991231134<br />
-                        <span>FAX:</span> +458-4578<br />
-                        <span>Others:</span> +301 - 0125 - 01258<br />
-                        <span>E-mail:</span> <a href="#">hamzasukkar@gmail.com</a>
-                    </p>
-                </div>
-                <div class="clr"></div>
-            </div>
-        </div>
-        <div class="footer">
-            <div class="footer_resize">
-                <p class="lf">Copyright &copy; <a href="#">Hamza Sukkar</a>. All Rights Reserved</p>
-                <p class="rf">Design by <a target="_blank" href="http://www.google.com/">Hamza Sukkar</a></p>
-                <div style="clear:both;"></div>
+                }
             </div>
         </div>
     </div>
-</body>
-</html>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Add loading animation to images
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.addEventListener('load', function() {
+                    this.classList.add('loaded');
+                });
+            });
+
+            // Add gallery functionality
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            galleryItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const img = this.querySelector('img');
+                    // Here you could implement a lightbox or modal gallery
+                    console.log('Gallery item clicked:', img.src);
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        .bg-gold {
+            background-color: var(--islamic-gold) !important;
+        }
+        
+        .gallery-item {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 71, 42, 0.8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+        
+        img {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        img.loaded {
+            opacity: 1;
+        }
+        
+        .heritage-image-container {
+            position: relative;
+        }
+        
+        .islamic-pattern-overlay {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 2px solid var(--islamic-gold);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: pulse 2s infinite;
+        }
+        
+        @@keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.05); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 0.3; }
+        }
+    </style>
+}

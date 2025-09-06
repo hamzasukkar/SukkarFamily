@@ -40,8 +40,33 @@ namespace SukkarFamily.Controllers
 
         public ActionResult Tree()
         {
-
             return View();
+        }
+
+        public ActionResult TreeArabic()
+        {
+            return View("TreeArabic");
+        }
+
+        public ActionResult IndexArabic()
+        {
+            return View("IndexArabic", db.persones.ToList());
+        }
+
+        public ActionResult CreateArabic(int? id)
+        {
+            if (id != null)
+            {
+                var GetParent = db.persones.Where(x => x.Id == id).ToList();
+                ViewBag.GetParents = GetParent;
+            }
+            else
+            {
+                var GetParent = db.persones.ToList();
+                ViewBag.GetParents = GetParent;
+            }
+             
+            return View("CreateArabic");
         }
 
         // GET: Persone/Details/5

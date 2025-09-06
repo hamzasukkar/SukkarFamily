@@ -20,6 +20,11 @@ namespace SukkarFamily.Controllers
             this.db = db;
         }
 
+        public IActionResult IndexOld()
+        {
+            return View(db.News.ToList());
+        }
+
         public IActionResult Index()
         {
             return View(db.News.ToList());

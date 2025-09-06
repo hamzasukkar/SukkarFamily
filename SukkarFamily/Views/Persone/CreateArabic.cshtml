@@ -1,0 +1,566 @@
+@model SukkarFamily.Models.Persone
+@{
+    ViewData["Title"] = "إضافة فرد جديد";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
+}
+
+<div class="create-member-page">
+    <!-- Page Header -->
+    <div class="page-header fade-in-up">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="arabic-title">
+                    <i class="fas fa-user-plus text-gold me-3"></i>
+                    إضافة فرد جديد لعائلة سكر
+                </h1>
+                <p class="lead text-muted">
+                    @if (ViewBag.GetParents != null && ((List<SukkarFamily.Models.Persone>)ViewBag.GetParents).Count == 1)
+                    {
+                        var parent = ((List<SukkarFamily.Models.Persone>)ViewBag.GetParents).First();
+                        <span>إضافة طفل جديد للوالد: <strong class="text-gold">@parent.name</strong></span>
+                    }
+                    else
+                    {
+                        <span>أضف عضواً جديداً إلى شجرة العائلة</span>
+                    }
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="@Url.Action("Index", "Persone")" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>العودة للقائمة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            <div class="create-form-container fade-in-up">
+                <div class="card-islamic">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-edit me-2"></i>
+                            معلومات الفرد الجديد
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Create" method="post" id="createPersonForm">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-islamic-error" role="alert"></div>
+                            
+                            <!-- Personal Information Section -->
+                            <div class="form-section">
+                                <h6 class="section-title">
+                                    <i class="fas fa-id-card text-gold me-2"></i>
+                                    المعلومات الشخصية
+                                </h6>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="name" class="form-label required">
+                                                <i class="fas fa-user me-2 text-gold"></i>الاسم الكامل
+                                            </label>
+                                            <input asp-for="name" class="form-control arabic-input" placeholder="أدخل الاسم الكامل بالعربية" required>
+                                            <span asp-validation-for="name" class="text-danger"></span>
+                                            <div class="form-text">يُفضل كتابة الاسم باللغة العربية</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="title" class="form-label">
+                                                <i class="fas fa-crown me-2 text-gold"></i>اللقب أو الكنية
+                                            </label>
+                                            <input asp-for="title" class="form-control arabic-input" placeholder="مثال: أبو محمد، الشيخ، الدكتور">
+                                            <span asp-validation-for="title" class="text-danger"></span>
+                                            <div class="form-text">اللقب أو الكنية المعروف بها (اختياري)</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="image" class="form-label">
+                                                <i class="fas fa-image me-2 text-gold"></i>رابط الصورة الشخصية
+                                            </label>
+                                            <div class="input-group">
+                                                <input asp-for="image" class="form-control" placeholder="https://example.com/image.jpg" id="imageInput">
+                                                <button type="button" class="btn btn-outline-secondary" id="previewBtn">
+                                                    <i class="fas fa-eye"></i> معاينة
+                                                </button>
+                                            </div>
+                                            <span asp-validation-for="image" class="text-danger"></span>
+                                            <div class="form-text">رابط صورة شخصية (اختياري)</div>
+                                        </div>
+                                        
+                                        <!-- Image Preview -->
+                                        <div id="imagePreview" class="image-preview d-none">
+                                            <img id="previewImg" src="" alt="معاينة الصورة" class="preview-image">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Family Relations Section -->
+                            <div class="form-section">
+                                <h6 class="section-title">
+                                    <i class="fas fa-sitemap text-gold me-2"></i>
+                                    العلاقات العائلية
+                                </h6>
+                                
+                                @if (ViewBag.GetParents != null)
+                                {
+                                    var parents = (List<SukkarFamily.Models.Persone>)ViewBag.GetParents;
+                                    
+                                    <div class="form-group mb-3">
+                                        <label asp-for="Parent" class="form-label required">
+                                            <i class="fas fa-user-tie me-2 text-gold"></i>الوالد
+                                        </label>
+                                        
+                                        @if (parents.Count == 1)
+                                        {
+                                            var parent = parents.First();
+                                            <div class="selected-parent-card">
+                                                <div class="parent-info">
+                                                    <div class="parent-avatar">
+                                                        @if (!string.IsNullOrEmpty(parent.image))
+                                                        {
+                                                            <img src="@parent.image" alt="@parent.name">
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="fas fa-user"></i>
+                                                        }
+                                                    </div>
+                                                    <div class="parent-details">
+                                                        <h6>@parent.name</h6>
+                                                        <p class="mb-0">@(parent.title ?? "بدون لقب") - الجيل @parent.Generation</p>
+                                                    </div>
+                                                </div>
+                                                @Html.DropDownListFor(m => m.Parent, new SelectList(parents, "Id", "name"), new { @class = "d-none", @required = "required" })
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            @Html.DropDownListFor(m => m.Parent, new SelectList(parents, "Id", "name"), "اختر الوالد", new { @class = "form-select", @required = "required" })
+                                        }
+                                        <span asp-validation-for="Parent" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="generation-info-card">
+                                        <div class="info-content">
+                                            <i class="fas fa-info-circle text-primary me-2"></i>
+                                            <span>
+                                                @if (parents.Count == 1)
+                                                {
+                                                    <span>سيتم تعيين هذا الفرد في الجيل <strong>@(parents.First().Generation + 1)</strong> تلقائياً</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>سيتم تحديد الجيل تلقائياً بناءً على الوالد المختار</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Submit Section -->
+                            <div class="form-section">
+                                <div class="submit-actions">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-gold btn-lg w-100" id="submitBtn">
+                                                <i class="fas fa-save me-2"></i>إضافة الفرد
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="btn-group w-100">
+                                                <button type="button" class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                                                    <i class="fas fa-redo me-2"></i>إعادة تعيين
+                                                </button>
+                                                <a href="@Url.Action("Index", "Persone")" class="btn btn-outline-danger btn-lg">
+                                                    <i class="fas fa-times me-2"></i>إلغاء
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            setupImagePreview();
+            setupArabicInputs();
+            setupFormValidation();
+        });
+
+        function initializeForm() {
+            // Focus on first input
+            const nameInput = document.querySelector('input[name="name"]');
+            if (nameInput) {
+                nameInput.focus();
+            }
+
+            // Add loading state to submit button
+            const form = document.getElementById('createPersonForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            form.addEventListener('submit', function() {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>جاري الإضافة...';
+                submitBtn.disabled = true;
+            });
+        }
+
+        function setupImagePreview() {
+            const imageInput = document.getElementById('imageInput');
+            const previewBtn = document.getElementById('previewBtn');
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+
+            previewBtn.addEventListener('click', function() {
+                const imageUrl = imageInput.value.trim();
+                
+                if (imageUrl) {
+                    previewImg.src = imageUrl;
+                    previewImg.onload = function() {
+                        imagePreview.classList.remove('d-none');
+                        IslamicSite.showToast('تم تحميل الصورة بنجاح', 'success');
+                    };
+                    previewImg.onerror = function() {
+                        IslamicSite.showToast('فشل في تحميل الصورة. تأكد من صحة الرابط', 'error');
+                    };
+                } else {
+                    imagePreview.classList.add('d-none');
+                }
+            });
+
+            // Auto preview on input change
+            imageInput.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    previewBtn.click();
+                }
+            });
+        }
+
+        function setupArabicInputs() {
+            const arabicInputs = document.querySelectorAll('.arabic-input');
+            
+            arabicInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const arabicPattern = /[\u0600-\u06FF]/;
+                    if (arabicPattern.test(this.value)) {
+                        this.style.direction = 'rtl';
+                        this.style.textAlign = 'right';
+                        this.classList.add('arabic-text');
+                    } else if (this.value.trim() === '') {
+                        this.style.direction = 'rtl';
+                        this.style.textAlign = 'right';
+                    }
+                });
+
+                // Set initial RTL direction
+                input.style.direction = 'rtl';
+                input.style.textAlign = 'right';
+            });
+        }
+
+        function setupFormValidation() {
+            const form = document.getElementById('createPersonForm');
+            
+            form.addEventListener('submit', function(e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                    IslamicSite.showToast('يرجى تصحيح الأخطاء في النموذج', 'error');
+                }
+            });
+        }
+
+        function validateForm() {
+            let isValid = true;
+            
+            // Validate name (required and should be Arabic)
+            const nameInput = document.querySelector('input[name="name"]');
+            const arabicPattern = /[\u0600-\u06FF]/;
+            
+            if (!nameInput.value.trim()) {
+                showFieldError(nameInput, 'الاسم مطلوب');
+                isValid = false;
+            } else if (!arabicPattern.test(nameInput.value)) {
+                showFieldError(nameInput, 'يُفضل كتابة الاسم بالعربية');
+            } else {
+                clearFieldError(nameInput);
+            }
+
+            // Validate parent selection
+            const parentSelect = document.querySelector('select[name="Parent"]');
+            if (parentSelect && !parentSelect.value) {
+                showFieldError(parentSelect, 'يجب اختيار الوالد');
+                isValid = false;
+            } else if (parentSelect) {
+                clearFieldError(parentSelect);
+            }
+
+            return isValid;
+        }
+
+        function showFieldError(field, message) {
+            field.classList.add('is-invalid');
+            
+            let errorElement = field.parentNode.querySelector('.invalid-feedback');
+            if (!errorElement) {
+                errorElement = document.createElement('div');
+                errorElement.className = 'invalid-feedback';
+                field.parentNode.appendChild(errorElement);
+            }
+            errorElement.textContent = message;
+        }
+
+        function clearFieldError(field) {
+            field.classList.remove('is-invalid');
+            const errorElement = field.parentNode.querySelector('.invalid-feedback');
+            if (errorElement) {
+                errorElement.remove();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('createPersonForm').reset();
+            document.getElementById('imagePreview').classList.add('d-none');
+            
+            // Clear any validation errors
+            document.querySelectorAll('.is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+            document.querySelectorAll('.invalid-feedback').forEach(el => {
+                el.remove();
+            });
+            
+            IslamicSite.showToast('تم إعادة تعيين النموذج', 'info');
+        }
+
+        // Parent selection change handler
+        const parentSelect = document.querySelector('select[name="Parent"]');
+        if (parentSelect) {
+            parentSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.value) {
+                    // You could fetch and display parent details here
+                    console.log('تم اختيار الوالد:', selectedOption.text);
+                }
+            });
+        }
+    </script>
+
+    <style>
+        .create-member-page {
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(26, 71, 42, 0.05) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .create-form-container {
+            margin-bottom: 50px;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            color: var(--islamic-green);
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            font-family: 'Amiri', serif;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #dc3545;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+        }
+
+        .arabic-input {
+            font-family: 'Amiri', serif;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .selected-parent-card {
+            background: rgba(26, 71, 42, 0.05);
+            border: 2px solid var(--islamic-gold);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .parent-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .parent-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-left: 15px;
+            background: var(--islamic-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .parent-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .parent-avatar i {
+            font-size: 1.5rem;
+            color: var(--islamic-dark);
+        }
+
+        .parent-details h6 {
+            margin-bottom: 5px;
+            color: var(--islamic-green);
+            font-weight: 700;
+        }
+
+        .parent-details p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .generation-info-card {
+            background: rgba(13, 202, 240, 0.1);
+            border: 1px solid rgba(13, 202, 240, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .info-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 15px;
+            border: 3px solid var(--islamic-gold);
+            box-shadow: var(--shadow);
+        }
+
+        .submit-actions {
+            padding-top: 20px;
+            border-top: 2px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            border: none;
+            color: var(--islamic-dark);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            color: var(--islamic-dark);
+        }
+
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+
+        @@media (max-width: 768px) {
+            .page-header {
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .parent-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .parent-avatar {
+                margin-left: 0;
+                margin-bottom: 10px;
+            }
+            
+            .submit-actions .row > div {
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Animation for form elements */
+        .form-group {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

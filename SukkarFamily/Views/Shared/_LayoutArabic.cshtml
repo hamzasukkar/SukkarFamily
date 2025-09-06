@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - عائلة سكر</title>
+    
+    <!-- Google Fonts for Arabic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/islamic-style.css" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="~/img/favicon.ico">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-islamic shadow-lg">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="@Url.Action("Index", "Home")">
+                <div class="logo-container me-3">
+                    <i class="fas fa-mosque text-gold fs-2"></i>
+                </div>
+                <div>
+                    <h4 class="mb-0 text-gold">عائلة سكر</h4>
+                    <small class="text-light">الموقع الرسمي للعائلة</small>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Index", "Home")">
+                            <i class="fas fa-home me-2"></i>الرئيسية
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="treeDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-sitemap me-2"></i>شجرة العائلة
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="@Url.Action("Tree", "Persone")">
+                                <i class="fas fa-tree me-2"></i>عرض الشجرة
+                            </a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "Persone")">
+                                <i class="fas fa-users me-2"></i>أفراد العائلة
+                            </a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Create", "Persone")">
+                                <i class="fas fa-user-plus me-2"></i>إضافة فرد
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="newsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-newspaper me-2"></i>الأخبار
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "News")">
+                                <i class="fas fa-list me-2"></i>جميع الأخبار
+                            </a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Create", "News")">
+                                <i class="fas fa-plus me-2"></i>خبر جديد
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Privacy", "Home")">
+                            <i class="fas fa-info-circle me-2"></i>معلومات العائلة
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section for Home Page -->
+    @if(ViewContext.RouteData.Values["action"].ToString() == "Index" && ViewContext.RouteData.Values["controller"].ToString() == "Home")
+    {
+        <section class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <div class="row justify-content-center text-center">
+                    <div class="col-lg-10">
+                        <div class="islamic-pattern-border p-4 mb-4">
+                            <h1 class="display-4 text-white mb-3">
+                                <i class="fas fa-star-and-crescent text-gold me-3"></i>
+                                بسم الله الرحمن الرحيم
+                            </h1>
+                            <h2 class="h3 text-gold mb-4">عائلة سكر الكريمة</h2>
+                            <p class="lead text-white-50 mb-4">
+                                من الأسر الإسلامية العريقة المنتسبة إلى آل البيت النبوي الشريف
+                            </p>
+                            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                <a href="@Url.Action("Tree", "Persone")" class="btn btn-gold btn-lg">
+                                    <i class="fas fa-sitemap me-2"></i>استكشف شجرة العائلة
+                                </a>
+                                <a href="@Url.Action("Index", "News")" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-newspaper me-2"></i>آخر الأخبار
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container my-5">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light mt-5">
+        <div class="islamic-pattern-top"></div>
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-mosque me-2"></i>عائلة سكر
+                    </h5>
+                    <p class="text-light-emphasis">
+                        من الأسر الإسلامية البيروتية واللبنانية والعربية، تعود بجذورها إلى القبائل العربية التي أسهمت في الفتوحات الإسلامية.
+                    </p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-map-marker-alt me-2"></i>المواقع
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-dot-circle text-gold me-2"></i>دمشق - الصالحية</li>
+                        <li class="mb-2"><i class="fas fa-dot-circle text-gold me-2"></i>دمشق - الميدان</li>
+                        <li class="mb-2"><i class="fas fa-dot-circle text-gold me-2"></i>بيروت المحروسة</li>
+                        <li class="mb-2"><i class="fas fa-dot-circle text-gold me-2"></i>بعلبك</li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5 class="text-gold mb-3">
+                        <i class="fas fa-envelope me-2"></i>التواصل
+                    </h5>
+                    <div class="contact-info">
+                        <p class="mb-2">
+                            <i class="fas fa-phone text-gold me-2"></i>
+                            <a href="tel:00963991231134" class="text-light-emphasis">00963991231134</a>
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-envelope text-gold me-2"></i>
+                            <a href="mailto:hamzasukkar@gmail.com" class="text-light-emphasis">hamzasukkar@gmail.com</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-secondary my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0 text-light-emphasis">
+                        &copy; @DateTime.Now.Year عائلة سكر - جميع الحقوق محفوظة
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-light-emphasis">
+                        تطوير: <span class="text-gold">حمزة سكر</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/islamic-site.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

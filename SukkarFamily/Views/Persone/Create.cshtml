@@ -185,7 +185,23 @@
                                 @if (ViewBag.GetParents != null && ((List<SukkarFamily.Models.Persone>)ViewBag.GetParents).Any())
                                 {
                                     var parents = (List<SukkarFamily.Models.Persone>)ViewBag.GetParents;
+                                    var maxGeneration = parents.Max(p => p.Generation);
                                     
+                                    <!-- Generation Filter for Parent Selection -->
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">
+                                            <i class="fas fa-layer-group me-2 text-gold"></i>تصفية الأجيال
+                                        </label>
+                                        <select id="generationFilter" class="form-select">
+                                            <option value="">جميع الأجيال</option>
+                                            @for (int gen = 1; gen <= maxGeneration; gen++)
+                                            {
+                                                <option value="@gen">الجيل @gen (@parents.Count(p => p.Generation == gen) أشخاص)</option>
+                                            }
+                                        </select>
+                                        <div class="form-text">قم بتصفية الوالدين المحتملين حسب الجيل</div>
+                                    </div>
+
                                     <div class="form-group mb-3">
                                         <label asp-for="Parent" class="form-label">
                                             <i class="fas fa-user-tie me-2 text-gold"></i>الوالد
@@ -216,10 +232,39 @@
                                         }
                                         else
                                         {
-                                            @Html.DropDownListFor(m => m.Parent, new SelectList(parents, "Id", "name"), "اختر الوالد", new { @class = "form-select" })
+                                            <select name="Parent" id="parentSelect" class="form-select">
+                                                <option value="">اختر الوالد</option>
+                                                @foreach(var parent in parents.OrderBy(p => p.Generation).ThenBy(p => p.name))
+                                                {
+                                                    <option value="@parent.Id" data-generation="@parent.Generation" data-name="@parent.name" data-title="@(parent.title ?? "")" data-country="@(parent.Country ?? "")" data-image="@(parent.image ?? "")">
+                                                        @parent.name - الجيل @parent.Generation @(!string.IsNullOrEmpty(parent.title) ? " (" + parent.title + ")" : "")
+                                                    </option>
+                                                }
+                                            </select>
                                         }
                                         <span asp-validation-for="Parent" class="text-danger"></span>
                                         <div class="form-text">اختر الوالد من القائمة (اختياري للشخص الأول)</div>
+                                    </div>
+
+                                    <!-- Selected Parent Preview -->
+                                    <div id="selectedParentPreview" class="selected-parent-preview d-none">
+                                        <div class="preview-card">
+                                            <div class="preview-header">
+                                                <i class="fas fa-user-check text-success me-2"></i>
+                                                <strong>الوالد المختار</strong>
+                                            </div>
+                                            <div class="preview-content">
+                                                <div class="preview-avatar">
+                                                    <img id="previewImage" src="" alt="" style="display: none;">
+                                                    <i id="previewIcon" class="fas fa-user"></i>
+                                                </div>
+                                                <div class="preview-details">
+                                                    <h6 id="previewName"></h6>
+                                                    <p id="previewInfo" class="mb-1"></p>
+                                                    <span id="previewGeneration" class="generation-badge"></span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="generation-info-card">
@@ -300,6 +345,8 @@
             setupFormValidation();
             setupCreationModeToggle();
             setupMultipleChildrenFunctionality();
+            setupGenerationFilter();
+            setupParentPreview();
         });
 
         function initializeForm() {
@@ -618,6 +665,114 @@
                 input.style.textAlign = 'right';
             });
         }
+
+        // Generation Filter Functionality
+        function setupGenerationFilter() {
+            const generationFilter = document.getElementById('generationFilter');
+            const parentSelect = document.getElementById('parentSelect');
+            
+            if (!generationFilter || !parentSelect) return;
+
+            generationFilter.addEventListener('change', function() {
+                const selectedGeneration = this.value;
+                const options = parentSelect.querySelectorAll('option');
+                
+                options.forEach(option => {
+                    if (option.value === '') {
+                        option.style.display = '';
+                        return;
+                    }
+                    
+                    const generation = option.dataset.generation;
+                    if (!selectedGeneration || generation === selectedGeneration) {
+                        option.style.display = '';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+                
+                // Reset parent selection if current selection is hidden
+                if (selectedGeneration && parentSelect.value) {
+                    const currentOption = parentSelect.querySelector(`option[value="${parentSelect.value}"]`);
+                    if (currentOption && currentOption.dataset.generation !== selectedGeneration) {
+                        parentSelect.value = '';
+                        hideParentPreview();
+                    }
+                }
+                
+                // Update parent dropdown placeholder
+                const firstOption = parentSelect.querySelector('option[value=""]');
+                if (selectedGeneration) {
+                    firstOption.textContent = `اختر الوالد من الجيل ${selectedGeneration}`;
+                } else {
+                    firstOption.textContent = 'اختر الوالد';
+                }
+            });
+        }
+
+        // Parent Preview Functionality
+        function setupParentPreview() {
+            const parentSelect = document.getElementById('parentSelect');
+            if (!parentSelect) return;
+
+            parentSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                
+                if (selectedOption.value) {
+                    showParentPreview(selectedOption);
+                } else {
+                    hideParentPreview();
+                }
+            });
+        }
+
+        function showParentPreview(option) {
+            const preview = document.getElementById('selectedParentPreview');
+            const previewImage = document.getElementById('previewImage');
+            const previewIcon = document.getElementById('previewIcon');
+            const previewName = document.getElementById('previewName');
+            const previewInfo = document.getElementById('previewInfo');
+            const previewGeneration = document.getElementById('previewGeneration');
+            
+            // Set parent details
+            const name = option.dataset.name;
+            const title = option.dataset.title;
+            const country = option.dataset.country;
+            const image = option.dataset.image;
+            const generation = option.dataset.generation;
+            
+            previewName.textContent = name;
+            
+            // Build info string
+            let info = [];
+            if (title) info.push(title);
+            if (country) info.push(country);
+            previewInfo.textContent = info.length > 0 ? info.join(' - ') : 'لا توجد معلومات إضافية';
+            
+            // Handle image/icon
+            if (image && image.trim() !== '') {
+                previewImage.src = image;
+                previewImage.style.display = '';
+                previewIcon.style.display = 'none';
+            } else {
+                previewImage.style.display = 'none';
+                previewIcon.style.display = '';
+            }
+            
+            // Set generation badge
+            previewGeneration.textContent = `الجيل ${generation}`;
+            previewGeneration.className = `generation-badge generation-${generation}`;
+            
+            // Show preview
+            preview.classList.remove('d-none');
+        }
+
+        function hideParentPreview() {
+            const preview = document.getElementById('selectedParentPreview');
+            if (preview) {
+                preview.classList.add('d-none');
+            }
+        }
     </script>
 
     <style>
@@ -885,6 +1040,80 @@
             justify-content: center;
             padding: 0;
         }
+
+        /* Generation Filter and Parent Preview Styles */
+        .selected-parent-preview {
+            margin-top: 15px;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .preview-card {
+            background: linear-gradient(135deg, rgba(32, 201, 151, 0.1) 0%, rgba(26, 71, 42, 0.05) 100%);
+            border: 2px solid rgba(32, 201, 151, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .preview-header {
+            color: var(--islamic-green);
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-family: 'Amiri', serif;
+        }
+
+        .preview-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .preview-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--islamic-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--islamic-green);
+        }
+
+        .preview-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-avatar i {
+            font-size: 1.2rem;
+            color: var(--islamic-dark);
+        }
+
+        .preview-details h6 {
+            color: var(--islamic-green);
+            margin-bottom: 5px;
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+        }
+
+        .preview-details p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        /* Generation badge colors - reuse existing ones */
+        .generation-1 { background: #dc3545; }
+        .generation-2 { background: #fd7e14; }
+        .generation-3 { background: #ffc107; color: #000; }
+        .generation-4 { background: #20c997; }
+        .generation-5 { background: #0dcaf0; }
+        .generation-6 { background: #6f42c1; }
+        .generation-7 { background: #d63384; }
+        .generation-8 { background: #198754; }
+        .generation-9 { background: #0d6efd; }
+        .generation-10 { background: #6610f2; }
 
         /* Animation for form elements */
         .form-group {

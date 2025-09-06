@@ -112,6 +112,7 @@ namespace SukkarFamily.Controllers
                 persone.name = collection["name"];
                 persone.title = collection["title"];
                 persone.image = collection["image"];
+                persone.Country = collection["Country"];
                 
                 // Handle parent selection
                 if (!string.IsNullOrEmpty(collection["Parent"]) && int.TryParse(collection["Parent"], out int parentId))
@@ -172,6 +173,7 @@ namespace SukkarFamily.Controllers
                 persone.name = collection["name"];
                 persone.title= collection["title"];
                 persone.image= collection["image"];
+                persone.Country = collection["Country"];
                 //persone.Parent = db.persones.SingleOrDefault(p => p.Id == Int32.Parse(collection["Parent"]));
                 db.SaveChanges();
 

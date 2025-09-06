@@ -12,11 +12,10 @@ namespace SukkarFamily.Models
         public int Id { get; set; }
         public string name { get; set; }
         public string title { get; set; }
-        public string  image { get; set; }
+        public string image { get; set; }
+        public string Country { get; set; } // Optional country field
         public Persone Parent { get; set; }
         public int Generation { get; set; }
         public List<Persone> children { get; set; }
-
-
     }
 }

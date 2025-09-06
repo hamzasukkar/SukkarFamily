@@ -137,6 +137,7 @@
                                         <th>الصورة</th>
                                         <th>الاسم</th>
                                         <th>اللقب</th>
+                                        <th>البلد</th>
                                         <th>الوالد</th>
                                         <th>الجيل</th>
                                         <th width="200">الإجراءات</th>
@@ -174,6 +175,18 @@
                                             </td>
                                             <td>
                                                 <span class="member-title">@(person.title ?? "غير محدد")</span>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(person.Country))
+                                                {
+                                                    <span class="country-badge">
+                                                        <i class="fas fa-flag me-1"></i>@person.Country
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">غير محدد</span>
+                                                }
                                             </td>
                                             <td>
                                                 @if (person.Parent != null)
@@ -242,6 +255,13 @@
                                 <div class="member-card-body">
                                     <h5 class="member-card-name">@person.name</h5>
                                     <p class="member-card-title">@(person.title ?? "غير محدد")</p>
+                                    @if (!string.IsNullOrEmpty(person.Country))
+                                    {
+                                        <p class="member-card-country">
+                                            <i class="fas fa-flag text-muted me-1"></i>
+                                            <small>@person.Country</small>
+                                        </p>
+                                    }
                                     @if (person.Parent != null)
                                     {
                                         <p class="member-card-parent">
@@ -637,6 +657,21 @@
 
         .text-pink {
             color: #e91e63 !important;
+        }
+
+        .country-badge {
+            background: rgba(32, 201, 151, 0.1);
+            border: 1px solid rgba(32, 201, 151, 0.3);
+            color: #20c997;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .member-card-country {
+            margin-bottom: 8px;
+            color: #20c997;
         }
 
         /* Grid View Styles */

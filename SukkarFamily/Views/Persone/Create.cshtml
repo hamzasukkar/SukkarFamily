@@ -79,6 +79,22 @@
                                 </div>
 
                                 <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="Country" class="form-label">
+                                                <i class="fas fa-globe me-2 text-gold"></i>البلد
+                                            </label>
+                                            <input asp-for="Country" class="form-control arabic-input" placeholder="مثال: المملكة العربية السعودية، الإمارات العربية المتحدة">
+                                            <span asp-validation-for="Country" class="text-danger"></span>
+                                            <div class="form-text">البلد الذي يقيم فيه الفرد (اختياري)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <!-- Empty column for spacing -->
+                                    </div>
+                                </div>
+
+                                <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group mb-3">
                                             <label asp-for="image" class="form-label">

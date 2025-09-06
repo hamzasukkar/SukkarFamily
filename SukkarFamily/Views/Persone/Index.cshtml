@@ -1,71 +1,753 @@
-﻿@model IEnumerable<SukkarFamily.Models.Persone>
-
+@model IEnumerable<SukkarFamily.Models.Persone>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "أفراد العائلة";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
 }
 
-<h1>Index</h1>
+<div class="family-members-page">
+    <!-- Page Header -->
+    <div class="page-header fade-in-up">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="arabic-title">
+                    <i class="fas fa-users text-gold me-3"></i>
+                    أفراد عائلة سكر
+                </h1>
+                <p class="lead text-muted">قائمة شاملة بجميع أفراد العائلة عبر الأجيال</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="btn-group">
+                    <a href="@Url.Action("Create", "Persone")" class="btn btn-gold">
+                        <i class="fas fa-user-plus me-2"></i>إضافة فرد جديد
+                    </a>
+                    <a href="@Url.Action("Tree", "Persone")" class="btn btn-outline-secondary">
+                        <i class="fas fa-sitemap me-2"></i>عرض الشجرة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.image)
-            </th>
-            <th>
-                Parent @Html.DisplayNameFor(model => model.Parent.name)
-            </th>
-            <th>
-                Parent @Html.DisplayNameFor(model => model.Parent.Id)
-            </th>
-            <th>
-                 @Html.DisplayNameFor(model => model.Generation)
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.image)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Parent.name)
-            </td>
-            <td>
-                 @Html.DisplayFor(modelItem => item.Parent.Id)
-            </td>
-            <td>
-                 @Html.DisplayFor(modelItem => item.Generation)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
-                <a asp-action="Create" asp-route-id="@item.Id">Create Childe</a>
-            </td>
-        </tr>
+    <!-- Statistics Cards -->
+    <div class="row mb-4 fade-in-up">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users text-primary"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.Count()</h3>
+                    <p>إجمالي الأفراد</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-layer-group text-success"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@(Model.Max(p => p.Generation))</h3>
+                    <p>عدد الأجيال</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-male text-info"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@Model.Count()</h3>
+                    <p>الذكور</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-female text-pink"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>0</h3>
+                    <p>الإناث</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="search-filter-section mb-4 fade-in-up">
+        <div class="card-islamic">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="searchInput" class="form-control" placeholder="البحث بالاسم أو اللقب...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="generationFilter" class="form-select">
+                            <option value="">جميع الأجيال</option>
+                            @for (int i = 1; i <= (Model.Any() ? Model.Max(p => p.Generation) : 1); i++)
+                            {
+                                <option value="@i">الجيل @i</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="sortBy" class="form-select">
+                            <option value="name">ترتيب بالاسم</option>
+                            <option value="generation">ترتيب بالجيل</option>
+                            <option value="id">ترتيب بالرقم</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="btn-group w-100">
+                            <button type="button" class="btn btn-outline-secondary" id="gridView" title="عرض شبكي">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary active" id="listView" title="عرض قائمة">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Family Members Content -->
+    <div id="membersContent">
+        @if (Model != null && Model.Any())
+        {
+            <!-- List View (Default) -->
+            <div id="listViewContent" class="fade-in-up">
+                <div class="card-islamic">
+                    <div class="card-header">
+                        <h5><i class="fas fa-list me-2"></i>قائمة أفراد العائلة</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover members-table mb-0">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th width="60">#</th>
+                                        <th>الصورة</th>
+                                        <th>الاسم</th>
+                                        <th>اللقب</th>
+                                        <th>الوالد</th>
+                                        <th>الجيل</th>
+                                        <th width="200">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var person in Model)
+                                    {
+                                        <tr class="member-row" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
+                                            <td class="text-center">
+                                                <span class="member-id">@person.Id</span>
+                                            </td>
+                                            <td>
+                                                <div class="member-avatar">
+                                                    @if (!string.IsNullOrEmpty(person.image))
+                                                    {
+                                                        <img src="@person.image" alt="@person.name" class="avatar-img">
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="avatar-placeholder">
+                                                            <i class="fas fa-user"></i>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="member-name">
+                                                    <strong>@person.name</strong>
+                                                    @if (person.Generation == 1)
+                                                    {
+                                                        <span class="badge bg-gold ms-2">الجد الأعلى</span>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="member-title">@(person.title ?? "غير محدد")</span>
+                                            </td>
+                                            <td>
+                                                @if (person.Parent != null)
+                                                {
+                                                    <a href="@Url.Action("Details", new { id = person.Parent.Id })" class="parent-link">
+                                                        @person.Parent.name
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">الجد الأعلى</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="generation-badge generation-@person.Generation">
+                                                    الجيل @person.Generation
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="@Url.Action("Details", new { id = person.Id })" class="btn btn-sm btn-outline-info" title="التفاصيل">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Edit", new { id = person.Id })" class="btn btn-sm btn-outline-warning" title="تعديل">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Create", new { id = person.Id })" class="btn btn-sm btn-outline-success" title="إضافة طفل">
+                                                        <i class="fas fa-user-plus"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete(@person.Id, '@person.name')" title="حذف">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid View -->
+            <div id="gridViewContent" class="d-none">
+                <div class="row">
+                    @foreach (var person in Model)
+                    {
+                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4 member-card-container" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
+                            <div class="member-card fade-in-up">
+                                <div class="member-card-header">
+                                    @if (!string.IsNullOrEmpty(person.image))
+                                    {
+                                        <img src="@person.image" alt="@person.name" class="member-photo">
+                                    }
+                                    else
+                                    {
+                                        <div class="member-photo-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    }
+                                    <div class="generation-indicator generation-@person.Generation">
+                                        @person.Generation
+                                    </div>
+                                </div>
+                                <div class="member-card-body">
+                                    <h5 class="member-card-name">@person.name</h5>
+                                    <p class="member-card-title">@(person.title ?? "غير محدد")</p>
+                                    @if (person.Parent != null)
+                                    {
+                                        <p class="member-card-parent">
+                                            <i class="fas fa-user-tie text-muted me-1"></i>
+                                            <small>@person.Parent.name</small>
+                                        </p>
+                                    }
+                                    <div class="member-card-actions">
+                                        <a href="@Url.Action("Details", new { id = person.Id })" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>عرض
+                                        </a>
+                                        <a href="@Url.Action("Edit", new { id = person.Id })" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-edit me-1"></i>تعديل
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Empty State -->
+            <div class="empty-state text-center py-5 fade-in-up">
+                <div class="card-islamic">
+                    <div class="card-body py-5">
+                        <i class="fas fa-users text-muted mb-4" style="font-size: 4rem;"></i>
+                        <h3 class="text-muted mb-3">لا يوجد أفراد في العائلة</h3>
+                        <p class="text-muted mb-4">ابدأ بإضافة الجد الأعلى لعائلة سكر</p>
+                        <a href="@Url.Action("Create", "Persone")" class="btn btn-gold btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>إضافة أول فرد
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>تأكيد الحذف
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-user-times text-danger mb-3" style="font-size: 3rem;"></i>
+                <h4>حذف فرد من العائلة</h4>
+                <p id="deletePersonName" class="text-muted"></p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    تحذير: سيتم حذف جميع الأطفال المرتبطين بهذا الشخص
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>إلغاء
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-2"></i>حذف نهائي
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let personIdToDelete = null;
+
+        // Delete confirmation
+        function confirmDelete(personId, personName) {
+            personIdToDelete = personId;
+            document.getElementById('deletePersonName').textContent = `هل أنت متأكد من حذف "${personName}"؟`;
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (personIdToDelete) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("Delete", "Persone")' + '/' + personIdToDelete;
+                
+                const token = document.createElement('input');
+                token.type = 'hidden';
+                token.name = '__RequestVerificationToken';
+                token.value = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                form.appendChild(token);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            filterMembers();
+        });
+
+        // Generation filter
+        document.getElementById('generationFilter').addEventListener('change', function() {
+            filterMembers();
+        });
+
+        // Sort functionality
+        document.getElementById('sortBy').addEventListener('change', function() {
+            sortMembers(this.value);
+        });
+
+        // View toggle
+        document.getElementById('gridView').addEventListener('click', function() {
+            showGridView();
+        });
+
+        document.getElementById('listView').addEventListener('click', function() {
+            showListView();
+        });
+
+        function filterMembers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedGeneration = document.getElementById('generationFilter').value;
+            
+            const listRows = document.querySelectorAll('.member-row');
+            const gridCards = document.querySelectorAll('.member-card-container');
+            
+            const filterRow = (element, isGrid = false) => {
+                const name = element.dataset.name?.toLowerCase() || '';
+                const title = element.dataset.title?.toLowerCase() || '';
+                const generation = element.dataset.generation;
+                
+                const matchesSearch = !searchTerm || name.includes(searchTerm) || title.includes(searchTerm);
+                const matchesGeneration = !selectedGeneration || generation === selectedGeneration;
+                
+                if (matchesSearch && matchesGeneration) {
+                    element.style.display = '';
+                } else {
+                    element.style.display = 'none';
+                }
+            };
+
+            listRows.forEach(row => filterRow(row));
+            gridCards.forEach(card => filterRow(card, true));
+            
+            // Reapply dynamic generation colors after filtering
+            applyDynamicGenerationColors();
+        }
+
+        function sortMembers(sortBy) {
+            // This would require server-side implementation for full sorting
+            console.log('ترتيب حسب:', sortBy);
+        }
+
+        function showGridView() {
+            document.getElementById('listViewContent').classList.add('d-none');
+            document.getElementById('gridViewContent').classList.remove('d-none');
+            document.getElementById('listView').classList.remove('active');
+            document.getElementById('gridView').classList.add('active');
+            
+            // Reapply dynamic colors when switching views
+            setTimeout(applyDynamicGenerationColors, 50);
+        }
+
+        function showListView() {
+            document.getElementById('gridViewContent').classList.add('d-none');
+            document.getElementById('listViewContent').classList.remove('d-none');
+            document.getElementById('gridView').classList.remove('active');
+            document.getElementById('listView').classList.add('active');
+            
+            // Reapply dynamic colors when switching views
+            setTimeout(applyDynamicGenerationColors, 50);
+        }
+
+        // Generate dynamic colors for generations > 10
+        function generateGenerationColor(generation) {
+            // Predefined colors for generations 1-10 are handled by CSS
+            if (generation <= 10) return null;
+            
+            // Generate color using HSL for consistent, vibrant colors
+            const hue = ((generation - 11) * 137.5) % 360; // Golden ratio * 360 for good distribution
+            const saturation = 70 + (generation % 3) * 10; // 70-90% saturation for vibrant colors
+            const lightness = 45 + (generation % 2) * 10;  // 45-55% lightness for good contrast
+            
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
+
+        // Apply dynamic generation colors
+        function applyDynamicGenerationColors() {
+            // Get all generation badges and indicators
+            const generationElements = document.querySelectorAll('.generation-badge, .generation-indicator');
+            
+            generationElements.forEach(element => {
+                // Extract generation number from class
+                const classList = Array.from(element.classList);
+                const generationClass = classList.find(cls => cls.startsWith('generation-'));
+                
+                if (generationClass) {
+                    const generation = parseInt(generationClass.replace('generation-', ''));
+                    
+                    // Apply dynamic color for generations > 10
+                    if (generation > 10) {
+                        const color = generateGenerationColor(generation);
+                        element.style.backgroundColor = color;
+                        element.style.color = 'white';
+                        
+                        // Ensure good contrast for yellow-ish colors
+                        const hsl = color.match(/hsl\((\d+),/);
+                        if (hsl && (parseInt(hsl[1]) > 50 && parseInt(hsl[1]) < 70)) {
+                            element.style.color = '#000';
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize tooltips and apply dynamic colors
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Apply dynamic generation colors
+            applyDynamicGenerationColors();
+        });
+    </script>
+
+    <style>
+        .family-members-page {
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(26, 71, 42, 0.05) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-left: 15px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .stat-content h3 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--islamic-green);
+        }
+
+        .stat-content p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            z-index: 10;
+        }
+
+        .search-box input {
+            padding-right: 40px;
+        }
+
+        .members-table {
+            font-size: 0.9rem;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-green-light) 100%);
+            color: white;
+        }
+
+        .table-header th {
+            border: none;
+            font-weight: 600;
+            padding: 15px 10px;
+        }
+
+        .member-row:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .member-id {
+            background: var(--islamic-gold);
+            color: var(--islamic-dark);
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--islamic-gold);
+        }
+
+        .avatar-placeholder {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--islamic-dark);
+            font-size: 1.2rem;
+        }
+
+        .parent-link {
+            color: var(--islamic-green);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .parent-link:hover {
+            color: var(--islamic-gold);
+        }
+
+        .generation-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Base generation colors for first 10 generations */
+        .generation-1 { background: #dc3545; }
+        .generation-2 { background: #fd7e14; }
+        .generation-3 { background: #ffc107; color: #000; }
+        .generation-4 { background: #20c997; }
+        .generation-5 { background: #0dcaf0; }
+        .generation-6 { background: #6f42c1; }
+        .generation-7 { background: #d63384; }
+        .generation-8 { background: #198754; }
+        .generation-9 { background: #0d6efd; }
+        .generation-10 { background: #6610f2; }
+        
+        /* Dynamic colors for generations > 10 will be applied via JavaScript */
+
+        .bg-gold {
+            background-color: var(--islamic-gold) !important;
+            color: var(--islamic-dark) !important;
+        }
+
+        .text-pink {
+            color: #e91e63 !important;
+        }
+
+        /* Grid View Styles */
+        .member-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            height: 100%;
+        }
+
+        .member-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .member-card-header {
+            position: relative;
+            height: 200px;
+            background: linear-gradient(135deg, var(--islamic-cream) 0%, #f8f9fa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .member-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--islamic-gold);
+        }
+
+        .member-photo-placeholder {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--islamic-dark);
+        }
+
+        .generation-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .member-card-body {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .member-card-name {
+            color: var(--islamic-green);
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .member-card-title {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .member-card-parent {
+            margin-bottom: 15px;
+        }
+
+        .member-card-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        @@media (max-width: 768px) {
+            .page-header {
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .page-header .btn-group {
+                margin-top: 15px;
+            }
+
+            .stat-card {
+                margin-bottom: 15px;
+            }
+
+            .members-table {
+                font-size: 0.8rem;
+            }
+
+            .btn-group .btn {
+                padding: 6px 8px;
+            }
+        }
+    </style>
 }
-    </tbody>
-</table>

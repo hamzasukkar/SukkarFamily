@@ -43,31 +43,31 @@ namespace SukkarFamily.Controllers
             return View();
         }
 
-        public ActionResult TreeArabic()
+        public ActionResult TreeOld()
         {
-            return View("TreeArabic");
+            return View("TreeOld");
         }
 
-        public ActionResult IndexArabic()
+        public ActionResult IndexOld()
         {
-            return View("IndexArabic", db.persones.ToList());
+            return View("TreeOld", db.persones.ToList());
         }
 
-        public ActionResult CreateArabic(int? id)
-        {
-            if (id != null)
-            {
-                var GetParent = db.persones.Where(x => x.Id == id).ToList();
-                ViewBag.GetParents = GetParent;
-            }
-            else
-            {
-                var GetParent = db.persones.ToList();
-                ViewBag.GetParents = GetParent;
-            }
+        //public ActionResult CreateArabic(int? id)
+        //{
+        //    if (id != null)
+        //    {
+        //        var GetParent = db.persones.Where(x => x.Id == id).ToList();
+        //        ViewBag.GetParents = GetParent;
+        //    }
+        //    else
+        //    {
+        //        var GetParent = db.persones.ToList();
+        //        ViewBag.GetParents = GetParent;
+        //    }
              
-            return View("CreateArabic");
-        }
+        //    return View("CreateArabic");
+        //}
 
         // GET: Persone/Details/5
         public ActionResult Details(int id)
@@ -78,18 +78,23 @@ namespace SukkarFamily.Controllers
         // GET: Persone/Create
         public ActionResult Create(int? id)
         {
-            //var GetParents = db.persones.Select(x => x.Parent).ToList();
-
-
-            if (id !=null)
+            if (id != null)
             {
-                var GetParent = db.persones.Where(x => x.Id==id).ToList();
-                ViewBag.GetParents = GetParent;
+                // Adding child to specific parent
+                var selectedParent = db.persones.Where(x => x.Id == id).ToList();
+                ViewBag.GetParents = selectedParent;
             }
             else
             {
-                var GetParent = db.persones.ToList();
-                ViewBag.GetParents = GetParent;
+                // General create - get all potential parents
+                var allPersones = db.persones.ToList();
+                ViewBag.GetParents = allPersones;
+                
+                // If no family members exist yet, this will be the root person
+                if (!allPersones.Any())
+                {
+                    ViewBag.IsFirstPerson = true;
+                }
             }
              
             return View();
@@ -102,23 +107,48 @@ namespace SukkarFamily.Controllers
         {
             try
             {
-                // TODO: Add insert logic here
                 Persone persone = new Persone();
 
                 persone.name = collection["name"];
                 persone.title = collection["title"];
                 persone.image = collection["image"];
-                var parent = db.persones.Where(x => x.Id == Int32.Parse(collection["Parent"])).FirstOrDefault();
-                persone.Parent = parent;
-                persone.Generation = parent.Generation + 1;
+                
+                // Handle parent selection
+                if (!string.IsNullOrEmpty(collection["Parent"]) && int.TryParse(collection["Parent"], out int parentId))
+                {
+                    // Regular family member with parent
+                    var parent = db.persones.Where(x => x.Id == parentId).FirstOrDefault();
+                    if (parent != null)
+                    {
+                        persone.Parent = parent;
+                        persone.Generation = parent.Generation + 1;
+                    }
+                    else
+                    {
+                        // Fallback if parent not found
+                        persone.Parent = null;
+                        persone.Generation = 1;
+                    }
+                }
+                else
+                {
+                    // Root person (no parent) - this is the family patriarch/matriarch
+                    persone.Parent = null;
+                    persone.Generation = 1;
+                }
+                
                 db.persones.Add(persone);
                 db.SaveChanges();
 
-
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception)
             {
+                // In production, log the exception
+                ModelState.AddModelError("", "حدث خطأ أثناء إضافة الفرد. يرجى المحاولة مرة أخرى.");
+                
+                // Reload parents for the view
+                ViewBag.GetParents = db.persones.ToList();
                 return View();
             }
         }

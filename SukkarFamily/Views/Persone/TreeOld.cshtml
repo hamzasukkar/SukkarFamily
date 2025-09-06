@@ -1,0 +1,773 @@
+@{
+    ViewData["Title"] = "شجرة العائلة - عائلة سكر";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
+}
+
+<!-- Enhanced Family Tree Styles -->
+<link rel="stylesheet" href="~/css/family-tree-arabic.css">
+<link rel="stylesheet" href="~/css/jquery.orgchart.css">
+
+<div class="family-tree-page">
+    <div class="tree-header fade-in-up">
+        <i class="fas fa-star-and-crescent text-gold mb-3" style="font-size: 3rem;"></i>
+        <h1 class="arabic-title">شجرة عائلة سكر المباركة</h1>
+        <p class="lead">النسب الشريف المتصل بآل البيت النبوي الكريم</p>
+        <div class="islamic-divider"></div>
+        <p class="heritage-quote">
+            "وَجَعَلْنَاهُمْ أَئِمَّةً يَهْدُونَ بِأَمْرِنَا"
+        </p>
+    </div>
+
+    <!-- Genealogy Info -->
+    <div class="row mb-5 fade-in-up-delay">
+        <div class="col-lg-6 mb-4">
+            <div class="card-islamic">
+                <div class="card-header">
+                    <h5><i class="fas fa-scroll"></i>النسب الشريف</h5>
+                </div>
+                <div class="card-body">
+                    <div class="arabic-text">
+                        <p><strong class="text-gold">الجد الأعلى:</strong> السيّد حسن الملقّب بالسكر</p>
+                        <p><strong class="text-gold">النسب:</strong> ابن السيّد شرف الدين قباد بن مصطفى الأمير</p>
+                        <p><strong class="text-gold">الاتصال:</strong> يتصل النسب بالقطب عز الدين أحمد الصيادي سبط الحضرة الرفاعية الحسيني</p>
+                        <p><strong class="text-gold">النهاية:</strong> وصولاً إلى الإمام الحسين رضي الله عنه</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card-islamic">
+                <div class="card-header">
+                    <h5><i class="fas fa-home"></i>المواطن والأماكن</h5>
+                </div>
+                <div class="card-body">
+                    <div class="locations-grid">
+                        <div class="location-item">
+                            <i class="fas fa-map-marker-alt text-gold"></i>
+                            <span>دمشق - الصالحية</span>
+                        </div>
+                        <div class="location-item">
+                            <i class="fas fa-map-marker-alt text-gold"></i>
+                            <span>دمشق - الميدان</span>
+                        </div>
+                        <div class="location-item">
+                            <i class="fas fa-map-marker-alt text-gold"></i>
+                            <span>بيروت المحروسة</span>
+                        </div>
+                        <div class="location-item">
+                            <i class="fas fa-map-marker-alt text-gold"></i>
+                            <span>بعلبك</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tree Controls -->
+    <div class="tree-controls mb-4 fade-in-up">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="btn-group" role="group" aria-label="أدوات التحكم بالشجرة">
+                    <button type="button" class="btn btn-gold" id="expandAll" title="توسيع جميع الفروع">
+                        <i class="fas fa-expand-arrows-alt me-2"></i>توسيع الكل
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="collapseAll" title="طي جميع الفروع">
+                        <i class="fas fa-compress-arrows-alt me-2"></i>طي الكل
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="centerTree" title="توسيط الشجرة">
+                        <i class="fas fa-crosshairs me-2"></i>توسيط
+                    </button>
+                    <button type="button" class="btn btn-outline-info" id="printTree" title="طباعة الشجرة">
+                        <i class="fas fa-print me-2"></i>طباعة
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="btn-group" role="group" aria-label="أدوات العرض">
+                    <button type="button" class="btn btn-outline-secondary" id="zoomIn" title="تكبير">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="zoomOut" title="تصغير">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="resetZoom" title="إعادة تعيين التكبير">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="fullscreen" title="ملء الشاشة">
+                        <i class="fas fa-expand-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-center py-5">
+        <div class="loading-container">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-muted">جاري تحميل شجرة العائلة المباركة...</p>
+            <div class="loading-progress">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tree Container -->
+    <div class="family-tree-container fade-in-up">
+        <div id="chart-container" class="arabic-tree" dir="ltr"></div>
+        
+        <!-- Tree Navigation Mini Map -->
+        <div id="treeMinimap" class="tree-minimap d-none">
+            <div class="minimap-header">
+                <h6><i class="fas fa-map me-2"></i>خريطة الشجرة</h6>
+                <button type="button" class="btn-close btn-close-sm" id="closeMinimap"></button>
+            </div>
+            <div class="minimap-content">
+                <canvas id="minimapCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tree Legend -->
+    <div class="tree-legend mt-4 fade-in-up">
+        <div class="card-islamic">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i>دليل رموز الشجرة</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="legend-item">
+                            <div class="legend-symbol male-symbol"></div>
+                            <span>الذكور</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="legend-item">
+                            <div class="legend-symbol female-symbol"></div>
+                            <span>الإناث</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="legend-item">
+                            <div class="legend-symbol root-symbol"></div>
+                            <span>الجد الأعلى</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="legend-item">
+                            <div class="legend-symbol generation-symbol"></div>
+                            <span>رقم الجيل</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="generation-colors">
+                            <h6 class="mb-3">ألوان الأجيال:</h6>
+                            <div class="d-flex flex-wrap gap-3">
+                                <span class="generation-badge generation-1">الجيل الأول</span>
+                                <span class="generation-badge generation-2">الجيل الثاني</span>
+                                <span class="generation-badge generation-3">الجيل الثالث</span>
+                                <span class="generation-badge generation-4">الجيل الرابع</span>
+                                <span class="generation-badge generation-5">الجيل الخامس</span>
+                                <span class="generation-badge generation-6">الجيل السادس</span>
+                                <span class="generation-badge generation-7">الجيل السابع</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions mt-4 fade-in-up">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="action-content">
+                        <h6>عرض جميع الأفراد</h6>
+                        <p>تصفح قائمة تفصيلية بأفراد العائلة</p>
+                        <a href="@Url.Action("Index", "Persone")" class="btn btn-outline-gold btn-sm">عرض القائمة</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="action-content">
+                        <h6>إضافة فرد جديد</h6>
+                        <p>أضف عضواً جديداً لشجرة العائلة</p>
+                        <a href="@Url.Action("Create", "Persone")" class="btn btn-outline-gold btn-sm">إضافة فرد</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="action-content">
+                        <h6>العودة للرئيسية</h6>
+                        <p>عد إلى الصفحة الرئيسية للموقع</p>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-gold btn-sm">الصفحة الرئيسية</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Person Details Modal -->
+<div class="modal fade" id="personModal" tabindex="-1" aria-labelledby="personModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-islamic text-white">
+                <h5 class="modal-title" id="personModalLabel">
+                    <i class="fas fa-user me-2"></i>تفاصيل الفرد
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="personModalBody">
+                <!-- Person details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>إغلاق
+                </button>
+                <button type="button" class="btn btn-gold" id="editPersonBtn">
+                    <i class="fas fa-edit me-2"></i>تعديل
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/jquery.orgchart.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            let chart;
+            let currentScale = 1;
+            let isFullscreen = false;
+            
+            // Show loading spinner
+            $('#loadingSpinner').show();
+            $('#chart-container').hide();
+            
+            // Initialize progress bar animation
+            animateProgressBar();
+            
+            // Fetch tree data
+            $.get("/Persone/Root")
+                .done(function (data) {
+                    if (data && data.name) {
+                        initializeTree(data);
+                        hideLoading();
+                    } else {
+                        showError('لا توجد بيانات للشجرة');
+                    }
+                })
+                .fail(function () {
+                    showError('حدث خطأ في تحميل بيانات الشجرة');
+                })
+                .always(function () {
+                    hideLoading();
+                });
+
+            function initializeTree(data) {
+                // Enhanced tree configuration for Arabic family tree
+                chart = $('#chart-container').orgchart({
+                    'data': data,
+                    'nodeContent': 'title',
+                    'direction': 't2b', // Top to bottom - natural family tree flow
+                    'toggleSiblingsResp': true,
+                    'depth': 3,
+                    'nodeId': 'id',
+                    'createNode': function($node, data) {
+                        // Customize node appearance for Arabic names
+                        $node.addClass('arabic-node');
+                        
+                        // Add gender-specific styling
+                        if (data.gender) {
+                            $node.addClass(data.gender === 'male' ? 'male-node' : 'female-node');
+                        } else {
+                            $node.addClass('male-node'); // Default to male if not specified
+                        }
+                        
+                        // Add generation badge
+                        if (data.generation || data.Generation) {
+                            const gen = data.generation || data.Generation;
+                            $node.append(`<div class="generation-badge generation-${gen}">الجيل ${gen}</div>`);
+                        }
+                        
+                        // Add status indicator (assuming all are alive for now)
+                        $node.append('<i class="status-icon fas fa-circle text-success" title="على قيد الحياة"></i>');
+                        
+                        // Make nodes clickable for details
+                        $node.on('click', function(e) {
+                            e.stopPropagation();
+                            showPersonDetails(data);
+                        });
+                        
+                        // Add hover effects
+                        $node.hover(
+                            function() { $(this).addClass('node-hover'); },
+                            function() { $(this).removeClass('node-hover'); }
+                        );
+                    },
+                    'exportButton': true,
+                    'exportFilename': 'شجرة_عائلة_سكر_' + new Date().getFullYear(),
+                    'pan': true,
+                    'zoom': true,
+                    'zoominLimit': 3,
+                    'zoomoutLimit': 0.3
+                });
+                
+                $('#chart-container').show();
+                centerTree();
+                
+                // Add export button styling
+                setTimeout(function() {
+                    $('.orgchart .oc-export-btn').addClass('btn-islamic-export');
+                }, 500);
+            }
+
+            function animateProgressBar() {
+                const progressBar = $('.progress-bar');
+                let width = 0;
+                const interval = setInterval(function() {
+                    if (width >= 100) {
+                        clearInterval(interval);
+                    } else {
+                        width += Math.random() * 10;
+                        if (width > 100) width = 100;
+                        progressBar.css('width', width + '%');
+                    }
+                }, 200);
+            }
+
+            function showPersonDetails(data) {
+                const modalBody = $('#personModalBody');
+                const personHtml = `
+                    <div class="person-details">
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                ${data.image ? 
+                                    `<img src="${data.image}" class="person-modal-image" alt="${data.name}">` :
+                                    `<div class="person-modal-placeholder"><i class="fas fa-user"></i></div>`
+                                }
+                            </div>
+                            <div class="col-md-8">
+                                <h4 class="text-gold">${data.name || 'غير محدد'}</h4>
+                                <p><strong>اللقب:</strong> ${data.title || 'غير محدد'}</p>
+                                <p><strong>الجيل:</strong> ${data.Generation || data.generation || 'غير محدد'}</p>
+                                <p><strong>المعرف:</strong> #${data.Id || data.id || 'غير محدد'}</p>
+                                ${data.Parent ? `<p><strong>الوالد:</strong> ${data.Parent.name || 'غير محدد'}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                modalBody.html(personHtml);
+                
+                // Set edit button action
+                $('#editPersonBtn').off('click').on('click', function() {
+                    window.location.href = `/Persone/Edit/${data.Id || data.id}`;
+                });
+                
+                const personModal = new bootstrap.Modal(document.getElementById('personModal'));
+                personModal.show();
+            }
+
+            function showError(message) {
+                $('#loadingSpinner').hide();
+                $('#chart-container').html(`
+                    <div class="alert alert-islamic-error text-center py-5">
+                        <i class="fas fa-exclamation-triangle mb-3" style="font-size: 3rem;"></i>
+                        <h4>خطأ في تحميل الشجرة</h4>
+                        <p>${message}</p>
+                        <button class="btn btn-gold" onclick="location.reload()">
+                            <i class="fas fa-redo me-2"></i>إعادة المحاولة
+                        </button>
+                    </div>
+                `).show();
+            }
+
+            function hideLoading() {
+                $('#loadingSpinner').fadeOut(500);
+            }
+
+            function centerTree() {
+                if (chart) {
+                    const orgchart = $('#chart-container .orgchart');
+                    orgchart.css({
+                        'transform': `translate(-50%, 20px) scale(${currentScale})`,
+                        'transform-origin': 'center top'
+                    });
+                }
+            }
+
+            // Tree control handlers
+            $('#expandAll').on('click', function () {
+                $('#chart-container').find('.node').removeClass('collapsed');
+                $('#chart-container').find('.hidden').removeClass('hidden');
+                IslamicSite.showToast('تم توسيع جميع الفروع', 'success');
+            });
+
+            $('#collapseAll').on('click', function () {
+                $('#chart-container').find('.node:not(.root)').addClass('collapsed');
+                IslamicSite.showToast('تم طي جميع الفروع', 'info');
+            });
+
+            $('#centerTree').on('click', function() {
+                centerTree();
+                IslamicSite.showToast('تم توسيط الشجرة', 'info');
+            });
+
+            $('#printTree').on('click', function() {
+                window.print();
+            });
+
+            $('#zoomIn').on('click', function () {
+                if (chart && currentScale < 3) {
+                    currentScale = Math.min(currentScale * 1.2, 3);
+                    updateTreeScale();
+                    IslamicSite.showToast(`التكبير: ${Math.round(currentScale * 100)}%`, 'info');
+                }
+            });
+
+            $('#zoomOut').on('click', function () {
+                if (chart && currentScale > 0.3) {
+                    currentScale = Math.max(currentScale * 0.8, 0.3);
+                    updateTreeScale();
+                    IslamicSite.showToast(`التصغير: ${Math.round(currentScale * 100)}%`, 'info');
+                }
+            });
+
+            $('#resetZoom').on('click', function() {
+                currentScale = 1;
+                updateTreeScale();
+                IslamicSite.showToast('تم إعادة تعيين التكبير', 'info');
+            });
+
+            function updateTreeScale() {
+                if (chart) {
+                    $('#chart-container .orgchart').css('transform', `translate(-50%, 20px) scale(${currentScale})`);
+                }
+            }
+
+            $('#fullscreen').on('click', function () {
+                if (!isFullscreen) {
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen();
+                    }
+                    $(this).html('<i class="fas fa-compress"></i>');
+                    $('body').addClass('fullscreen-mode');
+                    IslamicSite.showToast('تم تفعيل ملء الشاشة', 'success');
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                    $(this).html('<i class="fas fa-expand-alt"></i>');
+                    $('body').removeClass('fullscreen-mode');
+                    IslamicSite.showToast('تم إلغاء ملء الشاشة', 'info');
+                }
+                isFullscreen = !isFullscreen;
+            });
+
+            // Handle fullscreen change events
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement) {
+                    $('#fullscreen').html('<i class="fas fa-expand-alt"></i>');
+                    $('body').removeClass('fullscreen-mode');
+                    isFullscreen = false;
+                }
+            });
+
+            // Keyboard shortcuts
+            $(document).on('keydown', function(e) {
+                if (e.ctrlKey) {
+                    switch(e.key) {
+                        case '+':
+                        case '=':
+                            e.preventDefault();
+                            $('#zoomIn').click();
+                            break;
+                        case '-':
+                            e.preventDefault();
+                            $('#zoomOut').click();
+                            break;
+                        case '0':
+                            e.preventDefault();
+                            $('#resetZoom').click();
+                            break;
+                    }
+                }
+                
+                if (e.key === 'F11') {
+                    e.preventDefault();
+                    $('#fullscreen').click();
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .bg-islamic {
+            background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-green-light) 100%);
+        }
+
+        .heritage-quote {
+            font-family: 'Amiri', serif;
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--islamic-gold);
+            margin-top: 15px;
+        }
+
+        .loading-container {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .loading-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(212, 175, 55, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--islamic-gold), var(--islamic-green));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .tree-minimap {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 200px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+        }
+
+        .minimap-header {
+            padding: 10px;
+            background: var(--islamic-green);
+            color: white;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .minimap-content {
+            padding: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .legend-symbol {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .male-symbol {
+            background: #007bff;
+        }
+        
+        .male-symbol::before {
+            content: '♂';
+        }
+
+        .female-symbol {
+            background: #e91e63;
+        }
+        
+        .female-symbol::before {
+            content: '♀';
+        }
+
+        .root-symbol {
+            background: var(--islamic-gold);
+            color: var(--islamic-dark);
+        }
+        
+        .root-symbol::before {
+            content: '👑';
+        }
+
+        .generation-symbol {
+            background: var(--islamic-green);
+            border: 2px solid var(--islamic-gold);
+        }
+        
+        .generation-symbol::before {
+            content: '#';
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            height: 100%;
+            text-align: center;
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.5rem;
+            color: var(--islamic-dark);
+        }
+
+        .action-content h6 {
+            color: var(--islamic-green);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .action-content p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .btn-outline-gold {
+            border-color: var(--islamic-gold);
+            color: var(--islamic-gold);
+        }
+
+        .btn-outline-gold:hover {
+            background: var(--islamic-gold);
+            color: var(--islamic-dark);
+        }
+
+        .btn-islamic-export {
+            background: var(--islamic-gold) !important;
+            color: var(--islamic-dark) !important;
+            border: none !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            padding: 8px 16px !important;
+        }
+
+        .person-modal-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--islamic-gold);
+            margin-bottom: 15px;
+        }
+
+        .person-modal-placeholder {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--islamic-dark);
+            margin: 0 auto 15px;
+        }
+
+        .node-hover {
+            transform: scale(1.05) !important;
+            z-index: 10 !important;
+        }
+
+        .fullscreen-mode .family-tree-container {
+            height: 100vh;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        /* Print styles */
+        @@media print {
+            .tree-controls,
+            .tree-legend,
+            .quick-actions {
+                display: none !important;
+            }
+            
+            .family-tree-container {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+            }
+            
+            .page-header {
+                background: white !important;
+                color: black !important;
+            }
+        }
+
+        /* Mobile responsiveness */
+        @@media (max-width: 768px) {
+            .tree-controls .btn-group {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            
+            .tree-controls .btn {
+                flex: 1;
+                margin: 2px;
+                min-width: 100px;
+                font-size: 0.9rem;
+            }
+            
+            .tree-minimap {
+                display: none !important;
+            }
+            
+            .person-modal-image,
+            .person-modal-placeholder {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+}

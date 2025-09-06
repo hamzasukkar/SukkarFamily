@@ -13,5 +13,7 @@ namespace SukkarFamily.Models
         [DataType(DataType.MultilineText)]
         public string Text { get; set; }
         public string ImgUrl { get; set; }
+        public DateTime? Date { get; set; }
+
     }
 }

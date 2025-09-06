@@ -1,40 +1,784 @@
-﻿@model SukkarFamily.Models.News
-
+@model SukkarFamily.Models.News
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "إضافة خبر جديد";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
 }
 
-<h1>Create</h1>
+<div class="create-news-page">
+    <!-- Page Header -->
+    <div class="page-header fade-in-up">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="arabic-title">
+                    <i class="fas fa-plus-circle text-gold me-3"></i>
+                    إضافة خبر جديد
+                </h1>
+                <p class="lead text-muted">أضف خبراً جديداً أو حدثاً مهماً من أخبار العائلة</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="@Url.Action("Index", "News")" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>العودة للقائمة
+                </a>
+            </div>
+        </div>
+    </div>
 
-<h4>News</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            <div class="create-form-container fade-in-up">
+                <div class="card-islamic">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-newspaper me-2"></i>
+                            تفاصيل الخبر
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Create" method="post" enctype="multipart/form-data" id="createNewsForm">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-islamic-error" role="alert"></div>
+                            
+                            <!-- News Information Section -->
+                            <div class="form-section">
+                                <h6 class="section-title">
+                                    <i class="fas fa-info-circle text-gold me-2"></i>
+                                    معلومات الخبر
+                                </h6>
+                                
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group mb-4">
+                                            <label asp-for="Title" class="form-label required">
+                                                <i class="fas fa-heading me-2 text-gold"></i>عنوان الخبر
+                                            </label>
+                                            <input asp-for="Title" class="form-control arabic-input" placeholder="أدخل عنوان الخبر باللغة العربية" required>
+                                            <span asp-validation-for="Title" class="text-danger"></span>
+                                            <div class="form-text">عنوان واضح وجذاب للخبر</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group mb-4">
+                                            <label asp-for="Text" class="form-label required">
+                                                <i class="fas fa-align-right me-2 text-gold"></i>نص الخبر
+                                            </label>
+                                            <textarea asp-for="Text" class="form-control arabic-input" rows="8" placeholder="اكتب تفاصيل الخبر هنا..." required></textarea>
+                                            <span asp-validation-for="Text" class="text-danger"></span>
+                                            <div class="form-text">اكتب محتوى الخبر بالتفصيل</div>
+                                            <div class="char-counter">
+                                                <span id="charCount">0</span> / 2000 حرف
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group mb-4">
+                                            <label for="imageFile" class="form-label">
+                                                <i class="fas fa-image me-2 text-gold"></i>صورة الخبر
+                                            </label>
+                                            <div class="image-upload-container">
+                                                <div class="upload-area" id="uploadArea">
+                                                    <div class="upload-content">
+                                                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                                        <h6>اختر صورة أو اسحبها هنا</h6>
+                                                        <p class="text-muted">PNG, JPG, GIF حتى 5MB</p>
+                                                        <input type="file" name="ImageFile" id="imageFile" class="file-input" accept="image/*">
+                                                        <button type="button" class="btn btn-gold mt-2" onclick="document.getElementById('imageFile').click()">
+                                                            <i class="fas fa-folder-open me-2"></i>اختر صورة
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Selected File Info -->
+                                                <div id="selectedFileInfo" class="selected-file-info d-none">
+                                                    <div class="file-info-content">
+                                                        <i class="fas fa-file-image text-success me-2"></i>
+                                                        <span id="fileName">اسم الملف</span>
+                                                        <span id="fileSize" class="text-muted">حجم الملف</span>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSelectedFile()">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-text">صورة توضيحية للخبر (اختياري). الحد الأقصى 5MB</div>
+                                        </div>
+                                        
+                                        <!-- Image Preview -->
+                                        <div id="imagePreview" class="image-preview d-none">
+                                            <h6 class="preview-title">معاينة الصورة:</h6>
+                                            <img id="previewImg" src="" alt="معاينة الصورة" class="preview-image">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Publishing Options -->
+                            <div class="form-section">
+                                <h6 class="section-title">
+                                    <i class="fas fa-cog text-gold me-2"></i>
+                                    خيارات النشر
+                                </h6>
+                                
+                                <div class="publishing-options">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="option-card">
+                                                <div class="option-icon">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                </div>
+                                                <div class="option-content">
+                                                    <h6>تاريخ النشر</h6>
+                                                    <p class="current-date" id="currentDate"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="option-card">
+                                                <div class="option-icon">
+                                                    <i class="fas fa-user-edit"></i>
+                                                </div>
+                                                <div class="option-content">
+                                                    <h6>الناشر</h6>
+                                                    <p>إدارة الموقع</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Section -->
+                            <div class="form-section">
+                                <div class="submit-actions">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-gold btn-lg w-100" id="submitBtn">
+                                                <i class="fas fa-save me-2"></i>نشر الخبر
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="btn-group w-100">
+                                                <button type="button" class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                                                    <i class="fas fa-redo me-2"></i>إعادة تعيين
+                                                </button>
+                                                <a href="@Url.Action("Index", "News")" class="btn btn-outline-danger btn-lg">
+                                                    <i class="fas fa-times me-2"></i>إلغاء
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Text" class="control-label"></label>
-                <textarea asp-for="Text" class="form-control"></textarea>
-                <span asp-validation-for="Text" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImgUrl" class="control-label"></label>
-                <input asp-for="ImgUrl" class="form-control" />
-                <span asp-validation-for="ImgUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            setupImagePreview();
+            setupArabicInputs();
+            setupFormValidation();
+            displayCurrentDate();
+        });
 
+        function initializeForm() {
+            // Focus on first input
+            const titleInput = document.querySelector('input[name="Title"]');
+            if (titleInput) {
+                titleInput.focus();
+            }
+
+            // Add loading state to submit button
+            const form = document.getElementById('createNewsForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            form.addEventListener('submit', function() {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>جاري النشر...';
+                submitBtn.disabled = true;
+            });
+        }
+
+        function setupImagePreview() {
+            const fileInput = document.getElementById('imageFile');
+            const uploadArea = document.getElementById('uploadArea');
+            const selectedFileInfo = document.getElementById('selectedFileInfo');
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+
+            // Handle file selection
+            fileInput.addEventListener('change', function() {
+                handleFileSelection(this.files[0]);
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type.startsWith('image/')) {
+                        fileInput.files = files;
+                        handleFileSelection(file);
+                    } else {
+                        IslamicSite.showToast('يرجى اختيار ملف صورة صحيح', 'error');
+                    }
+                }
+            });
+
+            function handleFileSelection(file) {
+                if (!file) return;
+
+                // Validate file size (5MB max)
+                const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+                if (file.size > maxSize) {
+                    IslamicSite.showToast('حجم الملف كبير جداً. الحد الأقصى 5MB', 'error');
+                    return;
+                }
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    IslamicSite.showToast('يرجى اختيار ملف صورة صحيح', 'error');
+                    return;
+                }
+
+                // Update file info display
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                
+                // Show selected file info and hide upload area
+                selectedFileInfo.classList.remove('d-none');
+                uploadArea.classList.add('d-none');
+
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.classList.remove('d-none');
+                    IslamicSite.showToast('تم اختيار الصورة بنجاح', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        }
+
+        function removeSelectedFile() {
+            const fileInput = document.getElementById('imageFile');
+            const uploadArea = document.getElementById('uploadArea');
+            const selectedFileInfo = document.getElementById('selectedFileInfo');
+            const imagePreview = document.getElementById('imagePreview');
+
+            // Clear file input
+            fileInput.value = '';
+            
+            // Reset UI
+            selectedFileInfo.classList.add('d-none');
+            uploadArea.classList.remove('d-none');
+            imagePreview.classList.add('d-none');
+            
+            IslamicSite.showToast('تم إزالة الصورة', 'info');
+        }
+
+        function setupArabicInputs() {
+            const arabicInputs = document.querySelectorAll('.arabic-input');
+            
+            arabicInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const arabicPattern = /[\u0600-\u06FF]/;
+                    if (arabicPattern.test(this.value)) {
+                        this.style.direction = 'rtl';
+                        this.style.textAlign = 'right';
+                        this.classList.add('arabic-text');
+                    } else if (this.value.trim() === '') {
+                        this.style.direction = 'rtl';
+                        this.style.textAlign = 'right';
+                    }
+                    
+                    // Update character counter for textarea
+                    if (this.tagName.toLowerCase() === 'textarea') {
+                        updateCharCounter(this);
+                    }
+                });
+
+                // Set initial RTL direction
+                input.style.direction = 'rtl';
+                input.style.textAlign = 'right';
+            });
+        }
+
+        function updateCharCounter(textarea) {
+            const charCount = document.getElementById('charCount');
+            const currentLength = textarea.value.length;
+            charCount.textContent = currentLength;
+            
+            // Change color based on length
+            if (currentLength > 1800) {
+                charCount.style.color = '#dc3545'; // Red
+            } else if (currentLength > 1500) {
+                charCount.style.color = '#fd7e14'; // Orange
+            } else {
+                charCount.style.color = '#6c757d'; // Gray
+            }
+        }
+
+        function setupFormValidation() {
+            const form = document.getElementById('createNewsForm');
+            
+            form.addEventListener('submit', function(e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                    IslamicSite.showToast('يرجى تصحيح الأخطاء في النموذج', 'error');
+                }
+            });
+        }
+
+        function validateForm() {
+            let isValid = true;
+            
+            // Validate title (required and should be Arabic)
+            const titleInput = document.querySelector('input[name="Title"]');
+            const arabicPattern = /[\u0600-\u06FF]/;
+            
+            if (!titleInput.value.trim()) {
+                showFieldError(titleInput, 'عنوان الخبر مطلوب');
+                isValid = false;
+            } else if (!arabicPattern.test(titleInput.value)) {
+                showFieldError(titleInput, 'يُفضل كتابة العنوان بالعربية');
+            } else {
+                clearFieldError(titleInput);
+            }
+            
+            // Validate text content
+            const textArea = document.querySelector('textarea[name="Text"]');
+            if (!textArea.value.trim()) {
+                showFieldError(textArea, 'نص الخبر مطلوب');
+                isValid = false;
+            } else if (textArea.value.length < 10) {
+                showFieldError(textArea, 'نص الخبر قصير جداً');
+                isValid = false;
+            } else {
+                clearFieldError(textArea);
+            }
+
+            return isValid;
+        }
+
+        function showFieldError(field, message) {
+            field.classList.add('is-invalid');
+            
+            let errorElement = field.parentNode.querySelector('.invalid-feedback');
+            if (!errorElement) {
+                errorElement = document.createElement('div');
+                errorElement.className = 'invalid-feedback';
+                field.parentNode.appendChild(errorElement);
+            }
+            errorElement.textContent = message;
+        }
+
+        function clearFieldError(field) {
+            field.classList.remove('is-invalid');
+            const errorElement = field.parentNode.querySelector('.invalid-feedback');
+            if (errorElement) {
+                errorElement.remove();
+            }
+        }
+
+        function displayCurrentDate() {
+            const dateElement = document.getElementById('currentDate');
+            const now = new Date();
+            const arabicDate = now.toLocaleDateString('ar-SA', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            dateElement.textContent = arabicDate;
+        }
+
+        function resetForm() {
+            document.getElementById('createNewsForm').reset();
+            
+            // Reset file upload UI
+            const uploadArea = document.getElementById('uploadArea');
+            const selectedFileInfo = document.getElementById('selectedFileInfo');
+            const imagePreview = document.getElementById('imagePreview');
+            
+            if (uploadArea) uploadArea.classList.remove('d-none');
+            if (selectedFileInfo) selectedFileInfo.classList.add('d-none');
+            if (imagePreview) imagePreview.classList.add('d-none');
+            
+            // Clear any validation errors
+            document.querySelectorAll('.is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+            document.querySelectorAll('.invalid-feedback').forEach(el => {
+                el.remove();
+            });
+            
+            // Reset character counter
+            const charCount = document.getElementById('charCount');
+            if (charCount) charCount.textContent = '0';
+            
+            IslamicSite.showToast('تم إعادة تعيين النموذج', 'info');
+        }
+    </script>
+
+    <style>
+        .create-news-page {
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(26, 71, 42, 0.05) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .create-form-container {
+            margin-bottom: 50px;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            color: var(--islamic-green);
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            font-family: 'Amiri', serif;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #dc3545;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+        }
+
+        .arabic-input {
+            font-family: 'Amiri', serif;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        /* Image Upload Styles */
+        .image-upload-container {
+            margin-top: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--islamic-gold);
+            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(26, 71, 42, 0.02) 100%);
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: var(--islamic-green);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(26, 71, 42, 0.05) 100%);
+            transform: translateY(-2px);
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--islamic-green);
+            background: linear-gradient(135deg, rgba(26, 71, 42, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+            transform: scale(1.02);
+        }
+
+        .upload-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--islamic-gold);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-area h6 {
+            color: var(--islamic-green);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-family: 'Amiri', serif;
+        }
+
+        .upload-area p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+        }
+
+        .selected-file-info {
+            background: white;
+            border: 2px solid var(--islamic-gold);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .file-info-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .file-info-content span {
+            margin: 0 10px;
+        }
+
+        #fileName {
+            font-weight: 600;
+            color: var(--islamic-green);
+            flex: 1;
+            text-align: right;
+        }
+
+        #fileSize {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .image-preview {
+            margin-top: 20px;
+            text-align: center;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .preview-title {
+            color: var(--islamic-green);
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-family: 'Amiri', serif;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            border: 3px solid var(--islamic-gold);
+            box-shadow: var(--shadow);
+            object-fit: contain;
+        }
+
+        .char-counter {
+            text-align: left;
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .publishing-options {
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .option-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .option-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--islamic-dark);
+            font-size: 1.2rem;
+            margin-left: 15px;
+        }
+
+        .option-content h6 {
+            margin-bottom: 5px;
+            color: var(--islamic-green);
+            font-weight: 600;
+        }
+
+        .option-content p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .submit-actions {
+            padding-top: 20px;
+            border-top: 2px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            border: none;
+            color: var(--islamic-dark);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            color: var(--islamic-dark);
+        }
+
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+
+        @@media (max-width: 768px) {
+            .page-header {
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .option-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .option-icon {
+                margin-left: 0;
+                margin-bottom: 10px;
+            }
+            
+            .submit-actions .row > div {
+                margin-bottom: 10px;
+            }
+
+            /* Mobile optimizations for file upload */
+            .upload-area {
+                padding: 30px 15px;
+            }
+
+            .upload-icon {
+                font-size: 2.5rem;
+            }
+
+            .upload-area h6 {
+                font-size: 1rem;
+            }
+
+            .upload-area p {
+                font-size: 0.85rem;
+            }
+
+            .file-info-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            #fileName {
+                text-align: center;
+            }
+
+            .preview-image {
+                max-height: 200px;
+            }
+        }
+
+        /* Animation for form elements */
+        .form-group {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

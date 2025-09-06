@@ -1,0 +1,478 @@
+@model SukkarFamily.Models.News
+@{
+    ViewData["Title"] = "تعديل الخبر";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
+}
+
+<div class="edit-news-page">
+    <!-- Page Header -->
+    <div class="page-header fade-in-up">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="arabic-title">
+                    <i class="fas fa-edit text-gold me-3"></i>
+                    تعديل الخبر
+                </h1>
+                <p class="lead text-muted">قم بتعديل معلومات الخبر وتحديث المحتوى</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="@Url.Action("Index", "News")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="row fade-in-up-delay">
+        <div class="col-lg-8 mx-auto">
+            <div class="card-islamic">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-newspaper me-2"></i>تعديل بيانات الخبر
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data" id="editNewsForm">
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.ID)
+                        
+                        <!-- News Title -->
+                        <div class="form-group mb-4">
+                            <label asp-for="Title" class="form-label required">
+                                <i class="fas fa-heading text-gold me-2"></i>عنوان الخبر
+                            </label>
+                            <input asp-for="Title" class="form-control form-control-lg arabic-input" 
+                                   placeholder="أدخل عنوان الخبر باللغة العربية..." 
+                                   maxlength="200" required>
+                            <div class="form-text">
+                                <span id="titleCounter">0</span> / 200 حرف
+                            </div>
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <!-- News Content -->
+                        <div class="form-group mb-4">
+                            <label asp-for="Text" class="form-label required">
+                                <i class="fas fa-align-right text-gold me-2"></i>محتوى الخبر
+                            </label>
+                            <textarea asp-for="Text" class="form-control arabic-input" 
+                                      rows="8" placeholder="اكتب محتوى الخبر هنا..." 
+                                      maxlength="5000" required></textarea>
+                            <div class="form-text">
+                                <span id="contentCounter">0</span> / 5000 حرف
+                            </div>
+                            <span asp-validation-for="Text" class="text-danger"></span>
+                        </div>
+
+                        <!-- Current Image Display -->
+                        @if (!string.IsNullOrEmpty(Model.ImgUrl))
+                        {
+                            <div class="form-group mb-4">
+                                <label class="form-label">الصورة الحالية</label>
+                                <div class="current-image-container">
+                                    <img src="@Model.ImgUrl" alt="الصورة الحالية" class="current-image">
+                                    <div class="image-overlay">
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="removeCurrentImage()">
+                                            <i class="fas fa-trash"></i> حذف الصورة
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Image Upload -->
+                        <div class="form-group mb-4">
+                            <label asp-for="ImgUrl" class="form-label">
+                                <i class="fas fa-image text-gold me-2"></i>صورة الخبر الجديدة (اختياري)
+                            </label>
+                            <div class="image-upload-container">
+                                <input type="file" class="form-control" id="imageUpload" 
+                                       name="imageFile" accept="image/*" onchange="previewImage(event)">
+                                <div class="upload-hint">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>اسحب الصورة هنا أو انقر للاختيار</p>
+                                    <small>الأنواع المدعومة: JPG, PNG, GIF (الحد الأقصى: 5MB)</small>
+                                </div>
+                            </div>
+                            <div id="imagePreviewContainer" class="mt-3" style="display: none;">
+                                <img id="imagePreview" class="preview-image" alt="معاينة الصورة">
+                                <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="removePreview()">
+                                    <i class="fas fa-times"></i> إزالة الصورة
+                                </button>
+                            </div>
+                            <input type="hidden" asp-for="ImgUrl" id="hiddenImageUrl">
+                        </div>
+
+                        <!-- News Date -->
+                        <div class="form-group mb-4">
+                            <label asp-for="Date" class="form-label">
+                                <i class="fas fa-calendar-alt text-gold me-2"></i>تاريخ النشر
+                            </label>
+                            <input asp-for="Date" type="datetime-local" class="form-control" 
+                                   value="@(Model.Date?.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.ToString("yyyy-MM-ddTHH:mm"))">
+                            <div class="form-text">اتركه فارغاً لاستخدام التاريخ الحالي</div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="publishImmediately" checked>
+                                        <label class="form-check-label" for="publishImmediately">
+                                            <i class="fas fa-globe me-2"></i>نشر التحديث فوراً
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <button type="button" class="btn btn-outline-secondary me-2" onclick="resetForm()">
+                                        <i class="fas fa-undo me-2"></i>إعادة تعيين
+                                    </button>
+                                    <button type="submit" class="btn btn-gold" id="submitBtn">
+                                        <i class="fas fa-save me-2"></i>حفظ التغييرات
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="col-lg-4">
+            <div class="preview-panel card-islamic sticky-top">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-eye me-2"></i>معاينة الخبر
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="preview-content">
+                        <div class="preview-image-container" id="previewImageContainer">
+                            @if (!string.IsNullOrEmpty(Model.ImgUrl))
+                            {
+                                <img src="@Model.ImgUrl" alt="معاينة" class="preview-news-image" id="previewNewsImage">
+                            }
+                        </div>
+                        <h5 class="preview-title" id="previewTitle">@Model.Title</h5>
+                        <div class="preview-meta">
+                            <i class="fas fa-calendar-alt text-gold me-1"></i>
+                            <span id="previewDate">@DateTime.Now.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("ar-SA"))</span>
+                        </div>
+                        <p class="preview-text" id="previewText">@(Model.Text?.Length > 150 ? Model.Text.Substring(0, 150) + "..." : Model.Text)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let originalImageUrl = '@Model.ImgUrl';
+
+        $(document).ready(function () {
+            // Character counters
+            updateCharacterCounters();
+            
+            // Real-time preview updates
+            $('#@Html.IdFor(m => m.Title)').on('input', updatePreview);
+            $('#@Html.IdFor(m => m.Text)').on('input', updatePreview);
+            $('#@Html.IdFor(m => m.Date)').on('input', updatePreview);
+        });
+
+        function updateCharacterCounters() {
+            const title = $('#@Html.IdFor(m => m.Title)').val() || '';
+            const content = $('#@Html.IdFor(m => m.Text)').val() || '';
+            
+            $('#titleCounter').text(title.length);
+            $('#contentCounter').text(content.length);
+            
+            $('#@Html.IdFor(m => m.Title)').on('input', function() {
+                $('#titleCounter').text($(this).val().length);
+            });
+            
+            $('#@Html.IdFor(m => m.Text)').on('input', function() {
+                $('#contentCounter').text($(this).val().length);
+            });
+        }
+
+        function updatePreview() {
+            const title = $('#@Html.IdFor(m => m.Title)').val() || 'عنوان الخبر';
+            const content = $('#@Html.IdFor(m => m.Text)').val() || '';
+            const date = $('#@Html.IdFor(m => m.Date)').val();
+            
+            $('#previewTitle').text(title);
+            
+            if (content) {
+                const excerpt = content.length > 150 ? content.substring(0, 150) + '...' : content;
+                $('#previewText').text(excerpt);
+            }
+            
+            if (date) {
+                const dateObj = new Date(date);
+                const formattedDate = dateObj.toLocaleDateString('ar-SA', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                $('#previewDate').text(formattedDate);
+            }
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('حجم الصورة كبير جداً. الحد الأقصى 5 ميجابايت');
+                    event.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagePreview').attr('src', e.target.result);
+                    $('#imagePreviewContainer').show();
+                    
+                    // Update preview panel
+                    $('#previewNewsImage').attr('src', e.target.result);
+                    $('#previewImageContainer').show();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removePreview() {
+            $('#imageUpload').val('');
+            $('#imagePreviewContainer').hide();
+            
+            // Restore original image in preview
+            if (originalImageUrl) {
+                $('#previewNewsImage').attr('src', originalImageUrl);
+            } else {
+                $('#previewImageContainer').hide();
+            }
+        }
+
+        function removeCurrentImage() {
+            if (confirm('هل أنت متأكد من حذف الصورة الحالية؟')) {
+                $('.current-image-container').hide();
+                $('#hiddenImageUrl').val('');
+                $('#previewImageContainer').hide();
+                originalImageUrl = '';
+            }
+        }
+
+        function resetForm() {
+            if (confirm('هل أنت متأكد من إعادة تعيين النموذج؟ ستفقد جميع التغييرات غير المحفوظة.')) {
+                document.getElementById('editNewsForm').reset();
+                $('#imagePreviewContainer').hide();
+                updateCharacterCounters();
+                updatePreview();
+            }
+        }
+
+        // Form validation
+        $('#editNewsForm').on('submit', function(e) {
+            const title = $('#@Html.IdFor(m => m.Title)').val().trim();
+            const content = $('#@Html.IdFor(m => m.Text)').val().trim();
+            
+            if (!title || !content) {
+                e.preventDefault();
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return false;
+            }
+            
+            // Show loading state
+            $('#submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>جاري الحفظ...');
+        });
+
+        // Drag and drop functionality
+        const uploadContainer = $('.image-upload-container');
+        
+        uploadContainer.on('dragover', function(e) {
+            e.preventDefault();
+            $(this).addClass('drag-over');
+        });
+        
+        uploadContainer.on('dragleave', function(e) {
+            e.preventDefault();
+            $(this).removeClass('drag-over');
+        });
+        
+        uploadContainer.on('drop', function(e) {
+            e.preventDefault();
+            $(this).removeClass('drag-over');
+            
+            const files = e.originalEvent.dataTransfer.files;
+            if (files.length > 0) {
+                $('#imageUpload')[0].files = files;
+                previewImage({ target: { files: files } });
+            }
+        });
+    </script>
+    
+    <style>
+        .edit-news-page {
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(26, 71, 42, 0.05) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .arabic-input {
+            direction: rtl;
+            text-align: right;
+            font-family: 'Amiri', serif;
+        }
+
+        .required::after {
+            content: '*';
+            color: #dc3545;
+            margin-right: 5px;
+        }
+
+        .current-image-container {
+            position: relative;
+            display: inline-block;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .current-image {
+            max-width: 200px;
+            max-height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .current-image-container:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .image-upload-container {
+            border: 2px dashed rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background: rgba(212, 175, 55, 0.02);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .image-upload-container:hover,
+        .image-upload-container.drag-over {
+            border-color: var(--islamic-gold);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .upload-hint {
+            color: #6c757d;
+        }
+
+        .upload-hint i {
+            font-size: 2rem;
+            color: var(--islamic-gold);
+            margin-bottom: 10px;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .preview-panel {
+            top: 100px;
+        }
+
+        .preview-content {
+            text-align: center;
+        }
+
+        .preview-image-container {
+            margin-bottom: 15px;
+        }
+
+        .preview-news-image {
+            width: 100%;
+            max-height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .preview-title {
+            color: var(--islamic-green);
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .preview-meta {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .preview-text {
+            color: #495057;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .form-actions {
+            background: rgba(212, 175, 55, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        @@media (max-width: 992px) {
+            .preview-panel {
+                position: static !important;
+                margin-top: 30px;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .page-header {
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .page-header .col-md-4 {
+                margin-top: 20px;
+            }
+            
+            .form-actions .row {
+                flex-direction: column-reverse;
+                gap: 15px;
+            }
+        }
+    </style>
+}

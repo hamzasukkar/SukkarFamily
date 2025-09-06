@@ -1,0 +1,428 @@
+@model SukkarFamily.Models.News
+@{
+    ViewData["Title"] = "حذف الخبر";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
+}
+
+<div class="delete-news-page">
+    <!-- Page Header -->
+    <div class="page-header fade-in-up">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="arabic-title text-danger">
+                    <i class="fas fa-exclamation-triangle text-danger me-3"></i>
+                    حذف الخبر
+                </h1>
+                <p class="lead text-muted">تأكيد حذف الخبر نهائياً من النظام</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="@Url.Action("Index", "News")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Message -->
+    <div class="alert alert-danger fade-in-up-delay" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+            <div>
+                <h5 class="alert-heading mb-1">تحذير هام!</h5>
+                <p class="mb-0">هذا الإجراء لا يمكن التراجع عنه. سيتم حذف الخبر نهائياً من قاعدة البيانات.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- News Preview for Deletion -->
+    <div class="row fade-in-up-delay">
+        <div class="col-lg-8 mx-auto">
+            <div class="deletion-preview-card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-newspaper me-2"></i>الخبر المراد حذفه
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- News Preview -->
+                    <div class="news-preview">
+                        <!-- News Image -->
+                        @if (!string.IsNullOrEmpty(Model.ImgUrl))
+                        {
+                            <div class="preview-image-section mb-4">
+                                <img src="@Model.ImgUrl" alt="@Model.Title" class="preview-image">
+                                <div class="deletion-overlay">
+                                    <i class="fas fa-trash fa-3x text-white"></i>
+                                    <p class="text-white mt-2 mb-0">سيتم حذف هذه الصورة</p>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- News Details -->
+                        <div class="news-details">
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-heading text-danger me-2"></i>العنوان:
+                                </span>
+                                <span class="detail-value">@Html.DisplayFor(model => model.Title)</span>
+                            </div>
+
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-calendar-alt text-danger me-2"></i>تاريخ النشر:
+                                </span>
+                                <span class="detail-value">
+                                    @{
+                                        var publishDate = Model.Date ?? DateTime.Now;
+                                    }
+                                    @publishDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("ar-SA"))
+                                </span>
+                            </div>
+
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-align-right text-danger me-2"></i>المحتوى:
+                                </span>
+                                <div class="detail-value content-preview">
+                                    @{
+                                        var contentPreview = Model.Text?.Length > 200 ? Model.Text.Substring(0, 200) + "..." : Model.Text;
+                                    }
+                                    @contentPreview
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.ImgUrl))
+                            {
+                                <div class="detail-row">
+                                    <span class="detail-label">
+                                        <i class="fas fa-image text-danger me-2"></i>الصورة:
+                                    </span>
+                                    <span class="detail-value">@Model.ImgUrl</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Deletion Impact -->
+                    <div class="deletion-impact mt-4">
+                        <h6 class="text-danger">
+                            <i class="fas fa-info-circle me-2"></i>تأثير عملية الحذف:
+                        </h6>
+                        <ul class="impact-list">
+                            <li><i class="fas fa-minus-circle text-danger me-2"></i>سيتم حذف محتوى الخبر نهائياً</li>
+                            @if (!string.IsNullOrEmpty(Model.ImgUrl))
+                            {
+                                <li><i class="fas fa-minus-circle text-danger me-2"></i>سيتم حذف الصورة المرفقة</li>
+                            }
+                            <li><i class="fas fa-minus-circle text-danger me-2"></i>لن يظهر الخبر في قائمة الأخبار</li>
+                            <li><i class="fas fa-minus-circle text-danger me-2"></i>لا يمكن استرداد البيانات بعد الحذف</li>
+                        </ul>
+                    </div>
+
+                    <!-- Confirmation Form -->
+                    <div class="confirmation-section mt-4">
+                        <div class="confirmation-checkbox">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirmDeletion" required>
+                                <label class="form-check-label fw-bold text-danger" for="confirmDeletion">
+                                    أتفهم أن هذا الإجراء نهائي ولا يمكن التراجع عنه
+                                </label>
+                            </div>
+                        </div>
+
+                        <form asp-action="Delete" method="post" class="deletion-form" id="deleteForm">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.ID)
+                            
+                            <div class="form-actions">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="countdown-container" id="countdownContainer">
+                                            <span class="countdown-text">يمكنك المتابعة خلال: </span>
+                                            <span class="countdown-timer" id="countdownTimer">10</span>
+                                            <span class="countdown-text"> ثواني</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <a href="@Url.Action("Details", "News", new { id = Model.ID })" class="btn btn-outline-secondary me-2">
+                                            <i class="fas fa-eye me-2"></i>عرض التفاصيل
+                                        </a>
+                                        <button type="submit" class="btn btn-danger" id="deleteButton" disabled>
+                                            <i class="fas fa-trash me-2"></i>حذف نهائي
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alternative Actions -->
+    <div class="alternative-actions fade-in-up mt-5">
+        <div class="card-islamic">
+            <div class="card-body text-center">
+                <h5 class="text-muted mb-3">
+                    <i class="fas fa-lightbulb me-2"></i>بدائل أخرى
+                </h5>
+                <p class="text-muted mb-4">بدلاً من الحذف النهائي، يمكنك:</p>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <a href="@Url.Action("Edit", "News", new { id = Model.ID })" class="btn btn-outline-gold w-100">
+                            <i class="fas fa-edit me-2"></i>تعديل الخبر
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-outline-secondary w-100" onclick="archiveNews()">
+                            <i class="fas fa-archive me-2"></i>أرشفة الخبر
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="@Url.Action("Details", "News", new { id = Model.ID })" class="btn btn-outline-info w-100">
+                            <i class="fas fa-eye me-2"></i>مراجعة الخبر
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let countdownTimer;
+        let timeLeft = 10;
+
+        $(document).ready(function() {
+            startCountdown();
+            
+            // Enable delete button only when checkbox is checked and countdown finished
+            $('#confirmDeletion').on('change', function() {
+                checkCanDelete();
+            });
+        });
+
+        function startCountdown() {
+            countdownTimer = setInterval(function() {
+                $('#countdownTimer').text(timeLeft);
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(countdownTimer);
+                    $('#countdownContainer').html('<i class="fas fa-check text-success me-2"></i>يمكنك الآن المتابعة');
+                    checkCanDelete();
+                }
+            }, 1000);
+        }
+
+        function checkCanDelete() {
+            const isChecked = $('#confirmDeletion').is(':checked');
+            const isCountdownFinished = timeLeft < 0;
+            
+            $('#deleteButton').prop('disabled', !(isChecked && isCountdownFinished));
+        }
+
+        $('#deleteForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            // Final confirmation
+            if (!confirm('هل أنت متأكد تماماً من حذف هذا الخبر نهائياً؟\nلا يمكن التراجع عن هذا الإجراء!')) {
+                return false;
+            }
+            
+            // Show loading state
+            $('#deleteButton').prop('disabled', true)
+                              .html('<i class="fas fa-spinner fa-spin me-2"></i>جاري الحذف...');
+            
+            // Submit form after a brief delay
+            setTimeout(() => {
+                this.submit();
+            }, 1000);
+        });
+
+        function archiveNews() {
+            alert('ميزة الأرشفة ستتوفر قريباً. يمكنك تعديل الخبر بدلاً من حذفه.');
+        }
+
+        // Prevent accidental page refresh
+        window.addEventListener('beforeunload', function(e) {
+            if ($('#confirmDeletion').is(':checked')) {
+                const message = 'لديك عملية حذف معلقة. هل أنت متأكد من مغادرة الصفحة؟';
+                e.returnValue = message;
+                return message;
+            }
+        });
+    </script>
+    
+    <style>
+        .delete-news-page {
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(108, 117, 125, 0.05) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .deletion-preview-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .preview-image-section {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            opacity: 0.7;
+        }
+
+        .deletion-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(220, 53, 69, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .news-details {
+            background: rgba(248, 249, 250, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px dashed rgba(220, 53, 69, 0.3);
+        }
+
+        .detail-row {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #dc3545;
+            display: inline-block;
+            width: 100px;
+            vertical-align: top;
+        }
+
+        .detail-value {
+            color: #495057;
+            font-family: 'Amiri', serif;
+        }
+
+        .content-preview {
+            line-height: 1.6;
+            text-align: justify;
+            margin-top: 5px;
+        }
+
+        .deletion-impact {
+            background: rgba(220, 53, 69, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border-right: 4px solid #dc3545;
+        }
+
+        .impact-list {
+            margin-bottom: 0;
+            padding-right: 0;
+        }
+
+        .impact-list li {
+            list-style: none;
+            margin-bottom: 8px;
+        }
+
+        .confirmation-section {
+            background: rgba(255, 193, 7, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .confirmation-checkbox {
+            margin-bottom: 20px;
+        }
+
+        .countdown-container {
+            background: rgba(220, 53, 69, 0.1);
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .countdown-timer {
+            font-weight: bold;
+            color: #dc3545;
+            font-size: 1.2rem;
+        }
+
+        .countdown-text {
+            color: #6c757d;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+        }
+
+        .alternative-actions {
+            opacity: 0.9;
+        }
+
+        .btn-outline-gold {
+            border-color: var(--islamic-gold);
+            color: var(--islamic-gold);
+        }
+
+        .btn-outline-gold:hover {
+            background: var(--islamic-gold);
+            color: var(--islamic-dark);
+        }
+
+        @@media (max-width: 768px) {
+            .page-header {
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .page-header .col-md-4 {
+                margin-top: 20px;
+            }
+            
+            .detail-label {
+                width: 100%;
+                display: block;
+                margin-bottom: 5px;
+            }
+            
+            .form-actions .row {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+}

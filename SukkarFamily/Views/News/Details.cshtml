@@ -1,0 +1,320 @@
+@model SukkarFamily.Models.News
+@{
+    ViewData["Title"] = "تفاصيل الخبر";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
+}
+
+<div class="news-details-page">
+    <!-- Page Header -->
+    <div class="page-header fade-in-up">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="arabic-title">
+                    <i class="fas fa-newspaper text-gold me-3"></i>
+                    @Html.DisplayFor(model => model.Title)
+                </h1>
+                <p class="lead text-muted">تفاصيل الخبر الكاملة</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="btn-group" role="group">
+                    <a href="@Url.Action("Edit", "News", new { id = Model.ID })" class="btn btn-outline-gold">
+                        <i class="fas fa-edit me-2"></i>تعديل
+                    </a>
+                    <button type="button" class="btn btn-outline-danger" onclick="confirmDelete(@Model.ID)">
+                        <i class="fas fa-trash me-2"></i>حذف
+                    </button>
+                    <a href="@Url.Action("Index", "News")" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- News Content -->
+    <div class="row fade-in-up-delay">
+        <div class="col-12">
+            <article class="news-article card-islamic">
+                <!-- News Meta Information -->
+                <div class="news-meta-section">
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-6">
+                            <div class="news-meta-item">
+                                <i class="fas fa-calendar-alt text-gold me-2"></i>
+                                <span class="news-date">
+                                    @{
+                                        var publishDate = Model.Date ?? DateTime.Now;
+                                    }
+                                    @publishDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("ar-SA"))
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="news-category-badge-large">
+                                <i class="fas fa-star-and-crescent me-2"></i>
+                                أخبار عائلة سكر
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- News Image -->
+                @if (!string.IsNullOrEmpty(Model.ImgUrl))
+                {
+                    <div class="news-image-section mb-4">
+                        <img src="@Model.ImgUrl" alt="@Model.Title" class="img-fluid rounded news-main-image">
+                    </div>
+                }
+
+                <!-- News Content -->
+                <div class="news-content-section">
+                    <div class="news-text">
+                        @Html.Raw(Model.Text?.Replace("\n", "<br>"))
+                    </div>
+                </div>
+
+                <!-- Social Sharing (Optional) -->
+                <div class="news-sharing-section mt-4">
+                    <div class="islamic-divider mb-3"></div>
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h6 class="text-muted mb-0">
+                                <i class="fas fa-share-alt me-2"></i>شارك هذا الخبر مع العائلة
+                            </h6>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard()" title="نسخ الرابط">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printNews()" title="طباعة">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <!-- Related News (if any) -->
+    <div class="related-news-section mt-5 fade-in-up">
+        <h3 class="section-title mb-4">
+            <i class="fas fa-newspaper text-gold me-2"></i>أخبار أخرى قد تهمك
+        </h3>
+        <div class="row">
+            <!-- This would be populated with related news items -->
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title">خبر ذو صلة</h6>
+                        <p class="card-text text-muted small">سيتم عرض الأخبار ذات الصلة هنا...</p>
+                        <a href="#" class="btn btn-sm btn-outline-gold">اقرأ المزيد</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>تأكيد حذف الخبر
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-trash text-danger mb-3" style="font-size: 3rem;"></i>
+                <h4>هل أنت متأكد من حذف هذا الخبر؟</h4>
+                <p class="text-muted">لا يمكن التراجع عن هذا الإجراء</p>
+                <div class="alert alert-warning mt-3">
+                    <small><i class="fas fa-info-circle me-1"></i>سيتم حذف الخبر نهائياً من النظام</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>إلغاء
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-2"></i>حذف نهائي
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let newsIdToDelete = null;
+
+        function confirmDelete(newsId) {
+            newsIdToDelete = newsId;
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (newsIdToDelete) {
+                // Create a form and submit it for deletion
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("Delete", "News")' + '/' + newsIdToDelete;
+                
+                // Add anti-forgery token
+                const token = document.createElement('input');
+                token.type = 'hidden';
+                token.name = '__RequestVerificationToken';
+                token.value = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                form.appendChild(token);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                // Show success message
+                const toast = document.createElement('div');
+                toast.className = 'alert alert-success position-fixed';
+                toast.style.cssText = 'top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;';
+                toast.innerHTML = '<i class="fas fa-check me-2"></i>تم نسخ الرابط بنجاح';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }).catch(function() {
+                alert('فشل في نسخ الرابط');
+            });
+        }
+
+        function printNews() {
+            window.print();
+        }
+
+        // Smooth scrolling for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        .news-details-page {
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(26, 71, 42, 0.05) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .news-article {
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .news-meta-section {
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .news-meta-item {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .news-category-badge-large {
+            background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-dark) 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .news-main-image {
+            max-height: 400px;
+            width: 100%;
+            object-fit: cover;
+            box-shadow: var(--shadow);
+        }
+
+        .news-content-section {
+            margin: 30px 0;
+        }
+
+        .news-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #495057;
+            text-align: justify;
+            font-family: 'Amiri', serif;
+        }
+
+        .news-sharing-section {
+            background: rgba(212, 175, 55, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .related-news-section .card {
+            transition: transform 0.3s ease;
+        }
+
+        .related-news-section .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .section-title {
+            color: var(--islamic-green);
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+        }
+
+        @@media print {
+            .btn, .btn-group, .news-sharing-section, .related-news-section {
+                display: none !important;
+            }
+            
+            .page-header {
+                background: none !important;
+                border: none !important;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .page-header {
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .page-header .col-md-4 {
+                margin-top: 20px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+}

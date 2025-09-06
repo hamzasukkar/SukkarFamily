@@ -1,47 +1,353 @@
-﻿@model IEnumerable<SukkarFamily.Models.News>
-
+@model IEnumerable<SukkarFamily.Models.News>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "أخبار العائلة";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
 }
 
-<h1>Index</h1>
+<div class="news-page">
+    <!-- Page Header -->
+    <div class="page-header fade-in-up">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="arabic-title">
+                    <i class="fas fa-newspaper text-gold me-3"></i>
+                    أخبار عائلة سكر
+                </h1>
+                <p class="lead text-muted">آخر المستجدات والأحداث المهمة في تاريخ العائلة</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="@Url.Action("Create", "News")" class="btn btn-gold">
+                    <i class="fas fa-plus me-2"></i>إضافة خبر جديد
+                </a>
+            </div>
+        </div>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Text)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImgUrl)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Text)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImgUrl)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
-        </tr>
+    <!-- News Grid -->
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var news in Model)
+            {
+                <div class="col-lg-6 col-xl-4 mb-4 fade-in-up">
+                    <article class="news-card h-100">
+                        <!-- News Image -->
+                        <div class="news-image-container">
+                            @if (!string.IsNullOrEmpty(news.ImgUrl))
+                            {
+                                <img src="@news.ImgUrl" alt="@news.Title" class="card-img-top news-image">
+                            }
+                            else
+                            {
+                                <div class="news-placeholder-image">
+                                    <i class="fas fa-newspaper text-muted"></i>
+                                </div>
+                            }
+                            <div class="news-category-badge">
+                                <i class="fas fa-star-and-crescent me-1"></i>
+                                أخبار العائلة
+                            </div>
+                        </div>
+
+                        <!-- News Content -->
+                        <div class="card-body d-flex flex-column">
+                            <div class="news-meta mb-2">
+                                <span class="news-date">
+                                    <i class="fas fa-calendar-alt text-gold me-1"></i>
+                                    @((news.Date ?? DateTime.Now).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("ar-SA")))
+                                </span>
+                            </div>
+
+                            <h5 class="card-title news-title">
+                                <a href="@Url.Action("Details", "News", new { id = news.ID })" class="text-decoration-none">
+                                    @Html.DisplayFor(modelItem => news.Title)
+                                </a>
+                            </h5>
+
+                            <p class="card-text news-excerpt flex-grow-1">
+                                @{
+                                    var excerpt = news.Text?.Length > 150 ? news.Text.Substring(0, 150) + "..." : news.Text;
+                                }
+                                @excerpt
+                            </p>
+
+                            <!-- News Actions -->
+                            <div class="news-actions mt-auto">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <a href="@Url.Action("Details", "News", new { id = news.ID })" class="btn btn-outline-gold btn-sm">
+                                            <i class="fas fa-eye me-1"></i>اقرأ المزيد
+                                        </a>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="btn-group" role="group">
+                                            <a href="@Url.Action("Edit", "News", new { id = news.ID })" class="btn btn-sm btn-outline-secondary" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete(@news.ID)" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            }
+        }
+        else
+        {
+            <!-- Empty State -->
+            <div class="col-12">
+                <div class="empty-state text-center py-5 fade-in-up">
+                    <div class="card-islamic">
+                        <div class="card-body py-5">
+                            <i class="fas fa-newspaper text-muted mb-4" style="font-size: 4rem;"></i>
+                            <h3 class="text-muted mb-3">لا توجد أخبار حاليًا</h3>
+                            <p class="text-muted mb-4">
+                                لم يتم نشر أي أخبار بعد. كن أول من يشارك أخبار العائلة!
+                            </p>
+                            <a href="@Url.Action("Create", "News")" class="btn btn-gold btn-lg">
+                                <i class="fas fa-plus me-2"></i>أضف أول خبر
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination (if needed) -->
+    @if (Model != null && Model.Count() > 6)
+    {
+        <nav aria-label="صفحات الأخبار" class="mt-5 fade-in-up">
+            <ul class="pagination justify-content-center">
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="السابق">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="التالي">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>تأكيد الحذف
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-trash text-danger mb-3" style="font-size: 3rem;"></i>
+                <h4>هل أنت متأكد؟</h4>
+                <p class="text-muted">لا يمكن التراجع عن هذا الإجراء</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>إلغاء
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-2"></i>حذف نهائي
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let newsIdToDelete = null;
+
+        function confirmDelete(newsId) {
+            newsIdToDelete = newsId;
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (newsIdToDelete) {
+                // Create a form and submit it for deletion
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("Delete", "News")' + '/' + newsIdToDelete;
+                
+                // Add anti-forgery token
+                const token = document.createElement('input');
+                token.type = 'hidden';
+                token.name = '__RequestVerificationToken';
+                token.value = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                form.appendChild(token);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+
+        // Lazy loading for images
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('.news-image');
+            
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.classList.add('loaded');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+
+            images.forEach(img => {
+                imageObserver.observe(img);
+            });
+        });
+    </script>
+    
+    <style>
+        .news-page {
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(26, 71, 42, 0.05) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .news-image-container {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .news-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .news-card:hover .news-image {
+            transform: scale(1.05);
+        }
+
+        .news-placeholder-image {
+            height: 100%;
+            background: linear-gradient(135deg, var(--islamic-cream) 0%, #f8f9fa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .news-category-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(26, 71, 42, 0.9);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .news-meta {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .news-title a {
+            color: var(--islamic-green);
+            font-weight: 700;
+            font-family: 'Amiri', serif;
+        }
+
+        .news-title a:hover {
+            color: var(--islamic-gold);
+        }
+
+        .news-excerpt {
+            color: #495057;
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        .btn-outline-gold {
+            border-color: var(--islamic-gold);
+            color: var(--islamic-gold);
+        }
+
+        .btn-outline-gold:hover {
+            background: var(--islamic-gold);
+            color: var(--islamic-dark);
+        }
+
+        .empty-state .card-islamic {
+            border: 2px dashed rgba(212, 175, 55, 0.3);
+            background: transparent;
+        }
+
+        .pagination .page-link {
+            color: var(--islamic-green);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .pagination .page-link:hover {
+            background: var(--islamic-gold);
+            border-color: var(--islamic-gold);
+            color: var(--islamic-dark);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--islamic-green);
+            border-color: var(--islamic-green);
+        }
+
+        @@media (max-width: 768px) {
+            .page-header {
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .page-header .col-md-4 {
+                margin-top: 20px;
+            }
+            
+            .news-actions .row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
 }
-    </tbody>
-</table>

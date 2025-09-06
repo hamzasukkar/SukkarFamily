@@ -118,6 +118,63 @@
                                 </div>
                             </div>
 
+                            <!-- Creation Mode Section -->
+                            <div class="form-section">
+                                <h6 class="section-title">
+                                    <i class="fas fa-cog text-gold me-2"></i>
+                                    نوع الإضافة
+                                </h6>
+                                
+                                <div class="creation-mode-selector mb-4">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="creationMode" id="singleMode" value="single" checked>
+                                        <label class="form-check-label" for="singleMode">
+                                            <i class="fas fa-user me-2"></i>إضافة فرد واحد
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="creationMode" id="multipleMode" value="multiple">
+                                        <label class="form-check-label" for="multipleMode">
+                                            <i class="fas fa-users me-2"></i>إضافة أطفال متعددين
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Single Person Section -->
+                            <div id="singlePersonSection" class="form-section">
+                                <h6 class="section-title">
+                                    <i class="fas fa-user-edit text-gold me-2"></i>
+                                    معلومات الفرد
+                                </h6>
+                                
+                                <div class="single-person-form">
+                                    <!-- This will contain the original single person form -->
+                                </div>
+                            </div>
+
+                            <!-- Multiple Children Section -->
+                            <div id="multipleChildrenSection" class="form-section d-none">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="section-title mb-0">
+                                        <i class="fas fa-baby text-gold me-2"></i>
+                                        معلومات الأطفال
+                                    </h6>
+                                    <div class="children-controls">
+                                        <button type="button" id="addChildBtn" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-plus me-1"></i>إضافة طفل
+                                        </button>
+                                        <button type="button" id="removeChildBtn" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-minus me-1"></i>إزالة آخر طفل
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div id="childrenContainer">
+                                    <!-- Children forms will be added dynamically -->
+                                </div>
+                            </div>
+
                             <!-- Family Relations Section -->
                             <div class="form-section">
                                 <h6 class="section-title">
@@ -241,6 +298,8 @@
             setupImagePreview();
             setupArabicInputs();
             setupFormValidation();
+            setupCreationModeToggle();
+            setupMultipleChildrenFunctionality();
         });
 
         function initializeForm() {
@@ -398,6 +457,165 @@
                     // You could fetch and display parent details here
                     console.log('تم اختيار الوالد:', selectedOption.text);
                 }
+            });
+        }
+
+        // Creation Mode Toggle
+        function setupCreationModeToggle() {
+            const singleModeRadio = document.getElementById('singleMode');
+            const multipleModeRadio = document.getElementById('multipleMode');
+            const singleSection = document.getElementById('singlePersonSection');
+            const multipleSection = document.getElementById('multipleChildrenSection');
+
+            singleModeRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    singleSection.classList.remove('d-none');
+                    multipleSection.classList.add('d-none');
+                    // Clear multiple children data
+                    document.getElementById('childrenContainer').innerHTML = '';
+                }
+            });
+
+            multipleModeRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    singleSection.classList.add('d-none');
+                    multipleSection.classList.remove('d-none');
+                    // Clear single person data
+                    const singleInputs = singleSection.querySelectorAll('input:not([type="hidden"])');
+                    singleInputs.forEach(input => input.value = '');
+                    // Initialize with first child
+                    if (document.getElementById('childrenContainer').children.length === 0) {
+                        addChild();
+                    }
+                }
+            });
+        }
+
+        // Multiple Children Functionality
+        let childCounter = 0;
+
+        function setupMultipleChildrenFunctionality() {
+            document.getElementById('addChildBtn').addEventListener('click', addChild);
+            document.getElementById('removeChildBtn').addEventListener('click', removeLastChild);
+        }
+
+        function addChild() {
+            const container = document.getElementById('childrenContainer');
+            const childDiv = document.createElement('div');
+            childDiv.className = 'child-form-group';
+            childDiv.setAttribute('data-child-index', childCounter);
+            
+            childDiv.innerHTML = `
+                <div class="child-header">
+                    <h6 class="child-title">
+                        <i class="fas fa-child text-gold me-2"></i>الطفل رقم <span class="child-number">${childCounter + 1}</span>
+                    </h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-child-btn" onclick="removeChild(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label required">
+                                <i class="fas fa-user me-2 text-gold"></i>الاسم الكامل
+                            </label>
+                            <input name="ChildNames" class="form-control arabic-input" placeholder="أدخل اسم الطفل" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-crown me-2 text-gold"></i>اللقب أو الكنية
+                            </label>
+                            <input name="ChildTitles" class="form-control arabic-input" placeholder="مثال: أبو أحمد">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-globe me-2 text-gold"></i>البلد
+                            </label>
+                            <input name="ChildCountries" class="form-control arabic-input" placeholder="البلد">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-image me-2 text-gold"></i>رابط الصورة
+                            </label>
+                            <input name="ChildImages" class="form-control" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(childDiv);
+            childCounter++;
+            updateChildNumbers();
+            
+            // Setup Arabic inputs for new child
+            setupArabicInputsForElement(childDiv);
+            
+            // Focus on name input
+            const nameInput = childDiv.querySelector('input[name="ChildNames"]');
+            if (nameInput) nameInput.focus();
+        }
+
+        function removeChild(button) {
+            const childDiv = button.closest('.child-form-group');
+            if (document.querySelectorAll('.child-form-group').length > 1) {
+                childDiv.remove();
+                updateChildNumbers();
+            } else {
+                alert('يجب أن يكون هناك طفل واحد على الأقل');
+            }
+        }
+
+        function removeLastChild() {
+            const children = document.querySelectorAll('.child-form-group');
+            if (children.length > 1) {
+                children[children.length - 1].remove();
+                updateChildNumbers();
+            } else {
+                alert('يجب أن يكون هناك طفل واحد على الأقل');
+            }
+        }
+
+        function updateChildNumbers() {
+            const children = document.querySelectorAll('.child-form-group');
+            children.forEach((child, index) => {
+                const numberSpan = child.querySelector('.child-number');
+                if (numberSpan) {
+                    numberSpan.textContent = index + 1;
+                }
+                child.setAttribute('data-child-index', index);
+            });
+        }
+
+        function setupArabicInputsForElement(element) {
+            const arabicInputs = element.querySelectorAll('.arabic-input');
+            
+            arabicInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const arabicPattern = /[\u0600-\u06FF]/;
+                    if (arabicPattern.test(this.value)) {
+                        this.style.direction = 'rtl';
+                        this.style.textAlign = 'right';
+                        this.classList.add('arabic-text');
+                    } else if (this.value.trim() === '') {
+                        this.style.direction = 'rtl';
+                        this.style.textAlign = 'right';
+                    }
+                });
+
+                // Set initial RTL direction
+                input.style.direction = 'rtl';
+                input.style.textAlign = 'right';
             });
         }
     </script>
@@ -607,6 +825,67 @@
             }
         }
 
+        /* Creation Mode Selector */
+        .creation-mode-selector {
+            background: rgba(26, 71, 42, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--islamic-gold);
+            border-color: var(--islamic-gold);
+        }
+
+        .form-check-label {
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Multiple Children Styles */
+        .children-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .child-form-group {
+            background: rgba(26, 71, 42, 0.02);
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: slideInUp 0.5s ease-out;
+            position: relative;
+        }
+
+        .child-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .child-title {
+            color: var(--islamic-green);
+            font-weight: 700;
+            margin: 0;
+            font-family: 'Amiri', serif;
+            flex-grow: 1;
+        }
+
+        .remove-child-btn {
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
         /* Animation for form elements */
         .form-group {
             animation: fadeInUp 0.6s ease-out;
@@ -616,6 +895,17 @@
             from {
                 opacity: 0;
                 transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;

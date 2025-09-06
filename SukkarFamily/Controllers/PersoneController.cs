@@ -107,39 +107,100 @@ namespace SukkarFamily.Controllers
         {
             try
             {
-                Persone persone = new Persone();
+                var createdPersons = new List<Persone>();
 
-                persone.name = collection["name"];
-                persone.title = collection["title"];
-                persone.image = collection["image"];
-                persone.Country = collection["Country"];
-                
-                // Handle parent selection
-                if (!string.IsNullOrEmpty(collection["Parent"]) && int.TryParse(collection["Parent"], out int parentId))
+                // Check if this is multiple children submission
+                var childNames = collection["ChildNames"].ToList();
+                var childTitles = collection["ChildTitles"].ToList();
+                var childImages = collection["ChildImages"].ToList();
+                var childCountries = collection["ChildCountries"].ToList();
+
+                if (childNames.Any() && childNames.Any(name => !string.IsNullOrWhiteSpace(name)))
                 {
-                    // Regular family member with parent
-                    var parent = db.persones.Where(x => x.Id == parentId).FirstOrDefault();
-                    if (parent != null)
+                    // Multiple children creation
+                    Persone parent = null;
+                    
+                    // Handle parent selection
+                    if (!string.IsNullOrEmpty(collection["Parent"]) && int.TryParse(collection["Parent"], out int parentId))
                     {
-                        persone.Parent = parent;
-                        persone.Generation = parent.Generation + 1;
+                        parent = db.persones.Where(x => x.Id == parentId).FirstOrDefault();
+                    }
+
+                    if (parent == null)
+                    {
+                        ModelState.AddModelError("", "يجب اختيار الوالد لإضافة أطفال متعددين.");
+                        ViewBag.GetParents = db.persones.ToList();
+                        return View();
+                    }
+
+                    // Create children
+                    for (int i = 0; i < childNames.Count; i++)
+                    {
+                        if (string.IsNullOrWhiteSpace(childNames[i]))
+                            continue;
+
+                        var child = new Persone
+                        {
+                            name = childNames[i],
+                            title = i < childTitles.Count ? childTitles[i] : null,
+                            image = i < childImages.Count ? childImages[i] : null,
+                            Country = i < childCountries.Count ? childCountries[i] : null,
+                            Parent = parent,
+                            Generation = parent.Generation + 1
+                        };
+
+                        db.persones.Add(child);
+                        createdPersons.Add(child);
+                    }
+
+                    if (createdPersons.Count > 0)
+                    {
+                        db.SaveChanges();
+                        TempData["SuccessMessage"] = $"تم إضافة {createdPersons.Count} أطفال بنجاح للوالد {parent.name}";
                     }
                     else
                     {
-                        // Fallback if parent not found
-                        persone.Parent = null;
-                        persone.Generation = 1;
+                        TempData["ErrorMessage"] = "لم يتم إضافة أي أطفال. يرجى إدخال أسماء صحيحة.";
                     }
                 }
                 else
                 {
-                    // Root person (no parent) - this is the family patriarch/matriarch
-                    persone.Parent = null;
-                    persone.Generation = 1;
+                    // Single person creation (original logic)
+                    Persone persone = new Persone();
+
+                    persone.name = collection["name"];
+                    persone.title = collection["title"];
+                    persone.image = collection["image"];
+                    persone.Country = collection["Country"];
+                    
+                    // Handle parent selection
+                    if (!string.IsNullOrEmpty(collection["Parent"]) && int.TryParse(collection["Parent"], out int parentId))
+                    {
+                        // Regular family member with parent
+                        var parent = db.persones.Where(x => x.Id == parentId).FirstOrDefault();
+                        if (parent != null)
+                        {
+                            persone.Parent = parent;
+                            persone.Generation = parent.Generation + 1;
+                        }
+                        else
+                        {
+                            // Fallback if parent not found
+                            persone.Parent = null;
+                            persone.Generation = 1;
+                        }
+                    }
+                    else
+                    {
+                        // Root person (no parent) - this is the family patriarch/matriarch
+                        persone.Parent = null;
+                        persone.Generation = 1;
+                    }
+                    
+                    db.persones.Add(persone);
+                    createdPersons.Add(persone);
+                    db.SaveChanges();
                 }
-                
-                db.persones.Add(persone);
-                db.SaveChanges();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -207,5 +268,6 @@ namespace SukkarFamily.Controllers
                 return View();
             }
         }
+
     }
 }

@@ -80,14 +80,14 @@ namespace SukkarFamily.Controllers
         {
             if (id != null)
             {
-                // Adding child to specific parent
-                var selectedParent = db.persones.Where(x => x.Id == id).ToList();
+                // Adding child to specific parent - include parent hierarchy
+                var selectedParent = db.persones.Include("Parent").Where(x => x.Id == id).ToList();
                 ViewBag.GetParents = selectedParent;
             }
             else
             {
-                // General create - get all potential parents
-                var allPersones = db.persones.ToList();
+                // General create - get all potential parents with their parent information
+                var allPersones = db.persones.Include("Parent").ToList();
                 ViewBag.GetParents = allPersones;
                 
                 // If no family members exist yet, this will be the root person

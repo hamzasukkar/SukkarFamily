@@ -223,8 +223,24 @@
                                                         }
                                                     </div>
                                                     <div class="parent-details">
-                                                        <h6>@parent.name</h6>
-                                                        <p class="mb-0">@(parent.title ?? "بدون لقب") - الجيل @parent.Generation</p>
+                                                        <h6>
+                                                            @parent.name
+                                                            @if (parent.Parent != null)
+                                                            {
+                                                                <span> ابن/ابنة @parent.Parent.name</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span> (الجد الأعلى)</span>
+                                                            }
+                                                        </h6>
+                                                        <p class="mb-0">
+                                                            @(parent.title ?? "بدون لقب") - الجيل @parent.Generation
+                                                            @if (parent.Parent != null)
+                                                            {
+                                                                <span class="ms-2"><i class="fas fa-arrow-up text-muted"></i> الوالد: @parent.Parent.name</span>
+                                                            }
+                                                        </p>
                                                     </div>
                                                 </div>
                                                 @Html.DropDownListFor(m => m.Parent, new SelectList(parents, "Id", "name"), new { @class = "d-none" })
@@ -236,8 +252,25 @@
                                                 <option value="">اختر الوالد</option>
                                                 @foreach(var parent in parents.OrderBy(p => p.Generation).ThenBy(p => p.name))
                                                 {
-                                                    <option value="@parent.Id" data-generation="@parent.Generation" data-name="@parent.name" data-title="@(parent.title ?? "")" data-country="@(parent.Country ?? "")" data-image="@(parent.image ?? "")">
-                                                        @parent.name - الجيل @parent.Generation @(!string.IsNullOrEmpty(parent.title) ? " (" + parent.title + ")" : "")
+                                                    var parentText = parent.name;
+                                                    if (parent.Parent != null)
+                                                    {
+                                                        parentText += " ابن/ابنة " + parent.Parent.name;
+                                                    }
+                                                    else
+                                                    {
+                                                        parentText += " (الجد الأعلى)";
+                                                    }
+                                                    parentText += " - الجيل " + parent.Generation;
+                                                    
+                                                    <option value="@parent.Id" 
+                                                            data-generation="@parent.Generation" 
+                                                            data-name="@parent.name" 
+                                                            data-title="@(parent.title ?? "")" 
+                                                            data-country="@(parent.Country ?? "")" 
+                                                            data-image="@(parent.image ?? "")"
+                                                            data-parent-name="@(parent.Parent?.name ?? "")">
+                                                        @parentText
                                                     </option>
                                                 }
                                             </select>
@@ -740,14 +773,25 @@
             const country = option.dataset.country;
             const image = option.dataset.image;
             const generation = option.dataset.generation;
+            const parentName = option.dataset.parentName;
             
-            previewName.textContent = name;
+            // Build parent name with hierarchy
+            let displayName = name;
+            if (parentName && parentName.trim() !== '') {
+                displayName += ` ابن/ابنة ${parentName}`;
+            } else {
+                displayName += ' (الجد الأعلى)';
+            }
+            previewName.textContent = displayName;
             
             // Build info string
             let info = [];
-            if (title) info.push(title);
-            if (country) info.push(country);
-            previewInfo.textContent = info.length > 0 ? info.join(' - ') : 'لا توجد معلومات إضافية';
+            if (title) info.push(`اللقب: ${title}`);
+            if (country) info.push(`البلد: ${country}`);
+            if (parentName && parentName.trim() !== '') {
+                info.push(`الوالد: ${parentName}`);
+            }
+            previewInfo.textContent = info.length > 0 ? info.join(' • ') : 'لا توجد معلومات إضافية';
             
             // Handle image/icon
             if (image && image.trim() !== '') {

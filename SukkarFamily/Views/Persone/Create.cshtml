@@ -248,7 +248,21 @@
                                         }
                                         else
                                         {
-                                            <select name="Parent" id="parentSelect" class="form-select">
+                                            <!-- Search input for parent selection -->
+                                            <div class="parent-search-container">
+                                                <div class="input-group">
+                                                    <span class="input-group-text">
+                                                        <i class="fas fa-search text-gold"></i>
+                                                    </span>
+                                                    <input type="text" id="parentSearchInput" class="form-control" placeholder="ابحث عن الوالد بالاسم...">
+                                                    <button type="button" id="clearSearchBtn" class="btn btn-outline-secondary">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="form-text">ابدأ بالكتابة للبحث عن الوالد</div>
+                                            </div>
+
+                                            <select name="Parent" id="parentSelect" class="form-select" style="margin-top: 10px;">
                                                 <option value="">اختر الوالد</option>
                                                 @foreach(var parent in parents.OrderBy(p => p.Generation).ThenBy(p => p.name))
                                                 {
@@ -262,14 +276,15 @@
                                                         parentText += " (الجد الأعلى)";
                                                     }
                                                     parentText += " - الجيل " + parent.Generation;
-                                                    
-                                                    <option value="@parent.Id" 
-                                                            data-generation="@parent.Generation" 
-                                                            data-name="@parent.name" 
-                                                            data-title="@(parent.title ?? "")" 
-                                                            data-country="@(parent.Country ?? "")" 
+
+                                                    <option value="@parent.Id"
+                                                            data-generation="@parent.Generation"
+                                                            data-name="@parent.name"
+                                                            data-title="@(parent.title ?? "")"
+                                                            data-country="@(parent.Country ?? "")"
                                                             data-image="@(parent.image ?? "")"
-                                                            data-parent-name="@(parent.Parent?.name ?? "")">
+                                                            data-parent-name="@(parent.Parent?.name ?? "")"
+                                                            data-search-text="@parentText.ToLower()">
                                                         @parentText
                                                     </option>
                                                 }
@@ -380,6 +395,7 @@
             setupMultipleChildrenFunctionality();
             setupGenerationFilter();
             setupParentPreview();
+            setupParentSearch();
         });
 
         function initializeForm() {
@@ -703,27 +719,21 @@
         function setupGenerationFilter() {
             const generationFilter = document.getElementById('generationFilter');
             const parentSelect = document.getElementById('parentSelect');
-            
+            const searchInput = document.getElementById('parentSearchInput');
+
             if (!generationFilter || !parentSelect) return;
 
             generationFilter.addEventListener('change', function() {
                 const selectedGeneration = this.value;
-                const options = parentSelect.querySelectorAll('option');
-                
-                options.forEach(option => {
-                    if (option.value === '') {
-                        option.style.display = '';
-                        return;
-                    }
-                    
-                    const generation = option.dataset.generation;
-                    if (!selectedGeneration || generation === selectedGeneration) {
-                        option.style.display = '';
-                    } else {
-                        option.style.display = 'none';
-                    }
-                });
-                
+
+                // Clear search when generation filter changes
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+
+                // Apply both generation and search filters
+                applyFilters();
+
                 // Reset parent selection if current selection is hidden
                 if (selectedGeneration && parentSelect.value) {
                     const currentOption = parentSelect.querySelector(`option[value="${parentSelect.value}"]`);
@@ -732,15 +742,75 @@
                         hideParentPreview();
                     }
                 }
-                
-                // Update parent dropdown placeholder
-                const firstOption = parentSelect.querySelector('option[value=""]');
-                if (selectedGeneration) {
-                    firstOption.textContent = `اختر الوالد من الجيل ${selectedGeneration}`;
-                } else {
-                    firstOption.textContent = 'اختر الوالد';
-                }
             });
+        }
+
+        // Combined filter function for generation and search
+        function applyFilters() {
+            const generationFilter = document.getElementById('generationFilter');
+            const searchInput = document.getElementById('parentSearchInput');
+            const parentSelect = document.getElementById('parentSelect');
+
+            if (!parentSelect) return;
+
+            const selectedGeneration = generationFilter ? generationFilter.value : '';
+            const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+            // Get original options (stored during setup)
+            const originalOptions = window.originalParentOptions || Array.from(parentSelect.options);
+
+            // Clear current options
+            parentSelect.innerHTML = '';
+
+            // Add default option
+            const defaultOption = originalOptions[0].cloneNode(true);
+            parentSelect.appendChild(defaultOption);
+
+            // Filter options
+            const filteredOptions = originalOptions.slice(1).filter(option => {
+                const generation = option.dataset.generation;
+                const searchText = option.dataset.searchText || option.textContent.toLowerCase();
+                const name = option.dataset.name ? option.dataset.name.toLowerCase() : '';
+                const parentName = option.dataset.parentName ? option.dataset.parentName.toLowerCase() : '';
+
+                // Check generation filter
+                const generationMatch = !selectedGeneration || generation === selectedGeneration;
+
+                // Check search filter
+                const searchMatch = !searchTerm ||
+                    searchText.includes(searchTerm) ||
+                    name.includes(searchTerm) ||
+                    parentName.includes(searchTerm);
+
+                return generationMatch && searchMatch;
+            });
+
+            // Add filtered options
+            filteredOptions.forEach(option => {
+                parentSelect.appendChild(option.cloneNode(true));
+            });
+
+            // Update placeholder text
+            let placeholderText = 'اختر الوالد';
+            if (selectedGeneration && searchTerm) {
+                placeholderText = `اختر من ${filteredOptions.length} نتيجة في الجيل ${selectedGeneration}`;
+            } else if (selectedGeneration) {
+                placeholderText = `اختر الوالد من الجيل ${selectedGeneration}`;
+            } else if (searchTerm) {
+                placeholderText = `اختر من ${filteredOptions.length} نتيجة`;
+            }
+
+            if (filteredOptions.length === 0) {
+                placeholderText = 'لا توجد نتائج';
+            }
+
+            defaultOption.textContent = placeholderText;
+
+            // Reset selection if current selection is not visible
+            if (parentSelect.value && !Array.from(parentSelect.options).some(opt => opt.value === parentSelect.value)) {
+                parentSelect.value = '';
+                hideParentPreview();
+            }
         }
 
         // Parent Preview Functionality
@@ -816,6 +886,37 @@
             if (preview) {
                 preview.classList.add('d-none');
             }
+        }
+
+        // Parent Search Functionality
+        function setupParentSearch() {
+            const searchInput = document.getElementById('parentSearchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const parentSelect = document.getElementById('parentSelect');
+
+            if (!searchInput || !parentSelect) return;
+
+            // Store original options globally for use by applyFilters
+            window.originalParentOptions = Array.from(parentSelect.options);
+
+            searchInput.addEventListener('input', function() {
+                applyFilters();
+            });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    applyFilters();
+                    searchInput.focus();
+                });
+            }
+
+            // Clear search when parent is selected
+            parentSelect.addEventListener('change', function() {
+                if (this.value) {
+                    searchInput.value = '';
+                }
+            });
         }
     </script>
 
@@ -1158,6 +1259,40 @@
         .generation-8 { background: #198754; }
         .generation-9 { background: #0d6efd; }
         .generation-10 { background: #6610f2; }
+
+        /* Parent Search Styles */
+        .parent-search-container {
+            margin-bottom: 15px;
+        }
+
+        .parent-search-container .input-group-text {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: rgba(212, 175, 55, 0.2);
+            color: var(--islamic-gold);
+        }
+
+        #parentSearchInput {
+            border-color: rgba(212, 175, 55, 0.2);
+            font-family: 'Amiri', serif;
+            direction: rtl;
+            text-align: right;
+        }
+
+        #parentSearchInput:focus {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+        }
+
+        #clearSearchBtn {
+            border-color: rgba(212, 175, 55, 0.2);
+            color: #6c757d;
+        }
+
+        #clearSearchBtn:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-color: #dc3545;
+            color: #dc3545;
+        }
 
         /* Animation for form elements */
         .form-group {

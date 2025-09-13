@@ -203,93 +203,136 @@
                                     </div>
 
                                     <div class="form-group mb-3">
-                                        <label asp-for="Parent" class="form-label">
-                                            <i class="fas fa-user-tie me-2 text-gold"></i>الوالد
-                                        </label>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label asp-for="Parent" class="form-label mb-0">
+                                                <i class="fas fa-user-tie me-2 text-gold"></i>الوالد
+                                            </label>
+                                            <div class="parent-selection-toggle">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <input type="radio" class="btn-check" name="parentSelectionMode" id="dropdownMode" value="dropdown" checked>
+                                                    <label class="btn btn-outline-secondary" for="dropdownMode">
+                                                        <i class="fas fa-list me-1"></i>قائمة
+                                                    </label>
+
+                                                    <input type="radio" class="btn-check" name="parentSelectionMode" id="treeMode" value="tree">
+                                                    <label class="btn btn-outline-secondary" for="treeMode">
+                                                        <i class="fas fa-sitemap me-1"></i>شجرة
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
                                         
-                                        @if (parents.Count == 1)
-                                        {
-                                            var parent = parents.First();
-                                            <div class="selected-parent-card">
-                                                <div class="parent-info">
-                                                    <div class="parent-avatar">
-                                                        @if (!string.IsNullOrEmpty(parent.image))
-                                                        {
-                                                            <img src="@parent.image" alt="@parent.name">
-                                                        }
-                                                        else
-                                                        {
-                                                            <i class="fas fa-user"></i>
-                                                        }
-                                                    </div>
-                                                    <div class="parent-details">
-                                                        <h6>
-                                                            @parent.name
-                                                            @if (parent.Parent != null)
+                                        <!-- Dropdown Selection Mode -->
+                                        <div id="dropdownSelectionContainer">
+                                            @if (parents.Count == 1)
+                                            {
+                                                var parent = parents.First();
+                                                <div class="selected-parent-card">
+                                                    <div class="parent-info">
+                                                        <div class="parent-avatar">
+                                                            @if (!string.IsNullOrEmpty(parent.image))
                                                             {
-                                                                <span> ابن/ابنة @parent.Parent.name</span>
+                                                                <img src="@parent.image" alt="@parent.name">
                                                             }
                                                             else
                                                             {
-                                                                <span> (الجد الأعلى)</span>
+                                                                <i class="fas fa-user"></i>
                                                             }
-                                                        </h6>
-                                                        <p class="mb-0">
-                                                            @(parent.title ?? "بدون لقب") - الجيل @parent.Generation
-                                                            @if (parent.Parent != null)
-                                                            {
-                                                                <span class="ms-2"><i class="fas fa-arrow-up text-muted"></i> الوالد: @parent.Parent.name</span>
-                                                            }
-                                                        </p>
+                                                        </div>
+                                                        <div class="parent-details">
+                                                            <h6>
+                                                                @parent.name
+                                                                @if (parent.Parent != null)
+                                                                {
+                                                                    <span> ابن/ابنة @parent.Parent.name</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span> (الجد الأعلى)</span>
+                                                                }
+                                                            </h6>
+                                                            <p class="mb-0">
+                                                                @(parent.title ?? "بدون لقب") - الجيل @parent.Generation
+                                                                @if (parent.Parent != null)
+                                                                {
+                                                                    <span class="ms-2"><i class="fas fa-arrow-up text-muted"></i> الوالد: @parent.Parent.name</span>
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    @Html.DropDownListFor(m => m.Parent, new SelectList(parents, "Id", "name"), new { @class = "d-none" })
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <!-- Search input for parent selection -->
+                                                <div class="parent-search-container">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">
+                                                            <i class="fas fa-search text-gold"></i>
+                                                        </span>
+                                                        <input type="text" id="parentSearchInput" class="form-control" placeholder="ابحث عن الوالد بالاسم...">
+                                                        <button type="button" id="clearSearchBtn" class="btn btn-outline-secondary">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="form-text">ابدأ بالكتابة للبحث عن الوالد</div>
+                                                </div>
+
+                                                <select name="Parent" id="parentSelect" class="form-select" style="margin-top: 10px;">
+                                                    <option value="">اختر الوالد</option>
+                                                    @foreach(var parent in parents.OrderBy(p => p.Generation).ThenBy(p => p.name))
+                                                    {
+                                                        var parentText = parent.name;
+                                                        if (parent.Parent != null)
+                                                        {
+                                                            parentText += " ابن/ابنة " + parent.Parent.name;
+                                                        }
+                                                        else
+                                                        {
+                                                            parentText += " (الجد الأعلى)";
+                                                        }
+                                                        parentText += " - الجيل " + parent.Generation;
+
+                                                        <option value="@parent.Id"
+                                                                data-generation="@parent.Generation"
+                                                                data-name="@parent.name"
+                                                                data-title="@(parent.title ?? "")"
+                                                                data-country="@(parent.Country ?? "")"
+                                                                data-image="@(parent.image ?? "")"
+                                                                data-parent-name="@(parent.Parent?.name ?? "")"
+                                                                data-search-text="@parentText.ToLower()">
+                                                            @parentText
+                                                        </option>
+                                                    }
+                                                </select>
+                                            }
+                                        </div>
+
+                                        <!-- Tree Selection Mode -->
+                                        <div id="treeSelectionContainer" class="d-none">
+                                            <div class="family-tree-selector">
+                                                <div class="tree-header">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <span class="tree-title">
+                                                            <i class="fas fa-sitemap text-gold me-2"></i>اختر الوالد من الشجرة
+                                                        </span>
+                                                        <button type="button" id="expandAllTreeBtn" class="btn btn-sm btn-outline-secondary">
+                                                            <i class="fas fa-expand-arrows-alt me-1"></i>توسيع الكل
+                                                        </button>
                                                     </div>
                                                 </div>
-                                                @Html.DropDownListFor(m => m.Parent, new SelectList(parents, "Id", "name"), new { @class = "d-none" })
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <!-- Search input for parent selection -->
-                                            <div class="parent-search-container">
-                                                <div class="input-group">
-                                                    <span class="input-group-text">
-                                                        <i class="fas fa-search text-gold"></i>
-                                                    </span>
-                                                    <input type="text" id="parentSearchInput" class="form-control" placeholder="ابحث عن الوالد بالاسم...">
-                                                    <button type="button" id="clearSearchBtn" class="btn btn-outline-secondary">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
+
+                                                <div id="familyTreeContainer" class="family-tree-container">
+                                                    <!-- Tree will be generated by JavaScript -->
                                                 </div>
-                                                <div class="form-text">ابدأ بالكتابة للبحث عن الوالد</div>
+
+                                                <div class="form-text mt-2">انقر على أي شخص في الشجرة لاختياره كوالد</div>
                                             </div>
+                                        </div>
 
-                                            <select name="Parent" id="parentSelect" class="form-select" style="margin-top: 10px;">
-                                                <option value="">اختر الوالد</option>
-                                                @foreach(var parent in parents.OrderBy(p => p.Generation).ThenBy(p => p.name))
-                                                {
-                                                    var parentText = parent.name;
-                                                    if (parent.Parent != null)
-                                                    {
-                                                        parentText += " ابن/ابنة " + parent.Parent.name;
-                                                    }
-                                                    else
-                                                    {
-                                                        parentText += " (الجد الأعلى)";
-                                                    }
-                                                    parentText += " - الجيل " + parent.Generation;
-
-                                                    <option value="@parent.Id"
-                                                            data-generation="@parent.Generation"
-                                                            data-name="@parent.name"
-                                                            data-title="@(parent.title ?? "")"
-                                                            data-country="@(parent.Country ?? "")"
-                                                            data-image="@(parent.image ?? "")"
-                                                            data-parent-name="@(parent.Parent?.name ?? "")"
-                                                            data-search-text="@parentText.ToLower()">
-                                                        @parentText
-                                                    </option>
-                                                }
-                                            </select>
-                                        }
+                                        <!-- Hidden input to store selected parent from tree -->
+                                        <input type="hidden" id="selectedParentFromTree" name="Parent" />
                                         <span asp-validation-for="Parent" class="text-danger"></span>
                                         <div class="form-text">اختر الوالد من القائمة (اختياري للشخص الأول)</div>
                                     </div>
@@ -384,6 +427,40 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <!-- Family Tree Data for JavaScript -->
+    <script>
+        @{
+            var treeData = new List<object>();
+            if (ViewBag.GetParents != null)
+            {
+                var parents = (List<SukkarFamily.Models.Persone>)ViewBag.GetParents;
+
+                // Debug: Log each person being processed
+                foreach(var p in parents)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Processing person: Id={p.Id}, Name={p.name}, Title={p.title}, Generation={p.Generation}, ParentId={p.Parent?.Id}");
+                }
+
+                treeData = parents
+                    .OrderBy(p => p.Generation)
+                    .ThenBy(p => p.name)
+                    .Select(p => new {
+                        Id = p.Id,
+                        name = p.name ?? "",
+                        title = p.title ?? "",
+                        Country = p.Country ?? "",
+                        image = p.image ?? "",
+                        Generation = p.Generation,
+                        Parent = p.Parent?.Id // Only store the parent ID, not the full object
+                    }).ToList<object>();
+            }
+        }
+        window.familyTreeData = @Html.Raw(Json.Serialize(treeData));
+
+        // Debug: Log the serialized data
+        console.log('Serialized Family Tree Data:', window.familyTreeData);
+    </script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -396,6 +473,8 @@
             setupGenerationFilter();
             setupParentPreview();
             setupParentSearch();
+            setupParentSelectionToggle();
+            setupFamilyTree();
         });
 
         function initializeForm() {
@@ -918,6 +997,353 @@
                 }
             });
         }
+
+        // Parent Selection Mode Toggle
+        function setupParentSelectionToggle() {
+            const dropdownMode = document.getElementById('dropdownMode');
+            const treeMode = document.getElementById('treeMode');
+            const dropdownContainer = document.getElementById('dropdownSelectionContainer');
+            const treeContainer = document.getElementById('treeSelectionContainer');
+
+            if (!dropdownMode || !treeMode) return;
+
+            dropdownMode.addEventListener('change', function() {
+                if (this.checked) {
+                    dropdownContainer.classList.remove('d-none');
+                    treeContainer.classList.add('d-none');
+                    // Clear tree selection
+                    clearTreeSelection();
+                }
+            });
+
+            treeMode.addEventListener('change', function() {
+                if (this.checked) {
+                    dropdownContainer.classList.add('d-none');
+                    treeContainer.classList.remove('d-none');
+                    // Clear dropdown selection
+                    clearDropdownSelection();
+                    // Build tree if not already built
+                    if (!window.treeBuilt) {
+                        buildFamilyTree();
+                    }
+                }
+            });
+        }
+
+        // Family Tree Functionality
+        function setupFamilyTree() {
+            const expandAllBtn = document.getElementById('expandAllTreeBtn');
+
+            if (expandAllBtn) {
+                expandAllBtn.addEventListener('click', function() {
+                    toggleAllTreeNodes();
+                });
+            }
+        }
+
+        function buildFamilyTree() {
+            const container = document.getElementById('familyTreeContainer');
+            if (!container || !window.familyTreeData) return;
+
+            const treeData = window.familyTreeData;
+            if (!treeData || treeData.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-info-circle me-2"></i>لا توجد أفراد في العائلة حالياً</div>';
+                return;
+            }
+
+            // Debug: Log the tree data to console
+            console.log('Family Tree Data:', treeData);
+
+            // Build tree structure
+            const treeStructure = buildTreeStructure(treeData);
+            console.log('Tree Structure:', treeStructure);
+
+            const treeHTML = renderTree(treeStructure);
+
+            container.innerHTML = treeHTML;
+            window.treeBuilt = true;
+
+            // Setup click handlers
+            setupTreeClickHandlers();
+        }
+
+        function buildTreeStructure(data) {
+            // Create a completely new structure to avoid any reference issues
+            const nodeMap = new Map();
+            const roots = [];
+
+            // First pass: create all nodes
+            for (let i = 0; i < data.length; i++) {
+                const person = data[i];
+                const node = createPersonNode(person);
+                nodeMap.set(person.Id, node);
+
+                console.log(`Created node ${i}: ID=${person.Id}, Name="${person.name}" -> Node Name="${node.name}"`);
+            }
+
+            // Second pass: build hierarchy
+            for (let i = 0; i < data.length; i++) {
+                const person = data[i];
+                const currentNode = nodeMap.get(person.Id);
+
+                console.log(`Building hierarchy for: ID=${person.Id}, Name="${currentNode.name}", ParentID=${person.Parent}`);
+
+                if (person.Parent && nodeMap.has(person.Parent)) {
+                    const parentNode = nodeMap.get(person.Parent);
+                    parentNode.children.push(currentNode);
+                    console.log(`Added ${currentNode.name} as child of ${parentNode.name}`);
+                } else {
+                    roots.push(currentNode);
+                    console.log(`Added ${currentNode.name} as root`);
+                }
+            }
+
+            return roots;
+        }
+
+        function createPersonNode(person) {
+            return {
+                Id: person.Id,
+                name: person.name,
+                title: person.title,
+                Country: person.Country,
+                image: person.image,
+                Generation: person.Generation,
+                Parent: person.Parent,
+                children: []
+            };
+        }
+
+        function renderTree(nodes, level = 0) {
+            if (!nodes || nodes.length === 0) return '';
+
+            // Sort nodes by Generation, then by name for consistent display
+            const sortedNodes = [...nodes].sort((a, b) => {
+                if (a.Generation !== b.Generation) {
+                    return a.Generation - b.Generation;
+                }
+                return (a.name || '').localeCompare(b.name || '', 'ar', {numeric: true});
+            });
+
+            let html = '<ul class="tree-level tree-level-' + level + '">';
+
+            sortedNodes.forEach(node => {
+                const hasChildren = node.children && node.children.length > 0;
+                const nodeClass = 'tree-node' + (hasChildren ? ' has-children' : '');
+
+                // Debug: Log each node being rendered
+                console.log('Rendering node:', {
+                    id: node.Id,
+                    name: node.name,
+                    title: node.title,
+                    generation: node.Generation,
+                    parent: node.Parent,
+                    hasChildren: hasChildren
+                });
+
+                html += `
+                    <li class="${nodeClass}" data-person-id="${node.Id}">
+                        <div class="tree-node-content" data-person-id="${node.Id}">
+                            <div class="node-toggle ${hasChildren ? '' : 'invisible'}">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="node-avatar">
+                                ${node.image ?
+                                    `<img src="${node.image}" alt="${node.name}">` :
+                                    '<i class="fas fa-user"></i>'
+                                }
+                            </div>
+                            <div class="node-info">
+                                <div class="node-name">${node.name}</div>
+                                <div class="node-details">
+                                    ${node.title || 'بدون لقب'} • الجيل ${node.Generation}
+                                </div>
+                            </div>
+                            <div class="node-select-btn">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        ${hasChildren ? renderTree(node.children, level + 1) : ''}
+                    </li>
+                `;
+            });
+
+            html += '</ul>';
+            return html;
+        }
+
+        function setupTreeClickHandlers() {
+            const container = document.getElementById('familyTreeContainer');
+
+            // Toggle nodes
+            container.addEventListener('click', function(e) {
+                if (e.target.closest('.node-toggle')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const node = e.target.closest('.tree-node');
+                    toggleTreeNode(node);
+                }
+            });
+
+            // Select parent
+            container.addEventListener('click', function(e) {
+                const nodeContent = e.target.closest('.tree-node-content');
+                if (nodeContent && !e.target.closest('.node-toggle')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const personId = nodeContent.dataset.personId;
+                    selectParentFromTree(personId, nodeContent);
+                }
+            });
+        }
+
+        function toggleTreeNode(node) {
+            const childList = node.querySelector('ul.tree-level');
+            const toggle = node.querySelector('.node-toggle i');
+
+            if (childList) {
+                if (childList.style.display === 'none') {
+                    childList.style.display = '';
+                    toggle.className = 'fas fa-chevron-down';
+                    node.classList.remove('collapsed');
+                } else {
+                    childList.style.display = 'none';
+                    toggle.className = 'fas fa-chevron-right';
+                    node.classList.add('collapsed');
+                }
+            }
+        }
+
+        function toggleAllTreeNodes() {
+            const container = document.getElementById('familyTreeContainer');
+            const expandAllBtn = document.getElementById('expandAllTreeBtn');
+            const allNodes = container.querySelectorAll('.tree-node.has-children');
+
+            const isExpanded = Array.from(allNodes).some(node =>
+                !node.classList.contains('collapsed')
+            );
+
+            allNodes.forEach(node => {
+                const childList = node.querySelector('ul.tree-level');
+                const toggle = node.querySelector('.node-toggle i');
+
+                if (childList) {
+                    if (isExpanded) {
+                        // Collapse all
+                        childList.style.display = 'none';
+                        toggle.className = 'fas fa-chevron-right';
+                        node.classList.add('collapsed');
+                    } else {
+                        // Expand all
+                        childList.style.display = '';
+                        toggle.className = 'fas fa-chevron-down';
+                        node.classList.remove('collapsed');
+                    }
+                }
+            });
+
+            // Update button text
+            expandAllBtn.innerHTML = isExpanded ?
+                '<i class="fas fa-expand-arrows-alt me-1"></i>توسيع الكل' :
+                '<i class="fas fa-compress-arrows-alt me-1"></i>طي الكل';
+        }
+
+        function selectParentFromTree(personId, nodeElement) {
+            // Clear previous selection
+            document.querySelectorAll('.tree-node-content.selected').forEach(node => {
+                node.classList.remove('selected');
+            });
+
+            // Select current node
+            nodeElement.classList.add('selected');
+
+            // Update hidden input
+            const hiddenInput = document.getElementById('selectedParentFromTree');
+            if (hiddenInput) {
+                hiddenInput.value = personId;
+            }
+
+            // Find person data
+            const personData = window.familyTreeData.find(p => p.Id == personId);
+            if (personData) {
+                // Show selection feedback
+                showTreeSelectionFeedback(personData);
+            }
+        }
+
+        function showTreeSelectionFeedback(person) {
+            // Create or update feedback element
+            let feedback = document.getElementById('treeSelectionFeedback');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.id = 'treeSelectionFeedback';
+                feedback.className = 'tree-selection-feedback mt-3';
+                document.getElementById('treeSelectionContainer').appendChild(feedback);
+            }
+
+            const hierarchyText = person.Parent ?
+                `ابن/ابنة ${getParentName(person.Parent)}` :
+                '(الجد الأعلى)';
+
+            feedback.innerHTML = `
+                <div class="selected-parent-card">
+                    <div class="parent-info">
+                        <div class="parent-avatar">
+                            ${person.image ?
+                                `<img src="${person.image}" alt="${person.name}">` :
+                                '<i class="fas fa-user"></i>'
+                            }
+                        </div>
+                        <div class="parent-details">
+                            <h6>
+                                ${person.name} ${hierarchyText}
+                            </h6>
+                            <p class="mb-0">
+                                ${person.title || 'بدون لقب'} - الجيل ${person.Generation}
+                            </p>
+                        </div>
+                        <div class="selection-badge">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getParentName(parentId) {
+            const parent = window.familyTreeData.find(p => p.Id == parentId);
+            return parent ? parent.name : 'غير معروف';
+        }
+
+        function clearTreeSelection() {
+            document.querySelectorAll('.tree-node-content.selected').forEach(node => {
+                node.classList.remove('selected');
+            });
+
+            const hiddenInput = document.getElementById('selectedParentFromTree');
+            if (hiddenInput) {
+                hiddenInput.value = '';
+            }
+
+            const feedback = document.getElementById('treeSelectionFeedback');
+            if (feedback) {
+                feedback.remove();
+            }
+        }
+
+        function clearDropdownSelection() {
+            const parentSelect = document.getElementById('parentSelect');
+            const searchInput = document.getElementById('parentSearchInput');
+
+            if (parentSelect) {
+                parentSelect.value = '';
+            }
+            if (searchInput) {
+                searchInput.value = '';
+                applyFilters();
+            }
+            hideParentPreview();
+        }
     </script>
 
     <style>
@@ -1292,6 +1718,251 @@
             background-color: rgba(220, 53, 69, 0.1);
             border-color: #dc3545;
             color: #dc3545;
+        }
+
+        /* Parent Selection Toggle Styles */
+        .parent-selection-toggle .btn-check:checked + .btn {
+            background-color: var(--islamic-gold);
+            border-color: var(--islamic-gold);
+            color: var(--islamic-dark);
+        }
+
+        .parent-selection-toggle .btn-outline-secondary {
+            border-color: rgba(212, 175, 55, 0.3);
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        .parent-selection-toggle .btn-outline-secondary:hover {
+            background-color: rgba(212, 175, 55, 0.1);
+            border-color: var(--islamic-gold);
+            color: var(--islamic-gold);
+        }
+
+        /* Family Tree Styles */
+        .family-tree-selector {
+            background: rgba(26, 71, 42, 0.02);
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .tree-title {
+            color: var(--islamic-green);
+            font-weight: 600;
+            font-family: 'Amiri', serif;
+        }
+
+        .family-tree-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .tree-level {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tree-level-0 {
+            margin-left: 0;
+        }
+
+        .tree-level:not(.tree-level-0) {
+            margin-left: 30px;
+            position: relative;
+        }
+
+        .tree-level:not(.tree-level-0)::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(212, 175, 55, 0.3);
+        }
+
+        .tree-node {
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .tree-node:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 25px;
+            width: 15px;
+            height: 1px;
+            background: rgba(212, 175, 55, 0.3);
+        }
+
+        .tree-node-content {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: white;
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tree-node-content:hover {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .tree-node-content.selected {
+            border-color: var(--islamic-green);
+            background: rgba(32, 201, 151, 0.1);
+            box-shadow: 0 4px 12px rgba(32, 201, 151, 0.3);
+        }
+
+        .node-toggle {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            cursor: pointer;
+            color: var(--islamic-gold);
+            transition: transform 0.2s ease;
+        }
+
+        .node-toggle:hover {
+            transform: scale(1.2);
+        }
+
+        .node-toggle.invisible {
+            visibility: hidden;
+        }
+
+        .node-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--islamic-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .node-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .node-avatar i {
+            font-size: 1.2rem;
+            color: var(--islamic-dark);
+        }
+
+        .node-info {
+            flex-grow: 1;
+            margin-left: 12px;
+        }
+
+        .node-name {
+            font-weight: 600;
+            color: var(--islamic-green);
+            font-family: 'Amiri', serif;
+            font-size: 1.1rem;
+            margin-bottom: 2px;
+        }
+
+        .node-details {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .node-select-btn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--islamic-gold);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .tree-node-content:hover .node-select-btn {
+            background: var(--islamic-gold);
+            color: var(--islamic-dark);
+            transform: scale(1.1);
+        }
+
+        .tree-node-content.selected .node-select-btn {
+            background: var(--islamic-green);
+            color: white;
+        }
+
+        .tree-selection-feedback {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .selection-badge {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        /* Tree expansion animations */
+        .tree-node ul.tree-level {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .tree-node.collapsed ul.tree-level {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        /* Responsive tree styles */
+        @@media (max-width: 768px) {
+            .parent-selection-toggle {
+                margin-bottom: 10px;
+            }
+
+            .parent-selection-toggle .btn-group {
+                width: 100%;
+            }
+
+            .parent-selection-toggle .btn {
+                flex: 1;
+            }
+
+            .tree-level:not(.tree-level-0) {
+                margin-left: 20px;
+            }
+
+            .node-info {
+                margin-left: 8px;
+            }
+
+            .node-name {
+                font-size: 1rem;
+            }
+
+            .node-details {
+                font-size: 0.8rem;
+            }
         }
 
         /* Animation for form elements */

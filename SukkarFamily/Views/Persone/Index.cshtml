@@ -118,7 +118,7 @@
                     <div class="col-md-3">
                         <select id="sortBy" class="form-select">
                             <option value="name">ترتيب بالاسم</option>
-                            <option value="generation">ترتيب بالجيل</option>
+                            <option value="generation" selected>ترتيب بالجيل</option>
                             <option value="id">ترتيب بالرقم</option>
                         </select>
                     </div>
@@ -163,7 +163,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var person in Model)
+                                    @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.name))
                                     {
                                         <tr class="member-row" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
                                             <td class="text-center">
@@ -252,7 +252,7 @@
             <!-- Grid View -->
             <div id="gridViewContent" class="d-none">
                 <div class="row">
-                    @foreach (var person in Model)
+                    @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.name))
                     {
                         <div class="col-xl-3 col-lg-4 col-md-6 mb-4 member-card-container" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
                             <div class="member-card fade-in-up">

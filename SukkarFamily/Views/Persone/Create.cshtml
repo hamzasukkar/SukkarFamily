@@ -187,19 +187,77 @@
                                     var parents = (List<SukkarFamily.Models.Persone>)ViewBag.GetParents;
                                     var maxGeneration = parents.Max(p => p.Generation);
                                     
-                                    <!-- Generation Filter for Parent Selection -->
-                                    <div class="form-group mb-3">
-                                        <label class="form-label">
-                                            <i class="fas fa-layer-group me-2 text-gold"></i>تصفية الأجيال
-                                        </label>
-                                        <select id="generationFilter" class="form-select">
-                                            <option value="">جميع الأجيال</option>
-                                            @for (int gen = 1; gen <= maxGeneration; gen++)
-                                            {
-                                                <option value="@gen">الجيل @gen (@parents.Count(p => p.Generation == gen) أشخاص)</option>
-                                            }
-                                        </select>
-                                        <div class="form-text">قم بتصفية الوالدين المحتملين حسب الجيل</div>
+                                    <!-- Hierarchical Parent-Child Drill-Down Filter System -->
+                                    <div class="hierarchical-filter-section mb-4">
+                                        <div class="filter-header d-flex justify-content-between align-items-center mb-3">
+                                            <label class="form-label mb-0">
+                                                <i class="fas fa-sitemap me-2 text-gold"></i>تصفية هرمية (الآباء والأطفال)
+                                            </label>
+                                            <div class="filter-controls">
+                                                <button type="button" id="resetHierarchy" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fas fa-undo me-1"></i>إعادة تعيين
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div id="hierarchyContainer">
+                                            <!-- Root Level - Show all potential parents -->
+                                            <div class="hierarchy-level" data-level="0">
+                                                <div class="hierarchy-level-header">
+                                                    <span class="hierarchy-level-number">1</span>
+                                                    <span class="hierarchy-level-title">
+                                                        <i class="fas fa-users me-2"></i>اختر الوالد الأول
+                                                    </span>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <select class="form-select parent-level-select" data-level="0">
+                                                            <option value="">اختر الوالد من جميع أفراد العائلة</option>
+                                                            @foreach(var parent in parents.OrderBy(p => p.Generation).ThenBy(p => p.name))
+                                                            {
+                                                                var parentText = parent.name;
+                                                                if (parent.Parent != null)
+                                                                {
+                                                                    parentText += " ابن/ابنة " + parent.Parent.name;
+                                                                }
+                                                                else
+                                                                {
+                                                                    parentText += " (الجد الأعلى)";
+                                                                }
+                                                                parentText += " - الجيل " + parent.Generation;
+
+                                                                <option value="@parent.Id"
+                                                                        data-generation="@parent.Generation"
+                                                                        data-name="@parent.name"
+                                                                        data-title="@(parent.title ?? "")"
+                                                                        data-country="@(parent.Country ?? "")"
+                                                                        data-image="@(parent.image ?? "")"
+                                                                        data-parent-name="@(parent.Parent?.name ?? "")"
+                                                                        data-children-count="@parents.Count(p => p.Parent != null && p.Parent.Id == parent.Id)">
+                                                                    @parentText (@parents.Count(p => p.Parent != null && p.Parent.Id == parent.Id) أطفال)
+                                                                </option>
+                                                            }
+                                                        </select>
+                                                        <div class="form-text">اختر والد لعرض أطفاله فقط في المستوى التالي</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="hierarchy-breadcrumb mt-3 d-none">
+                                            <div class="breadcrumb-content">
+                                                <i class="fas fa-route me-2 text-gold"></i>
+                                                <span class="breadcrumb-text">المسار الهرمي: </span>
+                                                <div id="breadcrumbPath" class="breadcrumb-path"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="hierarchy-results mt-3">
+                                            <div id="hierarchyStatus" class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                <span id="statusText">اختر والد لبدء التصفية الهرمية</span>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="form-group mb-3">
@@ -431,7 +489,7 @@
     <!-- Family Tree Data for JavaScript -->
     <script>
         @{
-            var treeData = new List<object>();
+            object treeData = new object();
             if (ViewBag.GetParents != null)
             {
                 var parents = (List<SukkarFamily.Models.Persone>)ViewBag.GetParents;
@@ -453,13 +511,39 @@
                         image = p.image ?? "",
                         Generation = p.Generation,
                         Parent = p.Parent?.Id // Only store the parent ID, not the full object
-                    }).ToList<object>();
+                    }).ToList();
             }
         }
-        window.familyTreeData = @Html.Raw(Json.Serialize(treeData));
+        window.familyTreeData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(treeData));
 
         // Debug: Log the serialized data
         console.log('Serialized Family Tree Data:', window.familyTreeData);
+        console.log('Type of familyTreeData:', typeof window.familyTreeData);
+        console.log('Is array:', Array.isArray(window.familyTreeData));
+
+        // Test the hierarchical system data
+        if (window.familyTreeData && window.familyTreeData.length > 0) {
+            console.log('Sample of family tree data:');
+            console.log('Total people:', window.familyTreeData.length);
+            console.log('First person (full object):', window.familyTreeData[0]);
+            console.log('First person properties:', Object.keys(window.familyTreeData[0]));
+            console.log('First person Id property value and type:', window.familyTreeData[0].Id, typeof window.familyTreeData[0].Id);
+
+            // Check all people's IDs
+            console.log('All person IDs and names:');
+            window.familyTreeData.forEach((person, index) => {
+                console.log(`Person ${index}: ID=${person.Id} (${typeof person.Id}), Name=${person.name}, Parent=${person.Parent}`);
+            });
+
+            // Test finding children only if we have valid IDs
+            if (window.familyTreeData[0].Id !== undefined && window.familyTreeData[0].Id !== null) {
+                const sampleParent = window.familyTreeData[0];
+                const children = window.familyTreeData.filter(person => person.Parent == sampleParent.Id);
+                console.log(`Sample parent ${sampleParent.name} has ${children.length} children:`, children.map(c => c.name));
+            } else {
+                console.error('IDs are undefined in the family tree data!');
+            }
+        }
     </script>
     
     <script>
@@ -475,6 +559,7 @@
             setupParentSearch();
             setupParentSelectionToggle();
             setupFamilyTree();
+            setupHierarchicalFilters();
         });
 
         function initializeForm() {
@@ -794,102 +879,561 @@
             });
         }
 
-        // Generation Filter Functionality
-        function setupGenerationFilter() {
-            const generationFilter = document.getElementById('generationFilter');
-            const parentSelect = document.getElementById('parentSelect');
-            const searchInput = document.getElementById('parentSearchInput');
+        // Hierarchical Filter Functionality
+        function setupHierarchicalFilters() {
+            console.log('Setting up hierarchical filters...');
+            console.log('Family tree data available:', window.familyTreeData);
 
-            if (!generationFilter || !parentSelect) return;
+            const resetBtn = document.getElementById('resetHierarchy');
 
-            generationFilter.addEventListener('change', function() {
-                const selectedGeneration = this.value;
+            if (resetBtn) {
+                resetBtn.addEventListener('click', resetHierarchy);
+                console.log('Reset button listener added');
+            } else {
+                console.error('Reset button not found!');
+            }
 
-                // Clear search when generation filter changes
-                if (searchInput) {
-                    searchInput.value = '';
+            // Setup initial listeners
+            setupHierarchyLevelListeners();
+            updateHierarchyStatus();
+
+            console.log('Hierarchical filters setup complete');
+        }
+
+        let hierarchyLevelCounter = 0;
+        let hierarchyPath = []; // Stores the selected path: [parentId1, parentId2, ...]
+
+        function setupHierarchyLevelListeners() {
+            const container = document.getElementById('hierarchyContainer');
+            console.log('Setting up hierarchy level listeners, container:', container);
+
+            if (!container) {
+                console.error('hierarchyContainer not found!');
+                return;
+            }
+
+            // Setup listeners for all parent-level-select elements
+            container.addEventListener('change', function(e) {
+                console.log('Change event triggered on:', e.target);
+
+                if (e.target.classList.contains('parent-level-select')) {
+                    const level = parseInt(e.target.getAttribute('data-level'));
+                    const selectedParentId = e.target.value;
+
+                    console.log(`Parent selected: level=${level}, parentId=${selectedParentId}`);
+
+                    if (selectedParentId) {
+                        handleParentSelection(level, selectedParentId);
+                    } else {
+                        // Clear selection - remove all levels after this one
+                        console.log(`Clearing hierarchy after level ${level}`);
+                        clearHierarchyAfterLevel(level);
+                        updateBreadcrumb();
+                        updateHierarchyStatus();
+                        updateFinalParentDropdown();
+                    }
+                } else {
+                    console.log('Target does not have parent-level-select class:', e.target.className);
+                }
+            });
+
+            // Also check if the initial dropdown exists
+            const initialSelect = container.querySelector('.parent-level-select[data-level="0"]');
+            console.log('Initial parent select found:', initialSelect);
+        }
+
+        function handleParentSelection(level, selectedParentId) {
+            console.log(`handleParentSelection called: level=${level}, selectedParentId=${selectedParentId}`);
+
+            // Update hierarchy path
+            hierarchyPath = hierarchyPath.slice(0, level + 1);
+            hierarchyPath[level] = selectedParentId;
+            console.log('Updated hierarchy path:', hierarchyPath);
+
+            // Clear any levels after this one
+            clearHierarchyAfterLevel(level);
+
+            // Get children of selected parent
+            const children = getChildrenOfParent(selectedParentId);
+            console.log(`Children found for parent ${selectedParentId}:`, children);
+
+            if (children.length > 0) {
+                // Create next level showing children
+                console.log(`Adding hierarchy level ${level + 1} with ${children.length} children`);
+                addHierarchyLevel(level + 1, children, selectedParentId);
+            } else {
+                console.log('No children found, not creating new level');
+            }
+
+            // Update breadcrumb and status
+            updateBreadcrumb();
+            updateHierarchyStatus();
+
+            // Update final parent selection dropdown
+            updateFinalParentDropdown();
+        }
+
+        function getChildrenOfParent(parentId) {
+            if (!window.familyTreeData) return [];
+            return window.familyTreeData.filter(person => person.Parent == parentId);
+        }
+
+        function addHierarchyLevel(level, children, parentId) {
+            console.log(`addHierarchyLevel called: level=${level}, children.length=${children.length}, parentId=${parentId}`);
+
+            const container = document.getElementById('hierarchyContainer');
+            if (!container) {
+                console.error('hierarchyContainer not found!');
+                return;
+            }
+
+            const parentName = getPersonName(parentId);
+            console.log(`Parent name: ${parentName}`);
+
+            const hierarchyLevel = document.createElement('div');
+            hierarchyLevel.className = 'hierarchy-level';
+            hierarchyLevel.setAttribute('data-level', level);
+
+            const childOptions = children.map(child => {
+                const childrenCount = getChildrenOfParent(child.Id).length;
+                console.log(`Child: ${child.name}, has ${childrenCount} children`);
+                return `
+                    <option value="${child.Id}"
+                            data-generation="${child.Generation}"
+                            data-name="${child.name}"
+                            data-title="${child.title || ''}"
+                            data-country="${child.Country || ''}"
+                            data-image="${child.image || ''}"
+                            data-children-count="${childrenCount}">
+                        ${child.name}${child.title ? ` (${child.title})` : ''} - الجيل ${child.Generation} (${childrenCount} أطفال)
+                    </option>
+                `;
+            }).join('');
+
+            hierarchyLevel.innerHTML = `
+                <div class="hierarchy-level-header">
+                    <span class="hierarchy-level-number">${level + 1}</span>
+                    <span class="hierarchy-level-title">
+                        <i class="fas fa-child me-2"></i>أطفال ${parentName}
+                    </span>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <select class="form-select parent-level-select" data-level="${level}">
+                            <option value="">اختر من أطفال ${parentName} (${children.length} طفل)</option>
+                            ${childOptions}
+                        </select>
+                        <div class="form-text">اختر طفل لعرض أطفاله في المستوى التالي</div>
+                    </div>
+                </div>
+            `;
+
+            console.log('Adding hierarchy level to container');
+            container.appendChild(hierarchyLevel);
+            hierarchyLevelCounter = Math.max(hierarchyLevelCounter, level);
+
+            // Animation
+            hierarchyLevel.style.opacity = '0';
+            hierarchyLevel.style.transform = 'translateY(-20px)';
+            requestAnimationFrame(() => {
+                hierarchyLevel.style.transition = 'all 0.3s ease';
+                hierarchyLevel.style.opacity = '1';
+                hierarchyLevel.style.transform = 'translateY(0)';
+            });
+
+            console.log('Hierarchy level added successfully');
+        }
+
+        function clearHierarchyAfterLevel(level) {
+            const container = document.getElementById('hierarchyContainer');
+            const levelsToRemove = container.querySelectorAll(`.hierarchy-level[data-level]:not([data-level="${level}"]):not([data-level="0"])`);
+
+            levelsToRemove.forEach(levelElement => {
+                const levelNum = parseInt(levelElement.getAttribute('data-level'));
+                if (levelNum > level) {
+                    levelElement.style.transition = 'all 0.3s ease';
+                    levelElement.style.opacity = '0';
+                    levelElement.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        if (levelElement.parentNode) {
+                            levelElement.remove();
+                        }
+                    }, 300);
+                }
+            });
+
+            // Update hierarchy path
+            hierarchyPath = hierarchyPath.slice(0, level + 1);
+        }
+
+        function resetHierarchy() {
+            // Reset all selections
+            document.querySelectorAll('.parent-level-select').forEach(select => {
+                select.selectedIndex = 0;
+            });
+
+            // Clear hierarchy path
+            hierarchyPath = [];
+
+            // Remove all levels except the first one
+            clearHierarchyAfterLevel(-1);
+
+            // Update UI
+            updateBreadcrumb();
+            updateHierarchyStatus();
+            updateFinalParentDropdown();
+        }
+
+        function updateBreadcrumb() {
+            const breadcrumb = document.querySelector('.hierarchy-breadcrumb');
+            const breadcrumbPath = document.getElementById('breadcrumbPath');
+
+            if (hierarchyPath.length === 0) {
+                breadcrumb.classList.add('d-none');
+                return;
+            }
+
+            breadcrumb.classList.remove('d-none');
+
+            const pathNames = hierarchyPath.map((parentId, index) => {
+                const person = getPersonById(parentId);
+                return person ? person.name : 'غير معروف';
+            });
+
+            breadcrumbPath.innerHTML = pathNames.map((name, index) => {
+                const isLast = index === pathNames.length - 1;
+                return `
+                    <span class="breadcrumb-item ${isLast ? 'active' : ''}">
+                        ${name}
+                        ${!isLast ? '<i class="fas fa-chevron-left mx-2 text-muted"></i>' : ''}
+                    </span>
+                `;
+            }).join('');
+        }
+
+        function updateHierarchyStatus() {
+            const statusText = document.getElementById('statusText');
+
+            if (hierarchyPath.length === 0) {
+                statusText.textContent = 'اختر والد لبدء التصفية الهرمية';
+            } else {
+                const lastSelectedParentId = hierarchyPath[hierarchyPath.length - 1];
+                const lastSelectedParent = getPersonById(lastSelectedParentId);
+
+                console.log(`updateHierarchyStatus: parentId=${lastSelectedParentId}, found person:`, lastSelectedParent);
+
+                if (!lastSelectedParent) {
+                    statusText.textContent = `خطأ: لم يتم العثور على الشخص المحدد (ID: ${lastSelectedParentId})`;
+                    return;
                 }
 
-                // Apply both generation and search filters
-                applyFilters();
+                const childrenCount = getChildrenOfParent(lastSelectedParentId).length;
 
-                // Reset parent selection if current selection is hidden
-                if (selectedGeneration && parentSelect.value) {
-                    const currentOption = parentSelect.querySelector(`option[value="${parentSelect.value}"]`);
-                    if (currentOption && currentOption.dataset.generation !== selectedGeneration) {
-                        parentSelect.value = '';
-                        hideParentPreview();
-                    }
+                if (childrenCount > 0) {
+                    statusText.textContent = `تم اختيار ${lastSelectedParent.name} - يمكنك الآن اختيار من ${childrenCount} طفل`;
+                } else {
+                    statusText.textContent = `تم اختيار ${lastSelectedParent.name} - هذا الشخص ليس له أطفال`;
+                }
+            }
+        }
+
+        function updateFinalParentDropdown() {
+            const parentSelect = document.getElementById('parentSelect');
+            if (!parentSelect) return;
+
+            let availableParents = [];
+
+            if (hierarchyPath.length === 0) {
+                // Show all parents
+                availableParents = window.familyTreeData || [];
+            } else {
+                // Show only children of the last selected parent
+                const lastSelectedParentId = hierarchyPath[hierarchyPath.length - 1];
+                availableParents = getChildrenOfParent(lastSelectedParentId);
+            }
+
+            // Clear and populate dropdown
+            parentSelect.innerHTML = '<option value="">اختر الوالد</option>';
+
+            availableParents.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.Id;
+                option.setAttribute('data-generation', person.Generation);
+                option.setAttribute('data-name', person.name);
+                option.setAttribute('data-title', person.title || '');
+                option.setAttribute('data-country', person.Country || '');
+                option.setAttribute('data-image', person.image || '');
+                option.setAttribute('data-parent-name', getParentName(person.Parent) || '');
+
+                let text = person.name;
+                if (person.Parent) {
+                    text += ` ابن/ابنة ${getParentName(person.Parent)}`;
+                } else {
+                    text += ' (الجد الأعلى)';
+                }
+                text += ` - الجيل ${person.Generation}`;
+
+                option.textContent = text;
+                parentSelect.appendChild(option);
+            });
+        }
+
+        function getPersonById(personId) {
+            if (!window.familyTreeData) {
+                console.log('getPersonById: familyTreeData is not available');
+                return null;
+            }
+
+            console.log(`getPersonById: searching for ID ${personId} (type: ${typeof personId})`);
+            console.log('Available IDs:', window.familyTreeData.map(p => `${p.Id} (${typeof p.Id})`));
+
+            const person = window.familyTreeData.find(p => p.Id == personId);
+            console.log(`getPersonById result:`, person);
+
+            return person;
+        }
+
+        function getPersonName(personId) {
+            const person = getPersonById(personId);
+            return person ? person.name : 'غير معروف';
+        }
+
+        // Generation Filter Functionality (Updated)
+        function setupGenerationFilter() {
+            // This is now handled by setupHierarchicalFilters
+        }
+
+        // Filter HTML creators
+        function createGenerationFilterHTML(level) {
+            const parents = window.familyTreeData || [];
+            const generations = [...new Set(parents.map(p => p.Generation))].sort((a, b) => a - b);
+
+            return `
+                <select class="form-select generation-filter" data-level="${level}">
+                    <option value="">جميع الأجيال</option>
+                    ${generations.map(gen =>
+                        `<option value="${gen}">الجيل ${gen} (${parents.filter(p => p.Generation === gen).length} أشخاص)</option>`
+                    ).join('')}
+                </select>
+                <div class="form-text">اختر الجيل لتصفية الوالدين</div>
+            `;
+        }
+
+        function createNameFilterHTML(level) {
+            return `
+                <input type="text" class="form-control name-filter" data-level="${level}" placeholder="ابحث بالاسم...">
+                <div class="form-text">اكتب جزء من الاسم للبحث</div>
+            `;
+        }
+
+        function createTitleFilterHTML(level) {
+            const parents = window.familyTreeData || [];
+            const titles = [...new Set(parents.map(p => p.title).filter(t => t && t.trim()))].sort();
+
+            return `
+                <select class="form-select title-filter" data-level="${level}">
+                    <option value="">جميع الألقاب</option>
+                    ${titles.map(title =>
+                        `<option value="${title}">${title} (${parents.filter(p => p.title === title).length} أشخاص)</option>`
+                    ).join('')}
+                </select>
+                <div class="form-text">اختر اللقب لتصفية الوالدين</div>
+            `;
+        }
+
+        function createCountryFilterHTML(level) {
+            const parents = window.familyTreeData || [];
+            const countries = [...new Set(parents.map(p => p.Country).filter(c => c && c.trim()))].sort();
+
+            return `
+                <select class="form-select country-filter" data-level="${level}">
+                    <option value="">جميع البلدان</option>
+                    ${countries.map(country =>
+                        `<option value="${country}">${country} (${parents.filter(p => p.Country === country).length} أشخاص)</option>`
+                    ).join('')}
+                </select>
+                <div class="form-text">اختر البلد لتصفية الوالدين</div>
+            `;
+        }
+
+        function createParentFilterHTML(level) {
+            const parents = window.familyTreeData || [];
+            const parentNames = [...new Set(parents.map(p => p.Parent).filter(pid => pid))];
+            const parentObjects = parentNames.map(pid => parents.find(p => p.Id === pid)).filter(p => p);
+
+            return `
+                <select class="form-select parent-filter" data-level="${level}">
+                    <option value="">جميع الوالدين</option>
+                    ${parentObjects.map(parent =>
+                        `<option value="${parent.Id}">${parent.name} (${parents.filter(p => p.Parent === parent.Id).length} أطفال)</option>`
+                    ).join('')}
+                </select>
+                <div class="form-text">اختر الوالد لعرض أطفاله فقط</div>
+            `;
+        }
+
+        function setupFilterContentListeners(contentDiv, filterType) {
+            const inputs = contentDiv.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (!input.hasAttribute('data-listener-attached')) {
+                    input.addEventListener('input', applyMultiLevelFilters);
+                    input.addEventListener('change', applyMultiLevelFilters);
+                    input.setAttribute('data-listener-attached', 'true');
                 }
             });
         }
 
-        // Combined filter function for generation and search
-        function applyFilters() {
-            const generationFilter = document.getElementById('generationFilter');
-            const searchInput = document.getElementById('parentSearchInput');
-            const parentSelect = document.getElementById('parentSelect');
+        function removeFilterLevel(level) {
+            if (level == 1) return; // Can't remove first level
 
+            const filterLevel = document.querySelector(`.filter-level[data-level="${level}"]`);
+            if (filterLevel) {
+                filterLevel.style.transition = 'all 0.3s ease';
+                filterLevel.style.opacity = '0';
+                filterLevel.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    filterLevel.remove();
+                    updateRemoveButtonStates();
+                    applyMultiLevelFilters();
+                }, 300);
+            }
+        }
+
+        function clearAllFilters() {
+            // Reset all filter inputs
+            document.querySelectorAll('.filter-level input, .filter-level select').forEach(input => {
+                if (input.type === 'text') {
+                    input.value = '';
+                } else {
+                    input.selectedIndex = 0;
+                }
+            });
+
+            // Remove all except first level
+            const filterLevels = document.querySelectorAll('.filter-level[data-level]:not([data-level="1"])');
+            filterLevels.forEach(level => {
+                level.remove();
+            });
+
+            // Reset counter
+            filterLevelCounter = 1;
+
+            // Update states
+            updateRemoveButtonStates();
+            applyMultiLevelFilters();
+        }
+
+        function updateRemoveButtonStates() {
+            const removeButtons = document.querySelectorAll('.remove-filter-level');
+            removeButtons.forEach(btn => {
+                const level = btn.getAttribute('data-level');
+                btn.disabled = (level == 1);
+            });
+        }
+
+        function applyMultiLevelFilters() {
+            const parentSelect = document.getElementById('parentSelect');
+            if (!parentSelect || !window.originalParentOptions) return;
+
+            let filteredData = [...window.familyTreeData];
+
+            // Apply each filter level
+            const filterLevels = document.querySelectorAll('.filter-level');
+            filterLevels.forEach(level => {
+                const levelNum = level.getAttribute('data-level');
+                filteredData = applyFilterLevel(filteredData, level);
+            });
+
+            // Update parent dropdown
+            updateParentDropdown(filteredData);
+
+            // Update count display
+            updateFilterResults(filteredData.length);
+
+            // Clear tree selection if switching modes
+            clearTreeSelection();
+        }
+
+        function applyFilterLevel(data, levelElement) {
+            const generationFilter = levelElement.querySelector('.generation-filter');
+            const nameFilter = levelElement.querySelector('.name-filter');
+            const titleFilter = levelElement.querySelector('.title-filter');
+            const countryFilter = levelElement.querySelector('.country-filter');
+            const parentFilter = levelElement.querySelector('.parent-filter');
+
+            let result = [...data];
+
+            if (generationFilter && generationFilter.value) {
+                result = result.filter(p => p.Generation == generationFilter.value);
+            }
+
+            if (nameFilter && nameFilter.value.trim()) {
+                const searchTerm = nameFilter.value.trim().toLowerCase();
+                result = result.filter(p => (p.name || '').toLowerCase().includes(searchTerm));
+            }
+
+            if (titleFilter && titleFilter.value) {
+                result = result.filter(p => p.title === titleFilter.value);
+            }
+
+            if (countryFilter && countryFilter.value) {
+                result = result.filter(p => p.Country === countryFilter.value);
+            }
+
+            if (parentFilter && parentFilter.value) {
+                result = result.filter(p => p.Parent == parentFilter.value);
+            }
+
+            return result;
+        }
+
+        function updateParentDropdown(filteredData) {
+            const parentSelect = document.getElementById('parentSelect');
             if (!parentSelect) return;
 
-            const selectedGeneration = generationFilter ? generationFilter.value : '';
-            const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
-
-            // Get original options (stored during setup)
-            const originalOptions = window.originalParentOptions || Array.from(parentSelect.options);
-
             // Clear current options
-            parentSelect.innerHTML = '';
-
-            // Add default option
-            const defaultOption = originalOptions[0].cloneNode(true);
-            parentSelect.appendChild(defaultOption);
-
-            // Filter options
-            const filteredOptions = originalOptions.slice(1).filter(option => {
-                const generation = option.dataset.generation;
-                const searchText = option.dataset.searchText || option.textContent.toLowerCase();
-                const name = option.dataset.name ? option.dataset.name.toLowerCase() : '';
-                const parentName = option.dataset.parentName ? option.dataset.parentName.toLowerCase() : '';
-
-                // Check generation filter
-                const generationMatch = !selectedGeneration || generation === selectedGeneration;
-
-                // Check search filter
-                const searchMatch = !searchTerm ||
-                    searchText.includes(searchTerm) ||
-                    name.includes(searchTerm) ||
-                    parentName.includes(searchTerm);
-
-                return generationMatch && searchMatch;
-            });
+            parentSelect.innerHTML = '<option value="">اختر الوالد</option>';
 
             // Add filtered options
-            filteredOptions.forEach(option => {
-                parentSelect.appendChild(option.cloneNode(true));
+            filteredData.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.Id;
+                option.setAttribute('data-generation', person.Generation);
+                option.setAttribute('data-name', person.name);
+                option.setAttribute('data-title', person.title || '');
+                option.setAttribute('data-country', person.Country || '');
+                option.setAttribute('data-image', person.image || '');
+                option.setAttribute('data-parent-name', getParentName(person.Parent) || '');
+
+                let text = person.name;
+                if (person.Parent) {
+                    text += ` ابن/ابنة ${getParentName(person.Parent)}`;
+                } else {
+                    text += ' (الجد الأعلى)';
+                }
+                text += ` - الجيل ${person.Generation}`;
+
+                option.textContent = text;
+                parentSelect.appendChild(option);
             });
+        }
 
-            // Update placeholder text
-            let placeholderText = 'اختر الوالد';
-            if (selectedGeneration && searchTerm) {
-                placeholderText = `اختر من ${filteredOptions.length} نتيجة في الجيل ${selectedGeneration}`;
-            } else if (selectedGeneration) {
-                placeholderText = `اختر الوالد من الجيل ${selectedGeneration}`;
-            } else if (searchTerm) {
-                placeholderText = `اختر من ${filteredOptions.length} نتيجة`;
+        function updateFilterResults(count) {
+            const countText = document.getElementById('countText');
+            if (countText) {
+                const totalCount = window.familyTreeData ? window.familyTreeData.length : 0;
+                if (count === totalCount) {
+                    countText.textContent = `جميع الأفراد متاحون (${count} شخص)`;
+                } else {
+                    countText.textContent = `${count} من ${totalCount} شخص متاح بعد التصفية`;
+                }
             }
+        }
 
-            if (filteredOptions.length === 0) {
-                placeholderText = 'لا توجد نتائج';
-            }
-
-            defaultOption.textContent = placeholderText;
-
-            // Reset selection if current selection is not visible
-            if (parentSelect.value && !Array.from(parentSelect.options).some(opt => opt.value === parentSelect.value)) {
-                parentSelect.value = '';
-                hideParentPreview();
-            }
+        // Combined filter function for generation and search (Legacy - updated to use hierarchical)
+        function applyFilters() {
+            // This is now handled by the hierarchical system
+            updateFinalParentDropdown();
         }
 
         // Parent Preview Functionality
@@ -1932,6 +2476,208 @@
         .tree-node.collapsed ul.tree-level {
             max-height: 0;
             opacity: 0;
+        }
+
+        /* Hierarchical Filter Styles */
+        .hierarchical-filter-section {
+            background: rgba(26, 71, 42, 0.02);
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .filter-header {
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .hierarchy-level {
+            background: white;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .hierarchy-level:hover {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
+        }
+
+        .hierarchy-level-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .hierarchy-level-number {
+            width: 30px;
+            height: 30px;
+            background: var(--islamic-gold);
+            color: var(--islamic-dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .filter-type-select {
+            flex-grow: 1;
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .filter-type-select:focus {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+        }
+
+        .hierarchy-level-title {
+            color: var(--islamic-green);
+            font-weight: 600;
+            font-family: 'Amiri', serif;
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .hierarchy-breadcrumb {
+            background: rgba(32, 201, 151, 0.1);
+            border: 1px solid rgba(32, 201, 151, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .breadcrumb-path {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .breadcrumb-item {
+            color: var(--islamic-green);
+            font-weight: 500;
+            font-family: 'Amiri', serif;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--islamic-gold);
+            font-weight: 700;
+        }
+
+        .hierarchy-results {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            text-align: center;
+        }
+
+        .hierarchy-results .text-muted {
+            color: var(--islamic-green) !important;
+            font-weight: 500;
+        }
+
+        .filter-content {
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .filter-content .form-control,
+        .filter-content .form-select {
+            border-color: rgba(212, 175, 55, 0.2);
+        }
+
+        .filter-content .form-control:focus,
+        .filter-content .form-select:focus {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+        }
+
+        .remove-filter-level {
+            align-self: flex-start;
+            margin-top: 5px;
+        }
+
+        .remove-filter-level:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .filter-results {
+            background: rgba(32, 201, 151, 0.1);
+            border: 1px solid rgba(32, 201, 151, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            text-align: center;
+        }
+
+        .filter-results .text-muted {
+            color: var(--islamic-green) !important;
+            font-weight: 500;
+        }
+
+        /* Filter level animations */
+        .filter-level {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .filter-level.removing {
+            animation: slideOutUp 0.3s ease forwards;
+        }
+
+        @@keyframes slideOutUp {
+            to {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive multi-level filter styles */
+        @@media (max-width: 768px) {
+            .filter-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+
+            .filter-controls {
+                justify-content: center;
+            }
+
+            .filter-level-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .filter-type-select {
+                width: 100%;
+            }
+
+            .remove-filter-level {
+                align-self: center;
+                margin-top: 10px;
+            }
         }
 
         /* Responsive tree styles */

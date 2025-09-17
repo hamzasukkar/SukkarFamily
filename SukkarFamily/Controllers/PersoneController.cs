@@ -146,7 +146,9 @@ namespace SukkarFamily.Controllers
                             image = i < childImages.Count ? childImages[i] : null,
                             Country = i < childCountries.Count ? childCountries[i] : null,
                             Parent = parent,
-                            Generation = parent.Generation + 1
+                            Generation = parent.Generation + 1,
+                            DateOfBirth = null, // Can be set later through Edit
+                            DateOfDeath = null
                         };
 
                         db.persones.Add(child);
@@ -172,7 +174,25 @@ namespace SukkarFamily.Controllers
                     persone.title = collection["title"];
                     persone.image = collection["image"];
                     persone.Country = collection["Country"];
-                    
+
+                    // Handle DateOfBirth
+                    if (!string.IsNullOrEmpty(collection["DateOfBirth"]))
+                    {
+                        if (DateTime.TryParse(collection["DateOfBirth"], out DateTime birthDate))
+                        {
+                            persone.DateOfBirth = birthDate;
+                        }
+                    }
+
+                    // Handle DateOfDeath
+                    if (!string.IsNullOrEmpty(collection["DateOfDeath"]))
+                    {
+                        if (DateTime.TryParse(collection["DateOfDeath"], out DateTime deathDate))
+                        {
+                            persone.DateOfDeath = deathDate;
+                        }
+                    }
+
                     // Handle parent selection
                     if (!string.IsNullOrEmpty(collection["Parent"]) && int.TryParse(collection["Parent"], out int parentId))
                     {
@@ -229,19 +249,54 @@ namespace SukkarFamily.Controllers
         {
             try
             {
-                // TODO: Add update logic here
                 var persone = db.persones.SingleOrDefault(p => p.Id == id);
+
+                if (persone == null)
+                {
+                    TempData["ErrorMessage"] = "الشخص المطلوب تعديله غير موجود.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Update basic information
                 persone.name = collection["name"];
-                persone.title= collection["title"];
-                persone.image= collection["image"];
+                persone.title = collection["title"];
+                persone.image = collection["image"];
                 persone.Country = collection["Country"];
-                //persone.Parent = db.persones.SingleOrDefault(p => p.Id == Int32.Parse(collection["Parent"]));
+
+                // Update DateOfBirth
+                if (!string.IsNullOrEmpty(collection["DateOfBirth"]))
+                {
+                    if (DateTime.TryParse(collection["DateOfBirth"], out DateTime birthDate))
+                    {
+                        persone.DateOfBirth = birthDate;
+                    }
+                }
+                else
+                {
+                    persone.DateOfBirth = null;
+                }
+
+                // Update DateOfDeath
+                if (!string.IsNullOrEmpty(collection["DateOfDeath"]))
+                {
+                    if (DateTime.TryParse(collection["DateOfDeath"], out DateTime deathDate))
+                    {
+                        persone.DateOfDeath = deathDate;
+                    }
+                }
+                else
+                {
+                    persone.DateOfDeath = null;
+                }
+
                 db.SaveChanges();
+                TempData["SuccessMessage"] = $"تم تحديث بيانات {persone.name} بنجاح.";
 
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
+                TempData["ErrorMessage"] = "حدث خطأ أثناء حفظ التعديلات. يرجى المحاولة مرة أخرى.";
                 return View();
             }
         }

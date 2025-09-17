@@ -6,71 +6,99 @@
 
 <div class="family-members-page">
     <!-- Page Header -->
-    <div class="page-header fade-in-up">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="arabic-title">
-                    <i class="fas fa-users text-gold me-3"></i>
-                    أفراد عائلة سكر
-                </h1>
-                <p class="lead text-muted">قائمة شاملة بجميع أفراد العائلة عبر الأجيال</p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <div class="btn-group">
-                    <a href="@Url.Action("Create", "Persone")" class="btn btn-gold">
-                        <i class="fas fa-user-plus me-2"></i>إضافة فرد جديد
-                    </a>
-                    <a href="@Url.Action("Tree", "Persone")" class="btn btn-outline-secondary">
-                        <i class="fas fa-sitemap me-2"></i>عرض الشجرة
-                    </a>
+    <div class="page-header-islamic fade-in-up">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="page-title-section">
+                        <div class="islamic-decoration mb-3">
+                            <i class="fas fa-star-and-crescent text-gold"></i>
+                        </div>
+                        <h1 class="page-title">
+                            <i class="fas fa-users text-gold me-3"></i>
+                            أفراد عائلة سكر الكرام
+                        </h1>
+                        <p class="page-subtitle">سجل شامل لجميع أفراد العائلة المباركة عبر الأجيال</p>
+                        <div class="breadcrumb-islamic">
+                            <a href="@Url.Action("Index", "Home")"><i class="fas fa-home"></i> الرئيسية</a>
+                            <span class="separator"><i class="fas fa-angle-left"></i></span>
+                            <span class="current">أفراد العائلة</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="page-actions">
+                        <a href="@Url.Action("Create", "Persone")" class="btn btn-gold btn-lg mb-2">
+                            <i class="fas fa-user-plus me-2"></i>إضافة فرد جديد
+                        </a>
+                        <a href="@Url.Action("Tree", "Persone")" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-sitemap me-2"></i>عرض شجرة العائلة
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row mb-4 fade-in-up">
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-users text-primary"></i>
+    <div class="statistics-section mb-5 fade-in-up">
+        <div class="container-fluid">
+            <div class="row g-4">
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card-islamic">
+                        <div class="stat-icon-wrapper">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number">@Model.Count()</h3>
+                            <p class="stat-label">إجمالي أفراد العائلة</p>
+                            <div class="stat-decoration"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-content">
-                    <h3>@Model.Count()</h3>
-                    <p>إجمالي الأفراد</p>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card-islamic">
+                        <div class="stat-icon-wrapper">
+                            <div class="stat-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number">@(Model.Any() ? Model.Max(p => p.Generation) : 0)</h3>
+                            <p class="stat-label">عدد الأجيال</p>
+                            <div class="stat-decoration"></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-layer-group text-success"></i>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card-islamic">
+                        <div class="stat-icon-wrapper">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number">@Model.Count(p => p.DateOfBirth.HasValue)</h3>
+                            <p class="stat-label">تواريخ الميلاد المسجلة</p>
+                            <div class="stat-decoration"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-content">
-                    <h3>@(Model.Max(p => p.Generation))</h3>
-                    <p>عدد الأجيال</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-male text-info"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>@Model.Count()</h3>
-                    <p>الذكور</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-female text-pink"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>0</h3>
-                    <p>الإناث</p>
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="stat-card-islamic">
+                        <div class="stat-icon-wrapper">
+                            <div class="stat-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number">@Model.Count(p => !p.DateOfDeath.HasValue)</h3>
+                            <p class="stat-label">على قيد الحياة</p>
+                            <div class="stat-decoration"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -79,7 +107,7 @@
     <!-- Success/Error Messages -->
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show mx-3" role="alert">
             <i class="fas fa-check-circle me-2"></i>
             @TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -88,7 +116,7 @@
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show mx-3" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>
             @TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -96,18 +124,30 @@
     }
 
     <!-- Search and Filter -->
-    <div class="search-filter-section mb-4 fade-in-up">
+    <div class="search-filter-section mb-5 fade-in-up">
         <div class="card-islamic">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>
+                    البحث والتصفية
+                </h5>
+            </div>
             <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-4">
-                        <div class="search-box">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label text-muted fw-bold">
+                            <i class="fas fa-search me-2 text-gold"></i>البحث
+                        </label>
+                        <div class="search-box-islamic">
+                            <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="البحث بالاسم أو اللقب...">
                             <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="searchInput" class="form-control" placeholder="البحث بالاسم أو اللقب...">
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <select id="generationFilter" class="form-select">
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label text-muted fw-bold">
+                            <i class="fas fa-layer-group me-2 text-gold"></i>الجيل
+                        </label>
+                        <select id="generationFilter" class="form-select form-select-lg">
                             <option value="">جميع الأجيال</option>
                             @for (int i = 1; i <= (Model.Any() ? Model.Max(p => p.Generation) : 1); i++)
                             {
@@ -115,20 +155,26 @@
                             }
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <select id="sortBy" class="form-select">
-                            <option value="name">ترتيب بالاسم</option>
-                            <option value="generation" selected>ترتيب بالجيل</option>
-                            <option value="id">ترتيب بالرقم</option>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label text-muted fw-bold">
+                            <i class="fas fa-sort me-2 text-gold"></i>ترتيب حسب
+                        </label>
+                        <select id="sortBy" class="form-select form-select-lg">
+                            <option value="generation" selected>الجيل ثم تاريخ الميلاد</option>
+                            <option value="name">الاسم أبجدياً</option>
+                            <option value="birth">تاريخ الميلاد</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <div class="btn-group w-100">
-                            <button type="button" class="btn btn-outline-secondary" id="gridView" title="عرض شبكي">
-                                <i class="fas fa-th"></i>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label text-muted fw-bold">
+                            <i class="fas fa-eye me-2 text-gold"></i>طريقة العرض
+                        </label>
+                        <div class="view-toggle-group">
+                            <button type="button" class="btn btn-outline-islamic" id="gridView" title="عرض شبكي">
+                                <i class="fas fa-th me-2"></i>شبكي
                             </button>
-                            <button type="button" class="btn btn-outline-secondary active" id="listView" title="عرض قائمة">
-                                <i class="fas fa-list"></i>
+                            <button type="button" class="btn btn-islamic active" id="listView" title="عرض قائمة">
+                                <i class="fas fa-list me-2"></i>قائمة
                             </button>
                         </div>
                     </div>
@@ -145,123 +191,156 @@
             <div id="listViewContent" class="fade-in-up">
                 <div class="card-islamic">
                     <div class="card-header">
-                        <h5><i class="fas fa-list me-2"></i>قائمة أفراد العائلة</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list me-2"></i>قائمة أفراد العائلة المباركة
+                            </h5>
+                            <span class="badge bg-light text-dark fs-6">
+                                <i class="fas fa-users me-1"></i>@Model.Count() فرد
+                            </span>
+                        </div>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover members-table mb-0">
-                                <thead class="table-header">
+                            <table class="table table-hover members-table-islamic mb-0">
+                                <thead class="table-header-islamic">
                                     <tr>
-                                        <th width="60">#</th>
-                                        <th>الصورة</th>
-                                        <th>الاسم</th>
-                                        <th>اللقب</th>
-                                        <th>البلد</th>
-                                        <th>تاريخ الميلاد</th>
-                                        <th>تاريخ الوفاة</th>
-                                        <th>الوالد</th>
-                                        <th>الجيل</th>
-                                        <th width="200">الإجراءات</th>
+                                        <th class="text-center" width="70">
+                                            <i class="fas fa-hashtag"></i>
+                                        </th>
+                                        <th class="text-center" width="80">
+                                            <i class="fas fa-image"></i>
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-user me-2"></i>الاسم الكريم
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-crown me-2"></i>اللقب
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-flag me-2"></i>البلد
+                                        </th>
+                                        <th class="text-center">
+                                            <i class="fas fa-birthday-cake me-2"></i>الميلاد
+                                        </th>
+                                        <th class="text-center">
+                                            <i class="fas fa-cross me-2"></i>الوفاة
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-user-tie me-2"></i>الوالد
+                                        </th>
+                                        <th class="text-center">
+                                            <i class="fas fa-layer-group me-2"></i>الجيل
+                                        </th>
+                                        <th class="text-center" width="200">
+                                            <i class="fas fa-cogs me-2"></i>الإجراءات
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.Parent?.name ?? "").ThenBy(p => p.name))
+                                    @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.Parent?.name ?? "").ThenBy(p => p.DateOfBirth ?? DateTime.MaxValue).ThenBy(p => p.name))
                                     {
-                                        <tr class="member-row" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
+                                        <tr class="member-row-islamic" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
                                             <td class="text-center">
-                                                <span class="member-id">@person.Id</span>
+                                                <span class="member-id-badge">@person.Id</span>
                                             </td>
-                                            <td>
-                                                <div class="member-avatar">
+                                            <td class="text-center">
+                                                <div class="member-avatar-islamic">
                                                     @if (!string.IsNullOrEmpty(person.image))
                                                     {
-                                                        <img src="@person.image" alt="@person.name" class="avatar-img">
+                                                        <img src="@person.image" alt="@person.name" class="avatar-img-islamic">
                                                     }
                                                     else
                                                     {
-                                                        <div class="avatar-placeholder">
+                                                        <div class="avatar-placeholder-islamic">
                                                             <i class="fas fa-user"></i>
                                                         </div>
                                                     }
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="member-name">
-                                                    <strong>@person.name</strong>
+                                                <div class="member-name-section">
+                                                    <div class="member-name-primary">@person.name</div>
                                                     @if (person.Generation == 1)
                                                     {
-                                                        <span class="badge bg-gold ms-2">الجد الأعلى</span>
+                                                        <span class="ancestor-badge">
+                                                            <i class="fas fa-crown me-1"></i>الجد الأعلى
+                                                        </span>
                                                     }
                                                 </div>
                                             </td>
                                             <td>
-                                                <span class="member-title">@(person.title ?? "غير محدد")</span>
+                                                <span class="member-title-text">@(person.title ?? "غير محدد")</span>
                                             </td>
                                             <td>
                                                 @if (!string.IsNullOrEmpty(person.Country))
                                                 {
-                                                    <span class="country-badge">
-                                                        <i class="fas fa-flag me-1"></i>@person.Country
+                                                    <span class="country-badge-islamic">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>@person.Country
                                                     </span>
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted">غير محدد</span>
+                                                    <span class="text-muted-islamic">غير محدد</span>
                                                 }
                                             </td>
-                                            <td>
+                                            <td class="text-center">
                                                 @if (person.DateOfBirth.HasValue)
                                                 {
-                                                    <span class="date-badge birth-date">
-                                                        <i class="fas fa-birthday-cake me-1"></i>@person.DateOfBirth.Value.ToString("yyyy/MM/dd")
-                                                    </span>
+                                                    <div class="date-info-islamic birth-info">
+                                                        <div class="date-value">@person.DateOfBirth.Value.ToString("yyyy/MM/dd")</div>
+                                                        <div class="date-label">الميلاد</div>
+                                                    </div>
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted">غير محدد</span>
+                                                    <span class="text-muted-islamic">غير محدد</span>
                                                 }
                                             </td>
-                                            <td>
+                                            <td class="text-center">
                                                 @if (person.DateOfDeath.HasValue)
                                                 {
-                                                    <span class="date-badge death-date">
-                                                        <i class="fas fa-cross me-1"></i>@person.DateOfDeath.Value.ToString("yyyy/MM/dd")
-                                                    </span>
+                                                    <div class="date-info-islamic death-info">
+                                                        <div class="date-value">@person.DateOfDeath.Value.ToString("yyyy/MM/dd")</div>
+                                                        <div class="date-label">الوفاة</div>
+                                                    </div>
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted">على قيد الحياة</span>
+                                                    <span class="alive-badge">
+                                                        <i class="fas fa-heart me-1"></i>على قيد الحياة
+                                                    </span>
                                                 }
                                             </td>
                                             <td>
                                                 @if (person.Parent != null)
                                                 {
-                                                    <a href="@Url.Action("Details", new { id = person.Parent.Id })" class="parent-link">
-                                                        @person.Parent.name
+                                                    <a href="@Url.Action("Details", new { id = person.Parent.Id })" class="parent-link-islamic">
+                                                        <i class="fas fa-user-tie me-1"></i>@person.Parent.name
                                                     </a>
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted">الجد الأعلى</span>
+                                                    <span class="root-indicator">
+                                                        <i class="fas fa-tree me-1"></i>الجد الأعلى
+                                                    </span>
                                                 }
                                             </td>
-                                            <td>
-                                                <span class="generation-badge generation-@person.Generation">
-                                                    الجيل @person.Generation
+                                            <td class="text-center">
+                                                <span class="generation-badge-islamic generation-@person.Generation">
+                                                    <span class="generation-number">@person.Generation</span>
+                                                    <span class="generation-label">الجيل</span>
                                                 </span>
                                             </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a href="@Url.Action("Details", new { id = person.Id })" class="btn btn-sm btn-outline-info" title="التفاصيل">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="@Url.Action("Edit", new { id = person.Id })" class="btn btn-sm btn-outline-warning" title="تعديل">
+                                            <td class="text-center">
+                                                <div class="action-buttons-islamic">
+                                                    <a href="@Url.Action("Edit", new { id = person.Id })" class="btn btn-sm btn-islamic-warning" title="تعديل البيانات">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
-                                                    <a href="@Url.Action("Create", new { id = person.Id })" class="btn btn-sm btn-outline-success" title="إضافة أطفال (واحد أو أكثر)">
+                                                    <a href="@Url.Action("Create", new { id = person.Id })" class="btn btn-sm btn-islamic-success" title="إضافة أطفال">
                                                         <i class="fas fa-user-plus"></i>
                                                     </a>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete(@person.Id, '@person.name')" title="حذف">
+                                                    <button type="button" class="btn btn-sm btn-islamic-danger" onclick="confirmDelete(@person.Id, '@person.name')" title="حذف">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </div>
@@ -277,71 +356,89 @@
 
             <!-- Grid View -->
             <div id="gridViewContent" class="d-none">
-                <div class="row">
-                    @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.Parent?.name ?? "").ThenBy(p => p.name))
+                <div class="row g-4">
+                    @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.Parent?.name ?? "").ThenBy(p => p.DateOfBirth ?? DateTime.MaxValue).ThenBy(p => p.name))
                     {
-                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4 member-card-container" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
-                            <div class="member-card fade-in-up">
-                                <div class="member-card-header">
-                                    @if (!string.IsNullOrEmpty(person.image))
-                                    {
-                                        <img src="@person.image" alt="@person.name" class="member-photo">
-                                    }
-                                    else
-                                    {
-                                        <div class="member-photo-placeholder">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                    }
-                                    <div class="generation-indicator generation-@person.Generation">
-                                        @person.Generation
+                        <div class="col-xl-3 col-lg-4 col-md-6 member-card-container-islamic" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
+                            <div class="member-card-islamic fade-in-up">
+                                <div class="member-card-header-islamic">
+                                    <div class="member-photo-section">
+                                        @if (!string.IsNullOrEmpty(person.image))
+                                        {
+                                            <img src="@person.image" alt="@person.name" class="member-photo-islamic">
+                                        }
+                                        else
+                                        {
+                                            <div class="member-photo-placeholder-islamic">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        }
                                     </div>
+                                    <div class="generation-indicator-islamic generation-@person.Generation">
+                                        <span class="generation-number">@person.Generation</span>
+                                    </div>
+                                    @if (person.Generation == 1)
+                                    {
+                                        <div class="ancestor-crown">
+                                            <i class="fas fa-crown"></i>
+                                        </div>
+                                    }
                                 </div>
-                                <div class="member-card-body">
-                                    <h5 class="member-card-name">@person.name</h5>
-                                    <p class="member-card-title">@(person.title ?? "غير محدد")</p>
-                                    @if (!string.IsNullOrEmpty(person.Country))
+                                <div class="member-card-body-islamic">
+                                    <h5 class="member-name-islamic">@person.name</h5>
+                                    @if (!string.IsNullOrEmpty(person.title))
                                     {
-                                        <p class="member-card-country">
-                                            <i class="fas fa-flag text-muted me-1"></i>
-                                            <small>@person.Country</small>
-                                        </p>
+                                        <p class="member-title-islamic">@person.title</p>
                                     }
-                                    @if (person.DateOfBirth.HasValue)
-                                    {
-                                        <p class="member-card-birth">
-                                            <i class="fas fa-birthday-cake text-muted me-1"></i>
-                                            <small>@person.DateOfBirth.Value.ToString("yyyy/MM/dd")</small>
-                                        </p>
-                                    }
-                                    @if (person.DateOfDeath.HasValue)
-                                    {
-                                        <p class="member-card-death">
-                                            <i class="fas fa-cross text-muted me-1"></i>
-                                            <small>@person.DateOfDeath.Value.ToString("yyyy/MM/dd")</small>
-                                        </p>
-                                    }
-                                    @if (person.Parent != null)
-                                    {
-                                        <p class="member-card-parent">
-                                            <i class="fas fa-user-tie text-muted me-1"></i>
-                                            <small>@person.Parent.name</small>
-                                        </p>
-                                    }
-                                    <div class="member-card-actions">
-                                        <div class="action-row">
-                                            <a href="@Url.Action("Details", new { id = person.Id })" class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-eye me-1"></i>عرض
-                                            </a>
-                                            <a href="@Url.Action("Edit", new { id = person.Id })" class="btn btn-sm btn-outline-warning">
-                                                <i class="fas fa-edit me-1"></i>تعديل
-                                            </a>
-                                        </div>
-                                        <div class="action-row">
-                                            <a href="@Url.Action("Create", new { id = person.Id })" class="btn btn-sm btn-outline-success">
-                                                <i class="fas fa-user-plus me-1"></i>أطفال
-                                            </a>
-                                        </div>
+
+                                    <div class="member-details-islamic">
+                                        @if (!string.IsNullOrEmpty(person.Country))
+                                        {
+                                            <div class="detail-item">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <span>@person.Country</span>
+                                            </div>
+                                        }
+                                        @if (person.DateOfBirth.HasValue)
+                                        {
+                                            <div class="detail-item birth-detail">
+                                                <i class="fas fa-birthday-cake"></i>
+                                                <span>@person.DateOfBirth.Value.ToString("yyyy")</span>
+                                            </div>
+                                        }
+                                        @if (person.DateOfDeath.HasValue)
+                                        {
+                                            <div class="detail-item death-detail">
+                                                <i class="fas fa-cross"></i>
+                                                <span>@person.DateOfDeath.Value.ToString("yyyy")</span>
+                                            </div>
+                                        }
+                                        else if (person.DateOfBirth.HasValue)
+                                        {
+                                            <div class="detail-item alive-detail">
+                                                <i class="fas fa-heart"></i>
+                                                <span>على قيد الحياة</span>
+                                            </div>
+                                        }
+                                        @if (person.Parent != null)
+                                        {
+                                            <div class="detail-item parent-detail">
+                                                <i class="fas fa-user-tie"></i>
+                                                <span>@person.Parent.name</span>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="member-actions-islamic">
+                                        <a href="@Url.Action("Edit", new { id = person.Id })" class="btn btn-islamic-action" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="@Url.Action("Create", new { id = person.Id })" class="btn btn-islamic-action" title="إضافة أطفال">
+                                            <i class="fas fa-user-plus"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-islamic-action btn-danger-action" onclick="confirmDelete(@person.Id, '@person.name')" title="حذف">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -462,18 +559,18 @@
         function filterMembers() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const selectedGeneration = document.getElementById('generationFilter').value;
-            
-            const listRows = document.querySelectorAll('.member-row');
-            const gridCards = document.querySelectorAll('.member-card-container');
-            
+
+            const listRows = document.querySelectorAll('.member-row-islamic');
+            const gridCards = document.querySelectorAll('.member-card-container-islamic');
+
             const filterRow = (element, isGrid = false) => {
                 const name = element.dataset.name?.toLowerCase() || '';
                 const title = element.dataset.title?.toLowerCase() || '';
                 const generation = element.dataset.generation;
-                
+
                 const matchesSearch = !searchTerm || name.includes(searchTerm) || title.includes(searchTerm);
                 const matchesGeneration = !selectedGeneration || generation === selectedGeneration;
-                
+
                 if (matchesSearch && matchesGeneration) {
                     element.style.display = '';
                 } else {
@@ -483,7 +580,7 @@
 
             listRows.forEach(row => filterRow(row));
             gridCards.forEach(card => filterRow(card, true));
-            
+
             // Reapply dynamic generation colors after filtering
             applyDynamicGenerationColors();
         }
@@ -498,7 +595,13 @@
             document.getElementById('gridViewContent').classList.remove('d-none');
             document.getElementById('listView').classList.remove('active');
             document.getElementById('gridView').classList.add('active');
-            
+
+            // Update button styles
+            document.getElementById('listView').classList.remove('btn-islamic');
+            document.getElementById('listView').classList.add('btn-outline-islamic');
+            document.getElementById('gridView').classList.remove('btn-outline-islamic');
+            document.getElementById('gridView').classList.add('btn-islamic');
+
             // Reapply dynamic colors when switching views
             setTimeout(applyDynamicGenerationColors, 50);
         }
@@ -508,7 +611,13 @@
             document.getElementById('listViewContent').classList.remove('d-none');
             document.getElementById('gridView').classList.remove('active');
             document.getElementById('listView').classList.add('active');
-            
+
+            // Update button styles
+            document.getElementById('gridView').classList.remove('btn-islamic');
+            document.getElementById('gridView').classList.add('btn-outline-islamic');
+            document.getElementById('listView').classList.remove('btn-outline-islamic');
+            document.getElementById('listView').classList.add('btn-islamic');
+
             // Reapply dynamic colors when switching views
             setTimeout(applyDynamicGenerationColors, 50);
         }
@@ -517,34 +626,34 @@
         function generateGenerationColor(generation) {
             // Predefined colors for generations 1-10 are handled by CSS
             if (generation <= 10) return null;
-            
+
             // Generate color using HSL for consistent, vibrant colors
             const hue = ((generation - 11) * 137.5) % 360; // Golden ratio * 360 for good distribution
             const saturation = 70 + (generation % 3) * 10; // 70-90% saturation for vibrant colors
             const lightness = 45 + (generation % 2) * 10;  // 45-55% lightness for good contrast
-            
+
             return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         }
 
         // Apply dynamic generation colors
         function applyDynamicGenerationColors() {
             // Get all generation badges and indicators
-            const generationElements = document.querySelectorAll('.generation-badge, .generation-indicator');
-            
+            const generationElements = document.querySelectorAll('.generation-badge-islamic, .generation-indicator-islamic');
+
             generationElements.forEach(element => {
                 // Extract generation number from class
                 const classList = Array.from(element.classList);
                 const generationClass = classList.find(cls => cls.startsWith('generation-'));
-                
+
                 if (generationClass) {
                     const generation = parseInt(generationClass.replace('generation-', ''));
-                    
+
                     // Apply dynamic color for generations > 10
                     if (generation > 10) {
                         const color = generateGenerationColor(generation);
-                        element.style.backgroundColor = color;
+                        element.style.background = color;
                         element.style.color = 'white';
-                        
+
                         // Ensure good contrast for yellow-ish colors
                         const hsl = color.match(/hsl\((\d+),/);
                         if (hsl && (parseInt(hsl[1]) > 50 && parseInt(hsl[1]) < 70)) {
@@ -561,334 +670,790 @@
             tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
-            
+
             // Apply dynamic generation colors
             applyDynamicGenerationColors();
         });
     </script>
 
     <style>
+        /* === MAIN LAYOUT === */
         .family-members-page {
             min-height: 100vh;
+            background: linear-gradient(135deg, var(--islamic-cream) 0%, #f8f9fa 100%);
+            padding-bottom: 3rem;
         }
 
-        .page-header {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(26, 71, 42, 0.05) 100%);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+        /* === PAGE HEADER === */
+        .page-header-islamic {
+            background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-green-light) 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: var(--shadow);
+        .page-header-islamic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="islamic" patternUnits="userSpaceOnUse" width="20" height="20"><path d="M10 0L20 10L10 20L0 10Z" fill="none" stroke="rgba(212,175,55,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23islamic)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .page-title-section {
+            position: relative;
+            z-index: 2;
+        }
+
+        .islamic-decoration {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+
+        .page-title {
+            font-family: 'Amiri', serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .breadcrumb-islamic {
             display: flex;
             align-items: center;
-            transition: transform 0.3s ease;
-            border: 1px solid rgba(212, 175, 55, 0.1);
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
 
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
+        .breadcrumb-islamic a {
+            color: var(--islamic-gold);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .breadcrumb-islamic a:hover {
+            color: white;
+        }
+
+        .separator {
+            margin: 0 0.5rem;
+            opacity: 0.6;
+        }
+
+        .page-actions {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-actions .btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 0.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* === STATISTICS SECTION === */
+        .statistics-section {
+            margin-top: -1rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        .stat-card-islamic {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .stat-card-islamic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+        }
+
+        .stat-card-islamic:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-color: var(--islamic-gold);
+        }
+
+        .stat-icon-wrapper {
+            text-align: center;
+            margin-bottom: 1.5rem;
         }
 
         .stat-icon {
-            font-size: 2.5rem;
-            margin-left: 15px;
-            width: 60px;
-            text-align: center;
-        }
-
-        .stat-content h3 {
-            margin: 0;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-green-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 2rem;
-            font-weight: 700;
-            color: var(--islamic-green);
+            color: white;
+            margin: 0 auto;
+            box-shadow: 0 8px 20px rgba(26, 71, 42, 0.3);
         }
 
-        .stat-content p {
-            margin: 0;
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        .search-box {
+        .stat-content {
+            text-align: center;
             position: relative;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            font-family: 'Amiri', serif;
+            color: var(--islamic-green);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .stat-decoration {
+            width: 40px;
+            height: 2px;
+            background: var(--islamic-gold);
+            margin: 0 auto;
+            border-radius: 1px;
+        }
+
+        /* === SEARCH AND FILTER SECTION === */
+        .search-filter-section .card-islamic {
+            border: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .search-box-islamic {
+            position: relative;
+        }
+
+        .search-box-islamic input {
+            padding-right: 3rem;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box-islamic input:focus {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
         }
 
         .search-icon {
             position: absolute;
-            right: 15px;
+            right: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #6c757d;
-            z-index: 10;
+            color: var(--islamic-gold);
+            font-size: 1.1rem;
         }
 
-        .search-box input {
-            padding-right: 40px;
+        .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            transition: all 0.3s ease;
         }
 
-        .members-table {
-            font-size: 0.9rem;
+        .form-select:focus {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
         }
 
-        .table-header {
+        .view-toggle-group {
+            display: flex;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid #e9ecef;
+        }
+
+        .view-toggle-group .btn {
+            border: none;
+            border-radius: 0;
+            flex: 1;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-islamic {
+            background: var(--islamic-green);
+            color: white;
+            border-color: var(--islamic-green);
+        }
+
+        .btn-islamic:hover {
+            background: var(--islamic-green-light);
+            color: white;
+        }
+
+        .btn-outline-islamic {
+            background: white;
+            color: var(--islamic-green);
+            border-color: var(--islamic-green);
+        }
+
+        .btn-outline-islamic:hover {
+            background: var(--islamic-green);
+            color: white;
+        }
+
+        /* === TABLE STYLES === */
+        .members-table-islamic {
+            font-size: 0.95rem;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-header-islamic {
             background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-green-light) 100%);
             color: white;
         }
 
-        .table-header th {
+        .table-header-islamic th {
             border: none;
             font-weight: 600;
-            padding: 15px 10px;
+            padding: 1.2rem 1rem;
+            text-align: right;
+            position: relative;
+            white-space: nowrap;
         }
 
-        .member-row:hover {
-            background: rgba(212, 175, 55, 0.05);
+        .table-header-islamic th:first-child {
+            border-top-right-radius: 15px;
         }
 
-        .member-id {
-            background: var(--islamic-gold);
+        .table-header-islamic th:last-child {
+            border-top-left-radius: 15px;
+        }
+
+        .member-row-islamic {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .member-row-islamic:hover {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(26, 71, 42, 0.02) 100%);
+            transform: scale(1.01);
+        }
+
+        .member-row-islamic td {
+            padding: 1rem;
+            vertical-align: middle;
+            border: none;
+        }
+
+        .member-id-badge {
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
             color: var(--islamic-dark);
-            padding: 4px 8px;
-            border-radius: 15px;
-            font-weight: 600;
-            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
         }
 
-        .member-avatar {
-            width: 50px;
-            height: 50px;
+        .member-avatar-islamic {
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
 
-        .avatar-img {
-            width: 45px;
-            height: 45px;
+        .avatar-img-islamic {
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--islamic-gold);
+            border: 3px solid var(--islamic-gold);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .avatar-placeholder {
-            width: 45px;
-            height: 45px;
+        .avatar-placeholder-islamic {
+            width: 55px;
+            height: 55px;
             background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--islamic-dark);
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
 
-        .parent-link {
+        .member-name-section {
+            font-family: 'Amiri', serif;
+        }
+
+        .member-name-primary {
+            font-size: 1.1rem;
+            font-weight: 700;
             color: var(--islamic-green);
-            text-decoration: none;
-            font-weight: 500;
+            margin-bottom: 0.25rem;
         }
 
-        .parent-link:hover {
-            color: var(--islamic-gold);
-        }
-
-        .generation-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
+        .ancestor-badge {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
             color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
         }
 
-        /* Base generation colors for first 10 generations */
-        .generation-1 { background: #dc3545; }
-        .generation-2 { background: #fd7e14; }
-        .generation-3 { background: #ffc107; color: #000; }
-        .generation-4 { background: #20c997; }
-        .generation-5 { background: #0dcaf0; }
-        .generation-6 { background: #6f42c1; }
-        .generation-7 { background: #d63384; }
-        .generation-8 { background: #198754; }
-        .generation-9 { background: #0d6efd; }
-        .generation-10 { background: #6610f2; }
-        
-        /* Dynamic colors for generations > 10 will be applied via JavaScript */
-
-        .bg-gold {
-            background-color: var(--islamic-gold) !important;
-            color: var(--islamic-dark) !important;
+        .member-title-text {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.95rem;
         }
 
-        .text-pink {
-            color: #e91e63 !important;
-        }
-
-        .country-badge {
+        .country-badge-islamic {
             background: rgba(32, 201, 151, 0.1);
             border: 1px solid rgba(32, 201, 151, 0.3);
             color: #20c997;
-            padding: 3px 8px;
-            border-radius: 8px;
-            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
             font-weight: 500;
+            display: inline-flex;
+            align-items: center;
         }
 
-        .date-badge {
-            padding: 3px 8px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 500;
+        .date-info-islamic {
+            text-align: center;
         }
 
-        .birth-date {
+        .date-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .date-label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        .birth-info .date-value {
+            color: #28a745;
+        }
+
+        .death-info .date-value {
+            color: #dc3545;
+        }
+
+        .alive-badge {
             background: rgba(40, 167, 69, 0.1);
             border: 1px solid rgba(40, 167, 69, 0.3);
             color: #28a745;
-        }
-
-        .death-date {
-            background: rgba(220, 53, 69, 0.1);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            color: #dc3545;
-        }
-
-        .member-card-country,
-        .member-card-birth,
-        .member-card-death {
-            margin-bottom: 8px;
-        }
-
-        .member-card-birth {
-            color: #28a745;
-        }
-
-        .member-card-death {
-            color: #dc3545;
-        }
-
-        /* Grid View Styles */
-        .member-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(212, 175, 55, 0.1);
-            height: 100%;
-        }
-
-        .member-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .member-card-header {
-            position: relative;
-            height: 200px;
-            background: linear-gradient(135deg, var(--islamic-cream) 0%, #f8f9fa 100%);
-            display: flex;
+            padding: 0.4rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
             align-items: center;
+        }
+
+        .parent-link-islamic {
+            color: var(--islamic-green);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .parent-link-islamic:hover {
+            color: var(--islamic-gold);
+            text-decoration: underline;
+        }
+
+        .root-indicator {
+            color: #6c757d;
+            font-style: italic;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .generation-badge-islamic {
+            background: linear-gradient(135deg, var(--islamic-blue) 0%, #1f4e79 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(31, 78, 121, 0.3);
+            display: inline-block;
+        }
+
+        .generation-number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .generation-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .action-buttons-islamic {
+            display: flex;
+            gap: 0.5rem;
             justify-content: center;
         }
 
-        .member-photo {
-            width: 120px;
-            height: 120px;
+        .btn-islamic-warning {
+            background: #ffc107;
+            border: none;
+            color: #000;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-islamic-warning:hover {
+            background: #ffcd39;
+            transform: translateY(-2px);
+        }
+
+        .btn-islamic-success {
+            background: #28a745;
+            border: none;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-islamic-success:hover {
+            background: #34ce57;
+            transform: translateY(-2px);
+        }
+
+        .btn-islamic-danger {
+            background: #dc3545;
+            border: none;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-islamic-danger:hover {
+            background: #e4606d;
+            transform: translateY(-2px);
+        }
+
+        .text-muted-islamic {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        /* === GRID VIEW STYLES === */
+        .member-card-islamic {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 2px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .member-card-islamic:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-color: var(--islamic-gold);
+        }
+
+        .member-card-header-islamic {
+            position: relative;
+            background: linear-gradient(135deg, var(--islamic-cream) 0%, #f8f9fa 100%);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .member-photo-section {
+            margin-bottom: 1rem;
+        }
+
+        .member-photo-islamic {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid var(--islamic-gold);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
         }
 
-        .member-photo-placeholder {
-            width: 120px;
-            height: 120px;
+        .member-photo-placeholder-islamic {
+            width: 100px;
+            height: 100px;
             background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: var(--islamic-dark);
+            margin: 0 auto;
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
         }
 
-        .generation-indicator {
+        .generation-indicator-islamic {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 35px;
-            height: 35px;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--islamic-blue) 0%, #1f4e79 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
             color: white;
-            font-size: 0.9rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(31, 78, 121, 0.3);
         }
 
-        .member-card-body {
-            padding: 20px;
+        .ancestor-crown {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: var(--islamic-gold);
+            font-size: 1.5rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .member-card-body-islamic {
+            padding: 1.5rem;
+        }
+
+        .member-name-islamic {
+            font-family: 'Amiri', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--islamic-green);
+            margin-bottom: 0.5rem;
             text-align: center;
         }
 
-        .member-card-name {
-            color: var(--islamic-green);
-            font-family: 'Amiri', serif;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .member-card-title {
+        .member-title-islamic {
             color: #6c757d;
+            font-size: 0.95rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .member-details-islamic {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
             font-size: 0.9rem;
-            margin-bottom: 10px;
         }
 
-        .member-card-parent {
-            margin-bottom: 15px;
+        .detail-item i {
+            width: 20px;
+            margin-left: 0.5rem;
+            color: var(--islamic-gold);
         }
 
-        .member-card-actions {
+        .birth-detail {
+            color: #28a745;
+        }
+
+        .death-detail {
+            color: #dc3545;
+        }
+
+        .alive-detail {
+            color: #28a745;
+        }
+
+        .parent-detail {
+            color: var(--islamic-green);
+        }
+
+        .member-actions-islamic {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
             justify-content: center;
+            gap: 0.5rem;
         }
 
-        .action-row {
+        .btn-islamic-action {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
             display: flex;
-            gap: 8px;
+            align-items: center;
             justify-content: center;
+            background: var(--islamic-green);
+            color: white;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-islamic-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-danger-action {
+            background: #dc3545 !important;
+        }
+
+        .btn-danger-action:hover {
+            background: #e4606d !important;
+        }
+
+        /* === RESPONSIVE DESIGN === */
+        @@media (max-width: 1200px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
         }
 
         @@media (max-width: 768px) {
-            .page-header {
-                padding: 20px;
+            .page-header-islamic {
+                padding: 2rem 0;
                 text-align: center;
             }
-            
-            .page-header .btn-group {
-                margin-top: 15px;
+
+            .page-title {
+                font-size: 1.8rem;
             }
 
-            .stat-card {
-                margin-bottom: 15px;
+            .page-subtitle {
+                font-size: 1rem;
             }
 
-            .members-table {
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .stat-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .members-table-islamic {
                 font-size: 0.8rem;
             }
 
-            .btn-group .btn {
-                padding: 6px 8px;
+            .table-header-islamic th {
+                padding: 0.75rem 0.5rem;
             }
+
+            .member-row-islamic td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .view-toggle-group .btn {
+                padding: 0.5rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .statistics-section {
+                margin-top: 0;
+            }
+
+            .stat-card-islamic {
+                padding: 1.5rem;
+            }
+
+            .search-filter-section .card-body {
+                padding: 1rem;
+            }
+
+            .form-label {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* === GENERATION COLORS === */
+        .generation-1 { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important; }
+        .generation-2 { background: linear-gradient(135deg, #fd7e14 0%, #e8680a 100%) !important; }
+        .generation-3 { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important; color: #000 !important; }
+        .generation-4 { background: linear-gradient(135deg, #20c997 0%, #1ba085 100%) !important; }
+        .generation-5 { background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%) !important; }
+        .generation-6 { background: linear-gradient(135deg, #6f42c1 0%, #59359a 100%) !important; }
+        .generation-7 { background: linear-gradient(135deg, #d63384 0%, #b02a5b 100%) !important; }
+        .generation-8 { background: linear-gradient(135deg, #198754 0%, #146c43 100%) !important; }
+        .generation-9 { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important; }
+        .generation-10 { background: linear-gradient(135deg, #6610f2 0%, #520dc2 100%) !important; }
+
+        /* === ANIMATION CLASSES === */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* === UTILITIES === */
+        .text-gold {
+            color: var(--islamic-gold) !important;
+        }
+
+        .bg-light {
+            background-color: rgba(255, 255, 255, 0.9) !important;
         }
     </style>
 }

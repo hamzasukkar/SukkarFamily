@@ -1,61 +1,782 @@
-﻿@model SukkarFamily.Models.Persone
-
+@model SukkarFamily.Models.Persone
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "تعديل بيانات فرد العائلة";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
 }
 
-<h1>Edit</h1>
+<div class="edit-member-page">
+    <!-- Page Header -->
+    <div class="page-header-islamic fade-in-up">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="page-title-section">
+                        <div class="islamic-decoration mb-3">
+                            <i class="fas fa-star-and-crescent text-gold"></i>
+                        </div>
+                        <h1 class="page-title">
+                            <i class="fas fa-user-edit text-gold me-3"></i>
+                            تعديل بيانات فرد العائلة
+                        </h1>
+                        <p class="page-subtitle">تحديث معلومات "@Model.name" في سجل عائلة سكر الكرام</p>
+                        <div class="breadcrumb-islamic">
+                            <a href="@Url.Action("Index", "Home")"><i class="fas fa-home"></i> الرئيسية</a>
+                            <span class="separator"><i class="fas fa-angle-left"></i></span>
+                            <a href="@Url.Action("Index", "Persone")"><i class="fas fa-users"></i> أفراد العائلة</a>
+                            <span class="separator"><i class="fas fa-angle-left"></i></span>
+                            <span class="current">تعديل البيانات</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="page-actions">
+                        <a href="@Url.Action("Index", "Persone")" class="btn btn-outline-light btn-lg mb-2">
+                            <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                        </a>
+                        <a href="@Url.Action("Create", "Persone", new { id = Model.Id })" class="btn btn-gold btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>إضافة أطفال
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h4>Persone</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="name" class="control-label"></label>
-                <input asp-for="name" class="form-control" />
-                <span asp-validation-for="name" class="text-danger"></span>
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mx-3" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mx-3" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Member Info Card -->
+    <div class="member-info-section mb-4 fade-in-up">
+        <div class="container-fluid">
+            <div class="card-islamic">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        معلومات الفرد الحالية
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center">
+                            <div class="current-avatar">
+                                @if (!string.IsNullOrEmpty(Model.image))
+                                {
+                                    <img src="@Model.image" alt="@Model.name" class="avatar-large">
+                                }
+                                else
+                                {
+                                    <div class="avatar-placeholder-large">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <span class="info-label">الاسم:</span>
+                                        <span class="info-value">@Model.name</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">اللقب:</span>
+                                        <span class="info-value">@(Model.title ?? "غير محدد")</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">البلد:</span>
+                                        <span class="info-value">@(Model.Country ?? "غير محدد")</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <span class="info-label">الجيل:</span>
+                                        <span class="generation-badge-small generation-@Model.Generation">الجيل @Model.Generation</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">تاريخ الميلاد:</span>
+                                        <span class="info-value">@(Model.DateOfBirth?.ToString("yyyy/MM/dd") ?? "غير محدد")</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">الحالة:</span>
+                                        @if (Model.DateOfDeath.HasValue)
+                                        {
+                                            <span class="status-badge death-status">متوفى (@Model.DateOfDeath.Value.ToString("yyyy/MM/dd"))</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge alive-status">على قيد الحياة</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="title" class="control-label"></label>
-                <input asp-for="title" class="form-control" />
-                <span asp-validation-for="title" class="text-danger"></span>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="edit-form-section fade-in-up">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-xl-8 col-lg-10">
+                    <div class="card-islamic">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-edit me-2"></i>
+                                تعديل البيانات
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="Edit" method="post" id="editPersonForm">
+                                <div asp-validation-summary="ModelOnly" class="alert alert-islamic-error" role="alert"></div>
+                                <input type="hidden" asp-for="Id" />
+
+                                <!-- Personal Information Section -->
+                                <div class="form-section">
+                                    <h6 class="section-title">
+                                        <i class="fas fa-id-card text-gold me-2"></i>
+                                        المعلومات الشخصية
+                                    </h6>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group-islamic mb-4">
+                                                <label asp-for="name" class="form-label-islamic required">
+                                                    <i class="fas fa-user me-2 text-gold"></i>الاسم الكامل
+                                                </label>
+                                                <input asp-for="name" class="form-control-islamic" placeholder="أدخل الاسم الكامل بالعربية" required>
+                                                <span asp-validation-for="name" class="validation-message"></span>
+                                                <div class="form-help">الاسم الكامل للفرد باللغة العربية</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group-islamic mb-4">
+                                                <label asp-for="title" class="form-label-islamic">
+                                                    <i class="fas fa-crown me-2 text-gold"></i>اللقب أو الكنية
+                                                </label>
+                                                <input asp-for="title" class="form-control-islamic" placeholder="مثال: أبو محمد، الشيخ، الدكتور">
+                                                <span asp-validation-for="title" class="validation-message"></span>
+                                                <div class="form-help">اللقب أو الكنية المعروف بها (اختياري)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group-islamic mb-4">
+                                                <label asp-for="Country" class="form-label-islamic">
+                                                    <i class="fas fa-globe me-2 text-gold"></i>البلد
+                                                </label>
+                                                <input asp-for="Country" class="form-control-islamic" placeholder="مثال: المملكة العربية السعودية">
+                                                <span asp-validation-for="Country" class="validation-message"></span>
+                                                <div class="form-help">البلد الذي يقيم فيه الفرد (اختياري)</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group-islamic mb-4">
+                                                <label asp-for="Generation" class="form-label-islamic">
+                                                    <i class="fas fa-layer-group me-2 text-gold"></i>الجيل
+                                                </label>
+                                                <input asp-for="Generation" type="number" class="form-control-islamic" min="1" readonly>
+                                                <span asp-validation-for="Generation" class="validation-message"></span>
+                                                <div class="form-help">رقم الجيل (يتم تحديده تلقائياً)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group-islamic mb-4">
+                                                <label asp-for="image" class="form-label-islamic">
+                                                    <i class="fas fa-image me-2 text-gold"></i>رابط الصورة الشخصية
+                                                </label>
+                                                <div class="input-group-islamic">
+                                                    <input asp-for="image" class="form-control-islamic" placeholder="https://example.com/image.jpg" id="imageInput">
+                                                    <button type="button" class="btn btn-outline-secondary" id="previewBtn">
+                                                        <i class="fas fa-eye"></i> معاينة
+                                                    </button>
+                                                </div>
+                                                <span asp-validation-for="image" class="validation-message"></span>
+                                                <div class="form-help">رابط صورة شخصية واضحة (اختياري)</div>
+                                            </div>
+
+                                            <!-- Image Preview -->
+                                            <div id="imagePreview" class="image-preview-section d-none">
+                                                <div class="preview-container">
+                                                    <img id="previewImg" src="" alt="معاينة الصورة" class="preview-image">
+                                                    <div class="preview-overlay">
+                                                        <button type="button" class="btn btn-sm btn-light" id="closePreview">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Date Information Section -->
+                                <div class="form-section">
+                                    <h6 class="section-title">
+                                        <i class="fas fa-calendar-alt text-gold me-2"></i>
+                                        التواريخ المهمة
+                                    </h6>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group-islamic mb-4">
+                                                <label asp-for="DateOfBirth" class="form-label-islamic">
+                                                    <i class="fas fa-birthday-cake me-2 text-gold"></i>تاريخ الميلاد
+                                                </label>
+                                                <input asp-for="DateOfBirth" type="date" class="form-control-islamic">
+                                                <span asp-validation-for="DateOfBirth" class="validation-message"></span>
+                                                <div class="form-help">تاريخ ميلاد الفرد (اختياري)</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group-islamic mb-4">
+                                                <label asp-for="DateOfDeath" class="form-label-islamic">
+                                                    <i class="fas fa-cross me-2 text-gold"></i>تاريخ الوفاة
+                                                </label>
+                                                <input asp-for="DateOfDeath" type="date" class="form-control-islamic">
+                                                <span asp-validation-for="DateOfDeath" class="validation-message"></span>
+                                                <div class="form-help">تاريخ الوفاة (اتركه فارغاً إذا كان على قيد الحياة)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="form-actions">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-islamic-success btn-lg w-100">
+                                                <i class="fas fa-save me-2"></i>حفظ التعديلات
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <a href="@Url.Action("Index", "Persone")" class="btn btn-islamic-secondary btn-lg w-100">
+                                                <i class="fas fa-times me-2"></i>إلغاء التعديل
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="image" class="control-label"></label>
-                <input asp-for="image" class="form-control" />
-                <span asp-validation-for="image" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Country" class="control-label">Country</label>
-                <input asp-for="Country" class="form-control" />
-                <span asp-validation-for="Country" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateOfBirth" class="control-label">Date of Birth</label>
-                <input asp-for="DateOfBirth" type="date" class="form-control" />
-                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateOfDeath" class="control-label">Date of Death</label>
-                <input asp-for="DateOfDeath" type="date" class="form-control" />
-                <span asp-validation-for="DateOfDeath" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Generation" class="control-label"></label>
-                <input asp-for="Generation" class="form-control" />
-                <span asp-validation-for="Generation" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Scripts {
+    <script>
+        // Image preview functionality
+        document.getElementById('previewBtn').addEventListener('click', function() {
+            const imageUrl = document.getElementById('imageInput').value;
+            if (imageUrl) {
+                const previewImg = document.getElementById('previewImg');
+                const previewSection = document.getElementById('imagePreview');
 
+                previewImg.src = imageUrl;
+                previewSection.classList.remove('d-none');
+
+                // Add fade-in animation
+                previewSection.style.opacity = '0';
+                setTimeout(() => {
+                    previewSection.style.opacity = '1';
+                }, 10);
+            } else {
+                alert('الرجاء إدخال رابط الصورة أولاً');
+            }
+        });
+
+        // Close preview
+        document.getElementById('closePreview').addEventListener('click', function() {
+            const previewSection = document.getElementById('imagePreview');
+            previewSection.style.opacity = '0';
+            setTimeout(() => {
+                previewSection.classList.add('d-none');
+            }, 300);
+        });
+
+        // Form validation enhancement
+        document.getElementById('editPersonForm').addEventListener('submit', function(e) {
+            const nameInput = document.querySelector('input[name="name"]');
+            if (!nameInput.value.trim()) {
+                e.preventDefault();
+                nameInput.focus();
+                alert('الرجاء إدخال اسم الفرد');
+                return false;
+            }
+        });
+
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+
+    <style>
+        /* === MAIN LAYOUT === */
+        .edit-member-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--islamic-cream) 0%, #f8f9fa 100%);
+            padding-bottom: 3rem;
+        }
+
+        /* === PAGE HEADER === */
+        .page-header-islamic {
+            background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-green-light) 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header-islamic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="islamic" patternUnits="userSpaceOnUse" width="20" height="20"><path d="M10 0L20 10L10 20L0 10Z" fill="none" stroke="rgba(212,175,55,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23islamic)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .page-title-section {
+            position: relative;
+            z-index: 2;
+        }
+
+        .islamic-decoration {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+
+        .page-title {
+            font-family: 'Amiri', serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .breadcrumb-islamic {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .breadcrumb-islamic a {
+            color: var(--islamic-gold);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .breadcrumb-islamic a:hover {
+            color: white;
+        }
+
+        .separator {
+            margin: 0 0.5rem;
+            opacity: 0.6;
+        }
+
+        .page-actions {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-actions .btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 0.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* === MEMBER INFO SECTION === */
+        .member-info-section .card-islamic {
+            border: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .current-avatar {
+            margin-bottom: 1rem;
+        }
+
+        .avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--islamic-gold);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .avatar-placeholder-large {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--islamic-dark);
+            margin: 0 auto;
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--islamic-green);
+            min-width: 120px;
+            margin-left: 1rem;
+        }
+
+        .info-value {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .generation-badge-small {
+            background: linear-gradient(135deg, var(--islamic-blue) 0%, #1f4e79 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(31, 78, 121, 0.3);
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .alive-status {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #28a745;
+        }
+
+        .death-status {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+
+        /* === FORM STYLES === */
+        .edit-form-section .card-islamic {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            color: var(--islamic-green);
+            font-family: 'Amiri', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--islamic-gold);
+            display: inline-block;
+        }
+
+        .form-group-islamic {
+            position: relative;
+        }
+
+        .form-label-islamic {
+            font-weight: 600;
+            color: var(--islamic-green);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+        }
+
+        .form-label-islamic.required::after {
+            content: " *";
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .form-control-islamic {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control-islamic:focus {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+            outline: none;
+        }
+
+        .input-group-islamic {
+            display: flex;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .input-group-islamic:focus-within {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+        }
+
+        .input-group-islamic .form-control-islamic {
+            border: none;
+            flex: 1;
+            border-radius: 0;
+        }
+
+        .input-group-islamic .btn {
+            border: none;
+            border-radius: 0;
+        }
+
+        .validation-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .form-help {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        .alert-islamic-error {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* === IMAGE PREVIEW === */
+        .image-preview-section {
+            margin-top: 1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .preview-container {
+            position: relative;
+            display: inline-block;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .preview-image {
+            max-width: 300px;
+            max-height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .preview-overlay {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+        }
+
+        /* === ACTION BUTTONS === */
+        .form-actions {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .btn-islamic-success {
+            background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-green-light) 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 71, 42, 0.3);
+        }
+
+        .btn-islamic-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(26, 71, 42, 0.4);
+            color: white;
+        }
+
+        .btn-islamic-secondary {
+            background: #6c757d;
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-islamic-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+            color: white;
+        }
+
+        /* === GENERATION COLORS === */
+        .generation-1 { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important; }
+        .generation-2 { background: linear-gradient(135deg, #fd7e14 0%, #e8680a 100%) !important; }
+        .generation-3 { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important; color: #000 !important; }
+        .generation-4 { background: linear-gradient(135deg, #20c997 0%, #1ba085 100%) !important; }
+        .generation-5 { background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%) !important; }
+        .generation-6 { background: linear-gradient(135deg, #6f42c1 0%, #59359a 100%) !important; }
+        .generation-7 { background: linear-gradient(135deg, #d63384 0%, #b02a5b 100%) !important; }
+        .generation-8 { background: linear-gradient(135deg, #198754 0%, #146c43 100%) !important; }
+        .generation-9 { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important; }
+        .generation-10 { background: linear-gradient(135deg, #6610f2 0%, #520dc2 100%) !important; }
+
+        /* === RESPONSIVE DESIGN === */
+        @@media (max-width: 768px) {
+            .page-header-islamic {
+                padding: 2rem 0;
+                text-align: center;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .current-avatar {
+                text-align: center;
+            }
+
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: center;
+            }
+
+            .info-label {
+                margin-left: 0;
+                margin-bottom: 0.25rem;
+                min-width: auto;
+            }
+
+            .form-actions .row > div {
+                margin-bottom: 1rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .member-info-section,
+            .edit-form-section {
+                margin-top: 0;
+            }
+
+            .card-islamic {
+                margin: 0 1rem;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* === ANIMATION CLASSES === */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* === UTILITIES === */
+        .text-gold {
+            color: var(--islamic-gold) !important;
+        }
+    </style>
+}

@@ -226,7 +226,7 @@
                                                     <img id="previewImg" src="" alt="معاينة الصورة" class="preview-image">
                                                     <div class="preview-overlay">
                                                         <button type="button" class="btn btn-sm btn-light" id="closePreview">
-                                                            <i class="fas fa-times"></i>
+                                                            <i class="fas fa-arrow-left"></i>
                                                         </button>
                                                     </div>
                                                 </div>
@@ -257,7 +257,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group-islamic mb-4">
                                                 <label asp-for="DateOfDeath" class="form-label-islamic">
-                                                    <i class="fas fa-cross me-2 text-gold"></i>تاريخ الوفاة
+                                                    <i class="fas fa-mosque me-2 text-gold"></i>تاريخ الوفاة
                                                 </label>
                                                 <input asp-for="DateOfDeath" type="date" class="form-control-islamic">
                                                 <span asp-validation-for="DateOfDeath" class="validation-message"></span>
@@ -277,7 +277,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <a href="@Url.Action("Index", "Persone")" class="btn btn-islamic-secondary btn-lg w-100">
-                                                <i class="fas fa-times me-2"></i>إلغاء التعديل
+                                                <i class="fas fa-arrow-left me-2"></i>إلغاء التعديل
                                             </a>
                                         </div>
                                     </div>

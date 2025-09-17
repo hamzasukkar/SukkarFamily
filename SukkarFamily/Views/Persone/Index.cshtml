@@ -157,13 +157,15 @@
                                         <th>الاسم</th>
                                         <th>اللقب</th>
                                         <th>البلد</th>
+                                        <th>تاريخ الميلاد</th>
+                                        <th>تاريخ الوفاة</th>
                                         <th>الوالد</th>
                                         <th>الجيل</th>
                                         <th width="200">الإجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.name))
+                                    @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.Parent?.name ?? "").ThenBy(p => p.name))
                                     {
                                         <tr class="member-row" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
                                             <td class="text-center">
@@ -205,6 +207,30 @@
                                                 else
                                                 {
                                                     <span class="text-muted">غير محدد</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (person.DateOfBirth.HasValue)
+                                                {
+                                                    <span class="date-badge birth-date">
+                                                        <i class="fas fa-birthday-cake me-1"></i>@person.DateOfBirth.Value.ToString("yyyy/MM/dd")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">غير محدد</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (person.DateOfDeath.HasValue)
+                                                {
+                                                    <span class="date-badge death-date">
+                                                        <i class="fas fa-cross me-1"></i>@person.DateOfDeath.Value.ToString("yyyy/MM/dd")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">على قيد الحياة</span>
                                                 }
                                             </td>
                                             <td>
@@ -252,7 +278,7 @@
             <!-- Grid View -->
             <div id="gridViewContent" class="d-none">
                 <div class="row">
-                    @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.name))
+                    @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.Parent?.name ?? "").ThenBy(p => p.name))
                     {
                         <div class="col-xl-3 col-lg-4 col-md-6 mb-4 member-card-container" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
                             <div class="member-card fade-in-up">
@@ -279,6 +305,20 @@
                                         <p class="member-card-country">
                                             <i class="fas fa-flag text-muted me-1"></i>
                                             <small>@person.Country</small>
+                                        </p>
+                                    }
+                                    @if (person.DateOfBirth.HasValue)
+                                    {
+                                        <p class="member-card-birth">
+                                            <i class="fas fa-birthday-cake text-muted me-1"></i>
+                                            <small>@person.DateOfBirth.Value.ToString("yyyy/MM/dd")</small>
+                                        </p>
+                                    }
+                                    @if (person.DateOfDeath.HasValue)
+                                    {
+                                        <p class="member-card-death">
+                                            <i class="fas fa-cross text-muted me-1"></i>
+                                            <small>@person.DateOfDeath.Value.ToString("yyyy/MM/dd")</small>
                                         </p>
                                     }
                                     @if (person.Parent != null)
@@ -700,9 +740,37 @@
             font-weight: 500;
         }
 
-        .member-card-country {
+        .date-badge {
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .birth-date {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #28a745;
+        }
+
+        .death-date {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+
+        .member-card-country,
+        .member-card-birth,
+        .member-card-death {
             margin-bottom: 8px;
-            color: #20c997;
+        }
+
+        .member-card-birth {
+            color: #28a745;
+        }
+
+        .member-card-death {
+            color: #dc3545;
         }
 
         /* Grid View Styles */

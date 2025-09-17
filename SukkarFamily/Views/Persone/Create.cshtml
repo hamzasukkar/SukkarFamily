@@ -116,6 +116,30 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="DateOfBirth" class="form-label">
+                                                <i class="fas fa-birthday-cake me-2 text-gold"></i>تاريخ الميلاد
+                                            </label>
+                                            <input asp-for="DateOfBirth" type="date" class="form-control">
+                                            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                                            <div class="form-text">تاريخ ميلاد الفرد (اختياري)</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="DateOfDeath" class="form-label">
+                                                <i class="fas fa-cross me-2 text-gold"></i>تاريخ الوفاة
+                                            </label>
+                                            <input asp-for="DateOfDeath" type="date" class="form-control">
+                                            <span asp-validation-for="DateOfDeath" class="text-danger"></span>
+                                            <div class="form-text">تاريخ وفاة الفرد (اختياري - اتركه فارغاً إذا كان على قيد الحياة)</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Creation Mode Section -->

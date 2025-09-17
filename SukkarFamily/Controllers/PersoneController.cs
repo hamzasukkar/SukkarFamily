@@ -259,14 +259,40 @@ namespace SukkarFamily.Controllers
         {
             try
             {
-                // TODO: Add delete logic here
+                var persone = db.persones.Include(p => p.children).FirstOrDefault(p => p.Id == id);
 
+                if (persone == null)
+                {
+                    TempData["ErrorMessage"] = "الشخص المطلوب حذفه غير موجود.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Delete all children recursively
+                DeletePersonAndChildren(persone);
+
+                db.SaveChanges();
+
+                TempData["SuccessMessage"] = $"تم حذف {persone.name} وجميع الأطفال المرتبطين بنجاح.";
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception)
             {
-                return View();
+                TempData["ErrorMessage"] = "حدث خطأ أثناء عملية الحذف. يرجى المحاولة مرة أخرى.";
+                return RedirectToAction(nameof(Index));
             }
+        }
+
+        private void DeletePersonAndChildren(Persone persone)
+        {
+            // First, recursively delete all children
+            var children = db.persones.Where(p => p.Parent.Id == persone.Id).ToList();
+            foreach (var child in children)
+            {
+                DeletePersonAndChildren(child);
+            }
+
+            // Then delete the person
+            db.persones.Remove(persone);
         }
 
     }

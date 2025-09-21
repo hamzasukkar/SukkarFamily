@@ -38,6 +38,98 @@ namespace SukkarFamily.Controllers
             return Content(r, "application/json");
         }
 
+        // API endpoint to get family tree for a specific person
+        [HttpGet]
+        public ActionResult GetFamilyTree(int id)
+        {
+            try
+            {
+                var targetPerson = db.persones.Include("Parent").FirstOrDefault(p => p.Id == id);
+                if (targetPerson == null)
+                {
+                    return Json(new { success = false, message = "الشخص غير موجود" });
+                }
+
+                // Get all ancestors (going up the tree)
+                var ancestors = new List<object>();
+                var current = targetPerson;
+                while (current?.Parent != null)
+                {
+                    var parent = db.persones.FirstOrDefault(p => p.Id == current.Parent.Id);
+                    if (parent != null)
+                    {
+                        ancestors.Insert(0, new
+                        {
+                            Id = parent.Id,
+                            name = parent.name,
+                            title = parent.title,
+                            image = parent.image,
+                            Country = parent.Country,
+                            DateOfBirth = parent.DateOfBirth,
+                            DateOfDeath = parent.DateOfDeath,
+                            Generation = parent.Generation
+                        });
+                        current = parent;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                // Get all descendants (going down the tree)
+                var descendants = GetDescendantsRecursive(targetPerson.Id);
+
+                var result = new
+                {
+                    success = true,
+                    data = new
+                    {
+                        ancestors = ancestors,
+                        targetPerson = new
+                        {
+                            Id = targetPerson.Id,
+                            name = targetPerson.name,
+                            title = targetPerson.title,
+                            image = targetPerson.image,
+                            Country = targetPerson.Country,
+                            DateOfBirth = targetPerson.DateOfBirth,
+                            DateOfDeath = targetPerson.DateOfDeath,
+                            Generation = targetPerson.Generation
+                        },
+                        descendants = descendants
+                    }
+                };
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "حدث خطأ أثناء جلب بيانات شجرة العائلة" });
+            }
+        }
+
+        private List<object> GetDescendantsRecursive(int parentId)
+        {
+            var children = db.persones.Where(p => p.Parent != null && p.Parent.Id == parentId).ToList();
+
+            return children.Select(child => new
+            {
+                person = new
+                {
+                    Id = child.Id,
+                    name = child.name,
+                    title = child.title,
+                    image = child.image,
+                    Country = child.Country,
+                    DateOfBirth = child.DateOfBirth,
+                    DateOfDeath = child.DateOfDeath,
+                    Generation = child.Generation
+                },
+                children = GetDescendantsRecursive(child.Id)
+            }).Cast<object>().ToList();
+        }
+
         public ActionResult Tree()
         {
             return View();

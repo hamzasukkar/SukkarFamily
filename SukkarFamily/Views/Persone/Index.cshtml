@@ -349,6 +349,9 @@
                                                     <a href="@Url.Action("Create", new { id = person.Id })" class="btn btn-sm btn-islamic-success" title="إضافة أطفال">
                                                         <i class="fas fa-user-plus"></i>
                                                     </a>
+                                                    <button type="button" class="btn btn-sm btn-islamic-info" onclick="showFamilyTree(@person.Id, '@person.name')" title="عرض شجرة العائلة">
+                                                        <i class="fas fa-sitemap"></i>
+                                                    </button>
                                                     <button type="button" class="btn btn-sm btn-islamic-danger" onclick="confirmDelete(@person.Id, '@person.name')" title="حذف">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
@@ -445,6 +448,9 @@
                                         <a href="@Url.Action("Create", new { id = person.Id })" class="btn btn-islamic-action" title="إضافة أطفال">
                                             <i class="fas fa-user-plus"></i>
                                         </a>
+                                        <button type="button" class="btn btn-islamic-action btn-info-action" onclick="showFamilyTree(@person.Id, '@person.name')" title="شجرة العائلة">
+                                            <i class="fas fa-sitemap"></i>
+                                        </button>
                                         <button type="button" class="btn btn-islamic-action btn-danger-action" onclick="confirmDelete(@person.Id, '@person.name')" title="حذف">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -500,6 +506,54 @@
                 </button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
                     <i class="fas fa-trash me-2"></i>حذف نهائي
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Family Tree Modal -->
+<div class="modal fade" id="familyTreeModal" tabindex="-1" aria-labelledby="familyTreeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header bg-islamic-green text-white">
+                <h5 class="modal-title" id="familyTreeModalLabel">
+                    <i class="fas fa-sitemap me-2"></i>شجرة عائلة <span id="treePersonName"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="family-tree-container">
+                    <div class="tree-controls mb-3 p-3 bg-light border-bottom">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-tree me-2 text-islamic-green"></i>
+                                    شجرة العائلة الهرمية
+                                </h6>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-islamic" onclick="expandAllNodes()">
+                                        <i class="fas fa-expand-alt me-1"></i>توسيع الكل
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-islamic" onclick="collapseAllNodes()">
+                                        <i class="fas fa-compress-alt me-1"></i>طي الكل
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tree-content p-4">
+                        <div id="familyTreeContent" class="family-tree-islamic">
+                            <!-- Tree content will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>إغلاق
                 </button>
             </div>
         </div>
@@ -678,6 +732,151 @@
                         }
                     }
                 }
+            });
+        }
+
+        // Family Tree Functions
+        async function showFamilyTree(personId, personName) {
+            document.getElementById('treePersonName').textContent = personName;
+
+            // Show loading state
+            const container = document.getElementById('familyTreeContent');
+            container.innerHTML = '<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-3x text-gold mb-3"></i><br><h4>جاري تحميل شجرة العائلة...</h4></div>';
+
+            // Show the modal first
+            const treeModal = new bootstrap.Modal(document.getElementById('familyTreeModal'));
+            treeModal.show();
+
+            try {
+                // Call the backend API to get family tree data
+                const response = await fetch(`/Persone/GetFamilyTree?id=${personId}`);
+                const result = await response.json();
+
+                console.log('API Response:', result);
+
+                if (result.success) {
+                    // Render the tree with backend data
+                    renderFamilyTree(result.data);
+                } else {
+                    container.innerHTML = `<div class="text-center text-danger p-5"><i class="fas fa-exclamation-triangle fa-3x mb-3"></i><br><h4>${result.message}</h4></div>`;
+                }
+            } catch (error) {
+                console.error('Error fetching family tree:', error);
+                container.innerHTML = '<div class="text-center text-danger p-5"><i class="fas fa-exclamation-triangle fa-3x mb-3"></i><br><h4>حدث خطأ أثناء تحميل شجرة العائلة</h4></div>';
+            }
+        }
+
+        function renderFamilyTree(treeData) {
+            const container = document.getElementById('familyTreeContent');
+            container.innerHTML = '';
+
+            if (!treeData) {
+                container.innerHTML = '<div class="text-center text-muted p-5"><i class="fas fa-exclamation-triangle fa-3x mb-3"></i><br><h4>لا يمكن العثور على بيانات الشخص</h4></div>';
+                return;
+            }
+
+            let html = '<div class="tree-structure">';
+
+            // Render ancestors (top to bottom)
+            if (treeData.ancestors && treeData.ancestors.length > 0) {
+                html += '<div class="ancestors-section">';
+                treeData.ancestors.forEach((ancestor, index) => {
+                    html += renderPersonNode(ancestor, 'ancestor', index === 0);
+                    if (index < treeData.ancestors.length - 1) {
+                        html += '<div class="tree-connector vertical"></div>';
+                    }
+                });
+                html += '<div class="tree-connector vertical"></div>';
+                html += '</div>';
+            }
+
+            // Render target person (highlighted)
+            html += '<div class="target-person-section">';
+            html += renderPersonNode(treeData.targetPerson, 'target');
+            html += '</div>';
+
+            // Render descendants
+            if (treeData.descendants && treeData.descendants.length > 0) {
+                html += '<div class="tree-connector vertical"></div>';
+                html += '<div class="descendants-section">';
+                html += renderDescendantsTree(treeData.descendants);
+                html += '</div>';
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderPersonNode(person, nodeType, isRoot = false) {
+            const photoHtml = person.image
+                ? `<img src="${person.image}" alt="${person.name}" class="person-photo">`
+                : `<div class="person-photo-placeholder"><i class="fas fa-user"></i></div>`;
+
+            const titleHtml = person.title ? `<div class="person-title">${person.title}</div>` : '';
+            const birthYear = person.DateOfBirth ? new Date(person.DateOfBirth).getFullYear() : '';
+            const deathYear = person.DateOfDeath ? new Date(person.DateOfDeath).getFullYear() : '';
+            const yearsHtml = birthYear ? `<div class="person-years">${birthYear}${deathYear ? ` - ${deathYear}` : ' - الآن'}</div>` : '';
+
+            const rootBadge = isRoot ? '<div class="root-badge"><i class="fas fa-crown"></i></div>' : '';
+            const generationBadge = `<div class="generation-badge generation-${person.Generation}">${person.Generation}</div>`;
+
+            return `
+                <div class="tree-node ${nodeType}" data-person-id="${person.Id}">
+                    ${rootBadge}
+                    ${generationBadge}
+                    <div class="person-card">
+                        <div class="person-photo-section">
+                            ${photoHtml}
+                        </div>
+                        <div class="person-info">
+                            <div class="person-name">${person.name || 'غير محدد'}</div>
+                            ${titleHtml}
+                            ${yearsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDescendantsTree(descendants, level = 0) {
+            if (descendants.length === 0) return '';
+
+            let html = '';
+
+            if (descendants.length === 1) {
+                // Single child - vertical layout
+                html += renderPersonNode(descendants[0].person, 'descendant');
+                if (descendants[0].children.length > 0) {
+                    html += '<div class="tree-connector vertical"></div>';
+                    html += renderDescendantsTree(descendants[0].children, level + 1);
+                }
+            } else {
+                // Multiple children - horizontal layout
+                html += '<div class="children-container">';
+                descendants.forEach((child, index) => {
+                    html += '<div class="child-branch">';
+                    html += renderPersonNode(child.person, 'descendant');
+                    if (child.children.length > 0) {
+                        html += '<div class="tree-connector vertical"></div>';
+                        html += renderDescendantsTree(child.children, level + 1);
+                    }
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            return html;
+        }
+
+        function expandAllNodes() {
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.add('expanded');
+            });
+        }
+
+        function collapseAllNodes() {
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('expanded');
             });
         }
 
@@ -1366,6 +1565,28 @@
             background: #e4606d !important;
         }
 
+        .btn-islamic-info {
+            background: #17a2b8;
+            border: none;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-islamic-info:hover {
+            background: #1fc5e6;
+            transform: translateY(-2px);
+        }
+
+        .btn-info-action {
+            background: #17a2b8 !important;
+        }
+
+        .btn-info-action:hover {
+            background: #1fc5e6 !important;
+        }
+
         /* === RESPONSIVE DESIGN === */
         @@media (max-width: 1200px) {
             .page-title {
@@ -1471,6 +1692,256 @@
 
         .bg-light {
             background-color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .bg-islamic-green {
+            background-color: var(--islamic-green) !important;
+        }
+
+        /* === FAMILY TREE STYLES === */
+        .family-tree-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 70vh;
+        }
+
+        .tree-content {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+
+        .family-tree-islamic {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-width: 100%;
+            padding: 2rem;
+        }
+
+        .tree-structure {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ancestors-section,
+        .target-person-section,
+        .descendants-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .children-container {
+            display: flex;
+            gap: 3rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .child-branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .tree-node {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .tree-node:hover {
+            transform: scale(1.05);
+        }
+
+        .tree-node.target {
+            transform: scale(1.1);
+        }
+
+        .tree-node.target .person-card {
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.4);
+            border: 3px solid var(--islamic-gold);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @@keyframes glow {
+            from {
+                box-shadow: 0 15px 40px rgba(212, 175, 55, 0.4);
+            }
+            to {
+                box-shadow: 0 20px 50px rgba(212, 175, 55, 0.6);
+            }
+        }
+
+        .person-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid rgba(212, 175, 55, 0.1);
+            min-width: 200px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .person-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+        }
+
+        .person-photo-section {
+            margin-bottom: 1rem;
+        }
+
+        .person-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--islamic-gold);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .person-photo-placeholder {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--islamic-dark);
+            margin: 0 auto;
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .person-info {
+            text-align: center;
+        }
+
+        .person-name {
+            font-family: 'Amiri', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--islamic-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .person-title {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-bottom: 0.25rem;
+        }
+
+        .person-years {
+            color: #495057;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .root-badge {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+            z-index: 10;
+        }
+
+        .tree-node .generation-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .tree-connector {
+            background: var(--islamic-gold);
+            position: relative;
+        }
+
+        .tree-connector.vertical {
+            width: 3px;
+            height: 40px;
+            margin: 0 auto;
+        }
+
+        .tree-connector.horizontal {
+            height: 3px;
+            width: 40px;
+            margin: auto 0;
+        }
+
+        /* Tree node hover effects */
+        .tree-node.ancestor .person-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        }
+
+        .tree-node.descendant .person-card {
+            background: linear-gradient(135deg, #f1f8e9 0%, #fff3e0 100%);
+        }
+
+        /* Responsive tree design */
+        @@media (max-width: 768px) {
+            .children-container {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .person-card {
+                min-width: 180px;
+                padding: 1rem;
+            }
+
+            .person-photo,
+            .person-photo-placeholder {
+                width: 60px;
+                height: 60px;
+            }
+
+            .person-photo-placeholder {
+                font-size: 1.5rem;
+            }
+
+            .person-name {
+                font-size: 1rem;
+            }
+
+            .tree-connector.vertical {
+                height: 30px;
+            }
         }
     </style>
 }

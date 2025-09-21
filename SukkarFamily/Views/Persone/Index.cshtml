@@ -134,13 +134,22 @@
             </div>
             <div class="card-body">
                 <div class="row g-3 align-items-end">
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-3 col-md-6">
                         <label class="form-label text-muted fw-bold">
                             <i class="fas fa-search me-2 text-gold"></i>البحث
                         </label>
                         <div class="search-box-islamic">
                             <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="البحث بالاسم أو اللقب...">
                             <i class="fas fa-search search-icon"></i>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label text-muted fw-bold">
+                            <i class="fas fa-hashtag me-2 text-gold"></i>البحث بالرقم
+                        </label>
+                        <div class="search-box-islamic">
+                            <input type="number" id="idSearchInput" class="form-control form-control-lg" placeholder="رقم الهوية..." min="1">
+                            <i class="fas fa-hashtag search-icon"></i>
                         </div>
                     </div>
                     <div class="col-lg-2 col-md-6">
@@ -155,7 +164,7 @@
                             }
                         </select>
                     </div>
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-2 col-md-6">
                         <label class="form-label text-muted fw-bold">
                             <i class="fas fa-sort me-2 text-gold"></i>ترتيب حسب
                         </label>
@@ -240,7 +249,7 @@
                                 <tbody>
                                     @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.Parent?.name ?? "").ThenBy(p => p.DateOfBirth ?? DateTime.MaxValue).ThenBy(p => p.name))
                                     {
-                                        <tr class="member-row-islamic" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
+                                        <tr class="member-row-islamic" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation" data-id="@person.Id">
                                             <td class="text-center">
                                                 <span class="member-id-badge">@person.Id</span>
                                             </td>
@@ -359,7 +368,7 @@
                 <div class="row g-4">
                     @foreach (var person in Model.OrderBy(p => p.Generation).ThenBy(p => p.Parent?.name ?? "").ThenBy(p => p.DateOfBirth ?? DateTime.MaxValue).ThenBy(p => p.name))
                     {
-                        <div class="col-xl-3 col-lg-4 col-md-6 member-card-container-islamic" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation">
+                        <div class="col-xl-3 col-lg-4 col-md-6 member-card-container-islamic" data-name="@person.name" data-title="@person.title" data-generation="@person.Generation" data-id="@person.Id">
                             <div class="member-card-islamic fade-in-up">
                                 <div class="member-card-header-islamic">
                                     <div class="member-photo-section">
@@ -537,6 +546,11 @@
             filterMembers();
         });
 
+        // ID Search functionality
+        document.getElementById('idSearchInput').addEventListener('input', function() {
+            filterMembers();
+        });
+
         // Generation filter
         document.getElementById('generationFilter').addEventListener('change', function() {
             filterMembers();
@@ -558,6 +572,7 @@
 
         function filterMembers() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const idSearchTerm = document.getElementById('idSearchInput').value;
             const selectedGeneration = document.getElementById('generationFilter').value;
 
             const listRows = document.querySelectorAll('.member-row-islamic');
@@ -567,11 +582,13 @@
                 const name = element.dataset.name?.toLowerCase() || '';
                 const title = element.dataset.title?.toLowerCase() || '';
                 const generation = element.dataset.generation;
+                const id = element.dataset.id;
 
                 const matchesSearch = !searchTerm || name.includes(searchTerm) || title.includes(searchTerm);
+                const matchesId = !idSearchTerm || id === idSearchTerm;
                 const matchesGeneration = !selectedGeneration || generation === selectedGeneration;
 
-                if (matchesSearch && matchesGeneration) {
+                if (matchesSearch && matchesId && matchesGeneration) {
                     element.style.display = '';
                 } else {
                     element.style.display = 'none';

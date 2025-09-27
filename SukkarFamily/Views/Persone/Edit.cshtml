@@ -207,6 +207,38 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group-islamic mb-4">
+                                                <label for="Parent" class="form-label-islamic">
+                                                    <i class="fas fa-user-friends me-2 text-gold"></i>الوالد/الوالدة
+                                                </label>
+                                                <select name="Parent" class="form-control-islamic" id="parentSelect">
+                                                    <option value="">-- اختر الوالد/الوالدة (اختياري) --</option>
+                                                    @if (ViewBag.GetParents != null)
+                                                    {
+                                                        @foreach (var parent in (List<SukkarFamily.Models.Persone>)ViewBag.GetParents)
+                                                        {
+                                                            @if (Model.Parent != null && Model.Parent.Id == parent.Id)
+                                                            {
+                                                                <option value="@parent.Id" selected>
+                                                                    @parent.name @(!string.IsNullOrEmpty(parent.title) ? $" ({parent.title})" : "") - الجيل @parent.Generation
+                                                                </option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@parent.Id">
+                                                                    @parent.name @(!string.IsNullOrEmpty(parent.title) ? $" ({parent.title})" : "") - الجيل @parent.Generation
+                                                                </option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                                <div class="form-help">اختر الوالد/الوالدة لهذا الفرد. سيتم تحديث رقم الجيل تلقائياً. اتركه فارغاً إذا كان هذا الشخص هو جد العائلة.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group-islamic mb-4">
                                                 <label asp-for="image" class="form-label-islamic">
                                                     <i class="fas fa-image me-2 text-gold"></i>رابط الصورة الشخصية
                                                 </label>

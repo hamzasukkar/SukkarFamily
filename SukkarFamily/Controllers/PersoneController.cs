@@ -50,12 +50,21 @@ namespace SukkarFamily.Controllers
                     return Json(new { success = false, message = "الشخص غير موجود" });
                 }
 
-                // Get all ancestors (going up the tree)
+                // Get all ancestors (going up the tree to the root)
                 var ancestors = new List<object>();
-                var current = targetPerson;
-                while (current?.Parent != null)
+                var currentPersonId = targetPerson.Parent?.Id;
+                var processedIds = new HashSet<int>(); // Prevent infinite loops
+                var maxDepth = 20; // Safety limit for very deep family trees
+                var currentDepth = 0;
+
+                while (currentPersonId.HasValue &&
+                       !processedIds.Contains(currentPersonId.Value) &&
+                       currentDepth < maxDepth)
                 {
-                    var parent = db.persones.FirstOrDefault(p => p.Id == current.Parent.Id);
+                    processedIds.Add(currentPersonId.Value);
+                    currentDepth++;
+
+                    var parent = db.persones.Include("Parent").FirstOrDefault(p => p.Id == currentPersonId.Value);
                     if (parent != null)
                     {
                         ancestors.Insert(0, new
@@ -69,7 +78,15 @@ namespace SukkarFamily.Controllers
                             DateOfDeath = parent.DateOfDeath,
                             Generation = parent.Generation
                         });
-                        current = parent;
+
+                        // Move to the next parent up the tree
+                        currentPersonId = parent.Parent?.Id;
+
+                        // If no more parents, we've reached the root
+                        if (currentPersonId == null)
+                        {
+                            break;
+                        }
                     }
                     else
                     {
@@ -109,8 +126,18 @@ namespace SukkarFamily.Controllers
             }
         }
 
-        private List<object> GetDescendantsRecursive(int parentId)
+        private List<object> GetDescendantsRecursive(int parentId, HashSet<int> processedIds = null)
         {
+            // Initialize processedIds to prevent infinite loops
+            if (processedIds == null)
+                processedIds = new HashSet<int>();
+
+            // Prevent infinite recursion
+            if (processedIds.Contains(parentId))
+                return new List<object>();
+
+            processedIds.Add(parentId);
+
             var children = db.persones.Where(p => p.Parent != null && p.Parent.Id == parentId).ToList();
 
             return children.Select(child => new
@@ -126,7 +153,7 @@ namespace SukkarFamily.Controllers
                     DateOfDeath = child.DateOfDeath,
                     Generation = child.Generation
                 },
-                children = GetDescendantsRecursive(child.Id)
+                children = GetDescendantsRecursive(child.Id, new HashSet<int>(processedIds)) // Pass a copy to avoid shared state
             }).Cast<object>().ToList();
         }
 
@@ -330,8 +357,36 @@ namespace SukkarFamily.Controllers
         // GET: Persone/Edit/5
         public ActionResult Edit(int id)
         {
-            var persone = db.persones.SingleOrDefault(p => p.Id==id);
+            var persone = db.persones.Include("Parent").SingleOrDefault(p => p.Id==id);
+            if (persone == null)
+            {
+                TempData["ErrorMessage"] = "الشخص المطلوب تعديله غير موجود.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Get all potential parents (exclude the person itself and their descendants to prevent circular references)
+            var allPersones = db.persones.Include("Parent").ToList();
+            var excludeIds = GetAllDescendantIds(id, allPersones);
+            excludeIds.Add(id); // Also exclude the person itself
+
+            var potentialParents = allPersones.Where(p => !excludeIds.Contains(p.Id)).ToList();
+            ViewBag.GetParents = potentialParents;
+
             return View(persone);
+        }
+
+        private List<int> GetAllDescendantIds(int personId, List<Persone> allPersones)
+        {
+            var descendantIds = new List<int>();
+            var children = allPersones.Where(p => p.Parent?.Id == personId).ToList();
+
+            foreach (var child in children)
+            {
+                descendantIds.Add(child.Id);
+                descendantIds.AddRange(GetAllDescendantIds(child.Id, allPersones));
+            }
+
+            return descendantIds;
         }
 
         // POST: Persone/Edit/5
@@ -341,13 +396,15 @@ namespace SukkarFamily.Controllers
         {
             try
             {
-                var persone = db.persones.SingleOrDefault(p => p.Id == id);
+                var persone = db.persones.Include("Parent").SingleOrDefault(p => p.Id == id);
 
                 if (persone == null)
                 {
                     TempData["ErrorMessage"] = "الشخص المطلوب تعديله غير موجود.";
                     return RedirectToAction(nameof(Index));
                 }
+
+                var originalParentId = persone.Parent?.Id;
 
                 // Update basic information
                 persone.name = collection["name"];
@@ -381,6 +438,63 @@ namespace SukkarFamily.Controllers
                     persone.DateOfDeath = null;
                 }
 
+                // Handle parent selection
+                var newParentId = (int?)null;
+                if (!string.IsNullOrEmpty(collection["Parent"]) && int.TryParse(collection["Parent"], out int parentIdValue))
+                {
+                    newParentId = parentIdValue;
+                }
+
+                // Check if parent changed
+                if (originalParentId != newParentId)
+                {
+                    if (newParentId.HasValue)
+                    {
+                        var newParent = db.persones.SingleOrDefault(p => p.Id == newParentId.Value);
+                        if (newParent != null)
+                        {
+                            // Verify this doesn't create a circular reference
+                            var allPersones = db.persones.Include("Parent").ToList();
+                            var excludeIds = GetAllDescendantIds(id, allPersones);
+                            excludeIds.Add(id);
+
+                            if (excludeIds.Contains(newParentId.Value))
+                            {
+                                TempData["ErrorMessage"] = "لا يمكن تعيين هذا الشخص كوالد لأنه سيؤدي إلى مرجع دائري في شجرة العائلة.";
+
+                                // Reload parent data for the view
+                                var potentialParents = allPersones.Where(p => !excludeIds.Contains(p.Id)).ToList();
+                                ViewBag.GetParents = potentialParents;
+                                return View(persone);
+                            }
+
+                            persone.Parent = newParent;
+                            persone.Generation = newParent.Generation + 1;
+                        }
+                        else
+                        {
+                            TempData["ErrorMessage"] = "الوالد المحدد غير موجود.";
+
+                            // Reload parent data for the view
+                            var allPersones = db.persones.Include("Parent").ToList();
+                            var excludeIds = GetAllDescendantIds(id, allPersones);
+                            excludeIds.Add(id);
+                            var potentialParents = allPersones.Where(p => !excludeIds.Contains(p.Id)).ToList();
+                            ViewBag.GetParents = potentialParents;
+                            return View(persone);
+                        }
+                    }
+                    else
+                    {
+                        // Remove parent (make root)
+                        persone.Parent = null;
+                        persone.Generation = 1;
+                    }
+
+                    // Update generation for all descendants recursively
+                    UpdateDescendantGenerations(persone.Id);
+                }
+
                 db.SaveChanges();
                 TempData["SuccessMessage"] = $"تم تحديث بيانات {persone.name} بنجاح.";
 
@@ -389,7 +503,27 @@ namespace SukkarFamily.Controllers
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = "حدث خطأ أثناء حفظ التعديلات. يرجى المحاولة مرة أخرى.";
+
+                // Reload parent data for the view in case of error
+                var allPersones = db.persones.Include("Parent").ToList();
+                var excludeIds = GetAllDescendantIds(id, allPersones);
+                excludeIds.Add(id);
+                var potentialParents = allPersones.Where(p => !excludeIds.Contains(p.Id)).ToList();
+                ViewBag.GetParents = potentialParents;
                 return View();
+            }
+        }
+
+        private void UpdateDescendantGenerations(int parentId)
+        {
+            var parent = db.persones.SingleOrDefault(p => p.Id == parentId);
+            if (parent == null) return;
+
+            var children = db.persones.Where(p => p.Parent != null && p.Parent.Id == parentId).ToList();
+            foreach (var child in children)
+            {
+                child.Generation = parent.Generation + 1;
+                UpdateDescendantGenerations(child.Id);
             }
         }
 

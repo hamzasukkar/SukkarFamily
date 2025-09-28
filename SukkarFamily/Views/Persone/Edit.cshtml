@@ -210,28 +210,56 @@
                                                 <label for="Parent" class="form-label-islamic">
                                                     <i class="fas fa-user-friends me-2 text-gold"></i>الوالد/الوالدة
                                                 </label>
-                                                <select name="Parent" class="form-control-islamic" id="parentSelect">
-                                                    <option value="">-- اختر الوالد/الوالدة (اختياري) --</option>
-                                                    @if (ViewBag.GetParents != null)
-                                                    {
-                                                        @foreach (var parent in (List<SukkarFamily.Models.Persone>)ViewBag.GetParents)
+
+                                                <!-- Hidden input for the actual parent value -->
+                                                <input type="hidden" name="Parent" id="parentValue" value="@(Model.Parent?.Id.ToString() ?? "")" />
+
+                                                <!-- Searchable dropdown container -->
+                                                <div class="searchable-select-container">
+                                                    <div class="searchable-select-input-group">
+                                                        <input type="text" id="parentSearch" class="form-control-islamic"
+                                                               placeholder="ابحث بالاسم أو الرقم التعريفي..."
+                                                               value="@(Model.Parent != null ? $"{Model.Parent.name} {(!string.IsNullOrEmpty(Model.Parent.title) ? $"({Model.Parent.title})" : "")} - الجيل {Model.Parent.Generation} - ID: {Model.Parent.Id}" : "")"
+                                                               autocomplete="off">
+                                                        <button type="button" class="btn btn-outline-secondary" id="clearParent" title="مسح الاختيار">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-secondary" id="toggleDropdown" title="إظهار/إخفاء القائمة">
+                                                            <i class="fas fa-chevron-down"></i>
+                                                        </button>
+                                                    </div>
+
+                                                    <!-- Dropdown list -->
+                                                    <div class="searchable-dropdown" id="parentDropdown">
+                                                        <div class="dropdown-option" data-value="" data-id="">
+                                                            <span class="option-text">-- اختر الوالد/الوالدة (اختياري) --</span>
+                                                        </div>
+                                                        @if (ViewBag.GetParents != null)
                                                         {
-                                                            @if (Model.Parent != null && Model.Parent.Id == parent.Id)
+                                                            @foreach (var parent in (List<SukkarFamily.Models.Persone>)ViewBag.GetParents)
                                                             {
-                                                                <option value="@parent.Id" selected>
-                                                                    @parent.name @(!string.IsNullOrEmpty(parent.title) ? $" ({parent.title})" : "") - الجيل @parent.Generation
-                                                                </option>
-                                                            }
-                                                            else
-                                                            {
-                                                                <option value="@parent.Id">
-                                                                    @parent.name @(!string.IsNullOrEmpty(parent.title) ? $" ({parent.title})" : "") - الجيل @parent.Generation
-                                                                </option>
+                                                                <div class="dropdown-option @(Model.Parent != null && Model.Parent.Id == parent.Id ? "selected" : "")"
+                                                                     data-value="@parent.Id"
+                                                                     data-id="@parent.Id"
+                                                                     data-name="@parent.name"
+                                                                     data-title="@parent.title"
+                                                                     data-generation="@parent.Generation">
+                                                                    <div class="option-content">
+                                                                        <span class="option-name">@parent.name</span>
+                                                                        @if (!string.IsNullOrEmpty(parent.title))
+                                                                        {
+                                                                            <span class="option-title">(@parent.title)</span>
+                                                                        }
+                                                                        <span class="option-generation">- الجيل @parent.Generation</span>
+                                                                        <span class="option-id">- ID: @parent.Id</span>
+                                                                    </div>
+                                                                </div>
                                                             }
                                                         }
-                                                    }
-                                                </select>
-                                                <div class="form-help">اختر الوالد/الوالدة لهذا الفرد. سيتم تحديث رقم الجيل تلقائياً. اتركه فارغاً إذا كان هذا الشخص هو جد العائلة.</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-help">ابحث بالاسم أو الرقم التعريفي لاختيار الوالد/الوالدة. سيتم تحديث رقم الجيل تلقائياً. اتركه فارغاً إذا كان هذا الشخص هو جد العائلة.</div>
                                             </div>
                                         </div>
                                     </div>
@@ -371,6 +399,219 @@
             tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
+        });
+
+        // Searchable Parent Select Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const parentSearch = document.getElementById('parentSearch');
+            const parentValue = document.getElementById('parentValue');
+            const parentDropdown = document.getElementById('parentDropdown');
+            const clearButton = document.getElementById('clearParent');
+            const toggleButton = document.getElementById('toggleDropdown');
+            const options = parentDropdown.querySelectorAll('.dropdown-option');
+
+            // Toggle dropdown visibility
+            function toggleDropdown() {
+                parentDropdown.classList.toggle('show');
+                const icon = toggleButton.querySelector('i');
+                if (parentDropdown.classList.contains('show')) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            }
+
+            // Hide dropdown
+            function hideDropdown() {
+                parentDropdown.classList.remove('show');
+                const icon = toggleButton.querySelector('i');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+
+            // Show dropdown
+            function showDropdown() {
+                parentDropdown.classList.add('show');
+                const icon = toggleButton.querySelector('i');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+
+            // Filter options based on search
+            function filterOptions(searchTerm) {
+                const lowercaseSearch = searchTerm.toLowerCase();
+                let hasVisibleOptions = false;
+
+                options.forEach(option => {
+                    const name = (option.dataset.name || '').toLowerCase();
+                    const title = (option.dataset.title || '').toLowerCase();
+                    const id = (option.dataset.id || '').toLowerCase();
+                    const generation = (option.dataset.generation || '').toLowerCase();
+                    const optionText = option.textContent.toLowerCase();
+
+                    // Check if search term matches name, title, ID, generation, or full text
+                    const matches = !searchTerm ||
+                                  name.includes(lowercaseSearch) ||
+                                  title.includes(lowercaseSearch) ||
+                                  id.includes(lowercaseSearch) ||
+                                  generation.includes(lowercaseSearch) ||
+                                  optionText.includes(lowercaseSearch) ||
+                                  option.dataset.value === '';
+
+                    if (matches) {
+                        option.style.display = 'block';
+                        hasVisibleOptions = true;
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+
+                // Show/hide no results message
+                let noResultsMsg = parentDropdown.querySelector('.no-results');
+                if (!hasVisibleOptions && searchTerm) {
+                    if (!noResultsMsg) {
+                        noResultsMsg = document.createElement('div');
+                        noResultsMsg.className = 'no-results dropdown-option';
+                        noResultsMsg.innerHTML = '<span class="option-text">لا توجد نتائج مطابقة</span>';
+                        parentDropdown.appendChild(noResultsMsg);
+                    }
+                    noResultsMsg.style.display = 'block';
+                } else if (noResultsMsg) {
+                    noResultsMsg.style.display = 'none';
+                }
+            }
+
+            // Select an option
+            function selectOption(option) {
+                const value = option.dataset.value;
+                const id = option.dataset.id;
+                const name = option.dataset.name;
+                const title = option.dataset.title;
+                const generation = option.dataset.generation;
+
+                // Update hidden input
+                parentValue.value = value;
+
+                // Update search input display
+                if (value) {
+                    const displayText = `${name} ${title ? `(${title})` : ''} - الجيل ${generation} - ID: ${id}`;
+                    parentSearch.value = displayText;
+                } else {
+                    parentSearch.value = '';
+                }
+
+                // Update selected state
+                options.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+
+                hideDropdown();
+            }
+
+            // Clear selection
+            function clearSelection() {
+                parentValue.value = '';
+                parentSearch.value = '';
+                options.forEach(opt => opt.classList.remove('selected'));
+                // Select the empty option
+                const emptyOption = parentDropdown.querySelector('[data-value=""]');
+                if (emptyOption) {
+                    emptyOption.classList.add('selected');
+                }
+                hideDropdown();
+            }
+
+            // Event listeners
+            toggleButton.addEventListener('click', toggleDropdown);
+            clearButton.addEventListener('click', clearSelection);
+
+            parentSearch.addEventListener('focus', function() {
+                showDropdown();
+            });
+
+            parentSearch.addEventListener('input', function() {
+                filterOptions(this.value);
+                showDropdown();
+            });
+
+            // Handle option clicks
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    selectOption(this);
+                });
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.searchable-select-container')) {
+                    hideDropdown();
+                }
+            });
+
+            // Handle keyboard navigation
+            parentSearch.addEventListener('keydown', function(e) {
+                const visibleOptions = Array.from(options).filter(opt => opt.style.display !== 'none');
+                const currentSelected = parentDropdown.querySelector('.dropdown-option.highlighted');
+                let selectedIndex = currentSelected ? visibleOptions.indexOf(currentSelected) : -1;
+
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (!parentDropdown.classList.contains('show')) {
+                            showDropdown();
+                        } else {
+                            if (currentSelected) currentSelected.classList.remove('highlighted');
+                            selectedIndex = (selectedIndex + 1) % visibleOptions.length;
+                            visibleOptions[selectedIndex].classList.add('highlighted');
+                            visibleOptions[selectedIndex].scrollIntoView({ block: 'nearest' });
+                        }
+                        break;
+
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (parentDropdown.classList.contains('show')) {
+                            if (currentSelected) currentSelected.classList.remove('highlighted');
+                            selectedIndex = selectedIndex <= 0 ? visibleOptions.length - 1 : selectedIndex - 1;
+                            visibleOptions[selectedIndex].classList.add('highlighted');
+                            visibleOptions[selectedIndex].scrollIntoView({ block: 'nearest' });
+                        }
+                        break;
+
+                    case 'Enter':
+                        e.preventDefault();
+                        if (currentSelected) {
+                            selectOption(currentSelected);
+                        }
+                        break;
+
+                    case 'Escape':
+                        hideDropdown();
+                        break;
+                }
+            });
+
+            // Highlight options on hover
+            options.forEach(option => {
+                option.addEventListener('mouseenter', function() {
+                    options.forEach(opt => opt.classList.remove('highlighted'));
+                    this.classList.add('highlighted');
+                });
+            });
+
+            // Initialize with current selection
+            const currentValue = parentValue.value;
+            if (currentValue) {
+                const selectedOption = parentDropdown.querySelector(`[data-value="${currentValue}"]`);
+                if (selectedOption) {
+                    selectedOption.classList.add('selected');
+                }
+            } else {
+                const emptyOption = parentDropdown.querySelector('[data-value=""]');
+                if (emptyOption) {
+                    emptyOption.classList.add('selected');
+                }
+            }
         });
     </script>
 
@@ -803,6 +1044,218 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        /* === SEARCHABLE SELECT STYLES === */
+        .searchable-select-container {
+            position: relative;
+        }
+
+        .searchable-select-input-group {
+            display: flex;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .searchable-select-input-group:focus-within {
+            border-color: var(--islamic-gold);
+            box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.25);
+        }
+
+        .searchable-select-input-group #parentSearch {
+            border: none;
+            flex: 1;
+            border-radius: 0;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            background: transparent;
+        }
+
+        .searchable-select-input-group #parentSearch:focus {
+            border: none;
+            box-shadow: none;
+            outline: none;
+        }
+
+        .searchable-select-input-group .btn {
+            border: none;
+            border-radius: 0;
+            padding: 0.5rem 0.75rem;
+            background: #f8f9fa;
+            border-left: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .searchable-select-input-group .btn:hover {
+            background: var(--islamic-gold);
+            color: white;
+        }
+
+        .searchable-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid var(--islamic-gold);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .searchable-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .dropdown-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-option:hover,
+        .dropdown-option.highlighted {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+            transform: translateX(5px);
+        }
+
+        .dropdown-option.selected {
+            background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-green-light) 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .dropdown-option.selected:hover {
+            transform: translateX(3px);
+        }
+
+        .option-content {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .option-name {
+            font-weight: 600;
+            color: var(--islamic-green);
+        }
+
+        .dropdown-option.selected .option-name {
+            color: white;
+        }
+
+        .option-title {
+            font-style: italic;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-option.selected .option-title {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .option-generation {
+            background: var(--islamic-blue);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .dropdown-option.selected .option-generation {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .option-id {
+            background: var(--islamic-gold);
+            color: var(--islamic-dark);
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .dropdown-option.selected .option-id {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--islamic-dark);
+        }
+
+        .no-results {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            cursor: default !important;
+        }
+
+        .no-results:hover {
+            background: transparent !important;
+            transform: none !important;
+        }
+
+        /* Custom scrollbar for dropdown */
+        .searchable-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .searchable-dropdown::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .searchable-dropdown::-webkit-scrollbar-thumb {
+            background: var(--islamic-gold);
+            border-radius: 3px;
+        }
+
+        .searchable-dropdown::-webkit-scrollbar-thumb:hover {
+            background: var(--islamic-green);
+        }
+
+        /* Animation for dropdown */
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive adjustments for searchable dropdown */
+        @@media (max-width: 768px) {
+            .searchable-dropdown {
+                max-height: 200px;
+            }
+
+            .option-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .option-generation,
+            .option-id {
+                font-size: 0.75rem;
+                padding: 0.15rem 0.4rem;
             }
         }
 

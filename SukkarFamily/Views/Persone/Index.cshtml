@@ -808,6 +808,7 @@
         }
 
         function renderPersonNode(person, nodeType, isRoot = false) {
+           debugger;
             const photoHtml = person.image
                 ? `<img src="${person.image}" alt="${person.name}" class="person-photo">`
                 : `<div class="person-photo-placeholder"><i class="fas fa-user"></i></div>`;
@@ -818,7 +819,15 @@
             const yearsHtml = birthYear ? `<div class="person-years">${birthYear}${deathYear ? ` - ${deathYear}` : ' - الآن'}</div>` : '';
 
             const rootBadge = isRoot ? '<div class="root-badge"><i class="fas fa-crown"></i></div>' : '';
-            const generationBadge = `<div class="generation-badge generation-${person.Generation}">${person.Generation}</div>`;
+            const generationBadge = `<div class="generation-badge generation-${person.generation}">${person.Generation}</div>`;
+
+            // Add ID and Generation info to the person info section
+            const idGenerationHtml = `
+                <div class="person-id-generation">
+                    <span class="person-id-badge">ID: ${person.id}</span>
+                    <span class="person-generation-badge">الجيل ${person.generation}</span>
+                </div>
+            `;
 
             return `
                 <div class="tree-node ${nodeType}" data-person-id="${person.Id}">
@@ -832,6 +841,7 @@
                             <div class="person-name">${person.name || 'غير محدد'}</div>
                             ${titleHtml}
                             ${yearsHtml}
+                            ${idGenerationHtml}
                         </div>
                     </div>
                 </div>
@@ -1852,6 +1862,36 @@
             color: #495057;
             font-size: 0.85rem;
             font-weight: 500;
+        }
+
+        .person-id-generation {
+            margin-top: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .person-id-badge {
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            color: var(--islamic-dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
+        }
+
+        .person-generation-badge {
+            background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-green-light) 100%);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            box-shadow: 0 2px 6px rgba(26, 71, 42, 0.3);
         }
 
         .root-badge {

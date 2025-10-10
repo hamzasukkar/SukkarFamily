@@ -1,0 +1,828 @@
+@model SukkarFamily.Models.Persone
+@{
+    ViewData["Title"] = "تفاصيل الفرد";
+    Layout = "~/Views/Shared/_LayoutArabic.cshtml";
+}
+
+<div class="details-page">
+    <!-- Page Header -->
+    <div class="page-header-islamic fade-in-up">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="page-title-section">
+                        <div class="islamic-decoration mb-3">
+                            <i class="fas fa-star-and-crescent text-gold"></i>
+                        </div>
+                        <h1 class="page-title">
+                            <i class="fas fa-id-card text-gold me-3"></i>
+                            تفاصيل فرد العائلة
+                        </h1>
+                        <p class="page-subtitle">معلومات شاملة عن "@Model.name"</p>
+                        <div class="breadcrumb-islamic">
+                            <a href="@Url.Action("Index", "Home")"><i class="fas fa-home"></i> الرئيسية</a>
+                            <span class="separator"><i class="fas fa-angle-left"></i></span>
+                            <a href="@Url.Action("Index", "Persone")"><i class="fas fa-users"></i> أفراد العائلة</a>
+                            <span class="separator"><i class="fas fa-angle-left"></i></span>
+                            <span class="current">التفاصيل</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="page-actions">
+                        <a href="@Url.Action("Edit", "Persone", new { id = Model.Id })" class="btn btn-gold btn-lg mb-2">
+                            <i class="fas fa-edit me-2"></i>تعديل البيانات
+                        </a>
+                        <a href="@Url.Action("Index", "Persone")" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row g-4">
+            <!-- Profile Card -->
+            <div class="col-lg-4">
+                <div class="card-islamic profile-card fade-in-up">
+                    <div class="card-body text-center">
+                        <div class="profile-image-section mb-4">
+                            @if (!string.IsNullOrEmpty(Model.image))
+                            {
+                                <img src="@Model.image" alt="@Model.name" class="profile-image">
+                            }
+                            else
+                            {
+                                <div class="profile-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            }
+                        </div>
+
+                        <h2 class="profile-name">@Model.name</h2>
+                        @if (!string.IsNullOrEmpty(Model.title))
+                        {
+                            <p class="profile-title">@Model.title</p>
+                        }
+
+                        <div class="profile-badges">
+                            <span class="generation-badge-large generation-@Model.Generation">
+                                الجيل @Model.Generation
+                            </span>
+                            @if (Model.Generation == 1)
+                            {
+                                <span class="ancestor-badge-large">
+                                    <i class="fas fa-crown me-1"></i>الجد الأعلى
+                                </span>
+                            }
+                        </div>
+
+                        <div class="profile-status mt-3">
+                            @if (Model.DateOfDeath.HasValue)
+                            {
+                                <div class="status-indicator death-status">
+                                    <i class="fas fa-mosque me-2"></i>
+                                    <span>متوفى</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="status-indicator alive-status">
+                                    <i class="fas fa-heart me-2"></i>
+                                    <span>على قيد الحياة</span>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="profile-actions mt-4">
+                            <a href="@Url.Action("Create", "Persone", new { id = Model.Id })" class="btn btn-islamic-success w-100 mb-2">
+                                <i class="fas fa-user-plus me-2"></i>إضافة أطفال
+                            </a>
+                            <button type="button" class="btn btn-islamic-info w-100" onclick="window.location.href='@Url.Action("Tree", "Persone")'">
+                                <i class="fas fa-sitemap me-2"></i>عرض شجرة العائلة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Information Cards -->
+            <div class="col-lg-8">
+                <!-- Personal Information -->
+                <div class="card-islamic info-card fade-in-up mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2 text-gold"></i>
+                            المعلومات الشخصية
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="info-item-detail">
+                                    <div class="info-label">
+                                        <i class="fas fa-hashtag text-gold me-2"></i>
+                                        الرقم التعريفي
+                                    </div>
+                                    <div class="info-value">@Model.Id</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item-detail">
+                                    <div class="info-label">
+                                        <i class="fas fa-user text-gold me-2"></i>
+                                        الاسم الكامل
+                                    </div>
+                                    <div class="info-value">@Model.name</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item-detail">
+                                    <div class="info-label">
+                                        <i class="fas fa-crown text-gold me-2"></i>
+                                        اللقب أو الكنية
+                                    </div>
+                                    <div class="info-value">@(Model.title ?? "غير محدد")</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item-detail">
+                                    <div class="info-label">
+                                        <i class="fas fa-layer-group text-gold me-2"></i>
+                                        الجيل
+                                    </div>
+                                    <div class="info-value">الجيل @Model.Generation</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Information -->
+                <div class="card-islamic info-card fade-in-up mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-map-marker-alt me-2 text-gold"></i>
+                            معلومات المكان
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="info-item-detail">
+                                    <div class="info-label">
+                                        <i class="fas fa-globe text-gold me-2"></i>
+                                        البلد
+                                    </div>
+                                    <div class="info-value">
+                                        @if (!string.IsNullOrEmpty(Model.Country))
+                                        {
+                                            <span class="country-badge">
+                                                <i class="fas fa-flag me-1"></i>@Model.Country
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">غير محدد</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item-detail">
+                                    <div class="info-label">
+                                        <i class="fas fa-map-marker-alt text-gold me-2"></i>
+                                        مكان القيد
+                                    </div>
+                                    <div class="info-value">
+                                        @if (!string.IsNullOrEmpty(Model.PlaceOfRegistration))
+                                        {
+                                            <span class="place-badge">
+                                                <i class="fas fa-building me-1"></i>@Model.PlaceOfRegistration
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">غير محدد</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date Information -->
+                <div class="card-islamic info-card fade-in-up mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt me-2 text-gold"></i>
+                            التواريخ المهمة
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="info-item-detail">
+                                    <div class="info-label">
+                                        <i class="fas fa-birthday-cake text-gold me-2"></i>
+                                        تاريخ الميلاد
+                                    </div>
+                                    <div class="info-value">
+                                        @if (Model.DateOfBirth.HasValue)
+                                        {
+                                            <span class="date-badge birth-badge">
+                                                <i class="fas fa-calendar-day me-1"></i>
+                                                @Model.DateOfBirth.Value.ToString("yyyy/MM/dd")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">غير محدد</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item-detail">
+                                    <div class="info-label">
+                                        <i class="fas fa-mosque text-gold me-2"></i>
+                                        تاريخ الوفاة
+                                    </div>
+                                    <div class="info-value">
+                                        @if (Model.DateOfDeath.HasValue)
+                                        {
+                                            <span class="date-badge death-badge">
+                                                <i class="fas fa-calendar-times me-1"></i>
+                                                @Model.DateOfDeath.Value.ToString("yyyy/MM/dd")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">على قيد الحياة</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Family Relations -->
+                <div class="card-islamic info-card fade-in-up">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sitemap me-2 text-gold"></i>
+                            العلاقات العائلية
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Parent -->
+                        <div class="family-relation-section mb-4">
+                            <h6 class="relation-title">
+                                <i class="fas fa-user-tie text-gold me-2"></i>الوالد/الوالدة
+                            </h6>
+                            @if (Model.Parent != null)
+                            {
+                                <a href="@Url.Action("Details", new { id = Model.Parent.Id })" class="family-member-link">
+                                    <div class="family-member-card">
+                                        <div class="member-avatar-small">
+                                            @if (!string.IsNullOrEmpty(Model.Parent.image))
+                                            {
+                                                <img src="@Model.Parent.image" alt="@Model.Parent.name">
+                                            }
+                                            else
+                                            {
+                                                <i class="fas fa-user"></i>
+                                            }
+                                        </div>
+                                        <div class="member-info-small">
+                                            <div class="member-name-small">@Model.Parent.name</div>
+                                            <div class="member-meta-small">
+                                                @if (!string.IsNullOrEmpty(Model.Parent.title))
+                                                {
+                                                    <span>@Model.Parent.title</span>
+                                                    <span class="mx-1">•</span>
+                                                }
+                                                <span>الجيل @Model.Parent.Generation</span>
+                                            </div>
+                                        </div>
+                                        <i class="fas fa-chevron-left link-arrow"></i>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="text-muted text-center py-3">
+                                    <i class="fas fa-crown me-2"></i>هذا هو الجد الأعلى للعائلة
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Children -->
+                        <div class="family-relation-section">
+                            <h6 class="relation-title">
+                                <i class="fas fa-child text-gold me-2"></i>
+                                الأطفال
+                                @if (ViewBag.Children != null)
+                                {
+                                    <span class="children-count">(@(((List<SukkarFamily.Models.Persone>)ViewBag.Children).Count))</span>
+                                }
+                            </h6>
+                            @if (ViewBag.Children != null && ((List<SukkarFamily.Models.Persone>)ViewBag.Children).Any())
+                            {
+                                <div class="children-grid">
+                                    @foreach (var child in (List<SukkarFamily.Models.Persone>)ViewBag.Children)
+                                    {
+                                        <a href="@Url.Action("Details", new { id = child.Id })" class="family-member-link">
+                                            <div class="family-member-card">
+                                                <div class="member-avatar-small">
+                                                    @if (!string.IsNullOrEmpty(child.image))
+                                                    {
+                                                        <img src="@child.image" alt="@child.name">
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-user"></i>
+                                                    }
+                                                </div>
+                                                <div class="member-info-small">
+                                                    <div class="member-name-small">@child.name</div>
+                                                    <div class="member-meta-small">
+                                                        @if (!string.IsNullOrEmpty(child.title))
+                                                        {
+                                                            <span>@child.title</span>
+                                                            <span class="mx-1">•</span>
+                                                        }
+                                                        <span>الجيل @child.Generation</span>
+                                                    </div>
+                                                </div>
+                                                <i class="fas fa-chevron-left link-arrow"></i>
+                                            </div>
+                                        </a>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-muted text-center py-3">
+                                    <i class="fas fa-info-circle me-2"></i>لا يوجد أطفال مسجلون
+                                    <div class="mt-2">
+                                        <a href="@Url.Action("Create", "Persone", new { id = Model.Id })" class="btn btn-sm btn-islamic-success">
+                                            <i class="fas fa-plus me-1"></i>إضافة أطفال
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        /* === MAIN LAYOUT === */
+        .details-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--islamic-cream) 0%, #f8f9fa 100%);
+            padding-bottom: 3rem;
+        }
+
+        /* === PAGE HEADER === */
+        .page-header-islamic {
+            background: linear-gradient(135deg, var(--islamic-green) 0%, var(--islamic-green-light) 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header-islamic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="islamic" patternUnits="userSpaceOnUse" width="20" height="20"><path d="M10 0L20 10L10 20L0 10Z" fill="none" stroke="rgba(212,175,55,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23islamic)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .page-title-section {
+            position: relative;
+            z-index: 2;
+        }
+
+        .islamic-decoration {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+
+        .page-title {
+            font-family: 'Amiri', serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .breadcrumb-islamic {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .breadcrumb-islamic a {
+            color: var(--islamic-gold);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .breadcrumb-islamic a:hover {
+            color: white;
+        }
+
+        .separator {
+            margin: 0 0.5rem;
+            opacity: 0.6;
+        }
+
+        .page-actions {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-actions .btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 0.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* === PROFILE CARD === */
+        .profile-card {
+            position: sticky;
+            top: 20px;
+        }
+
+        .profile-image-section {
+            display: flex;
+            justify-content: center;
+        }
+
+        .profile-image {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 6px solid var(--islamic-gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .profile-placeholder {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: var(--islamic-dark);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .profile-name {
+            font-family: 'Amiri', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--islamic-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-title {
+            font-size: 1.1rem;
+            color: #6c757d;
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+
+        .profile-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .generation-badge-large {
+            background: linear-gradient(135deg, var(--islamic-blue) 0%, #1f4e79 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(31, 78, 121, 0.3);
+        }
+
+        .ancestor-badge-large {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .alive-status {
+            background: rgba(40, 167, 69, 0.1);
+            border: 2px solid rgba(40, 167, 69, 0.3);
+            color: #28a745;
+        }
+
+        .death-status {
+            background: rgba(220, 53, 69, 0.1);
+            border: 2px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+
+        .profile-actions {
+            border-top: 2px solid rgba(212, 175, 55, 0.1);
+            padding-top: 1.5rem;
+        }
+
+        /* === INFO CARDS === */
+        .info-card {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-item-detail {
+            background: rgba(26, 71, 42, 0.03);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .info-item-detail:hover {
+            background: rgba(26, 71, 42, 0.06);
+            transform: translateX(-3px);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--islamic-green);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .country-badge, .place-badge {
+            background: rgba(32, 201, 151, 0.1);
+            border: 1px solid rgba(32, 201, 151, 0.3);
+            color: #20c997;
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .date-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .birth-badge {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #28a745;
+        }
+
+        .death-badge {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+
+        /* === FAMILY RELATIONS === */
+        .family-relation-section {
+            border-bottom: 2px solid rgba(212, 175, 55, 0.1);
+            padding-bottom: 1.5rem;
+        }
+
+        .family-relation-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .relation-title {
+            font-weight: 700;
+            color: var(--islamic-green);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .children-count {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .children-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .family-member-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .family-member-card {
+            background: rgba(26, 71, 42, 0.03);
+            border: 2px solid rgba(212, 175, 55, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .family-member-card:hover {
+            background: rgba(26, 71, 42, 0.06);
+            border-color: var(--islamic-gold);
+            transform: translateX(-5px);
+        }
+
+        .member-avatar-small {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--islamic-gold) 0%, var(--islamic-gold-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .member-avatar-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .member-avatar-small i {
+            font-size: 1.5rem;
+            color: var(--islamic-dark);
+        }
+
+        .member-info-small {
+            flex: 1;
+        }
+
+        .member-name-small {
+            font-weight: 600;
+            color: var(--islamic-green);
+            font-size: 1.05rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .member-meta-small {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .link-arrow {
+            color: var(--islamic-gold);
+            font-size: 1.2rem;
+        }
+
+        /* === BUTTON STYLES === */
+        .btn-islamic-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-islamic-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+
+        .btn-islamic-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #0dcaf0 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-islamic-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(23, 162, 184, 0.3);
+            color: white;
+        }
+
+        /* === GENERATION COLORS === */
+        .generation-1 { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important; }
+        .generation-2 { background: linear-gradient(135deg, #fd7e14 0%, #e8680a 100%) !important; }
+        .generation-3 { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important; color: #000 !important; }
+        .generation-4 { background: linear-gradient(135deg, #20c997 0%, #1ba085 100%) !important; }
+        .generation-5 { background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%) !important; }
+        .generation-6 { background: linear-gradient(135deg, #6f42c1 0%, #59359a 100%) !important; }
+        .generation-7 { background: linear-gradient(135deg, #d63384 0%, #b02a5b 100%) !important; }
+        .generation-8 { background: linear-gradient(135deg, #198754 0%, #146c43 100%) !important; }
+        .generation-9 { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important; }
+        .generation-10 { background: linear-gradient(135deg, #6610f2 0%, #520dc2 100%) !important; }
+
+        /* === ANIMATIONS === */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* === RESPONSIVE === */
+        @@media (max-width: 992px) {
+            .profile-card {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .page-header-islamic {
+                padding: 2rem 0;
+                text-align: center;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+
+            .profile-image, .profile-placeholder {
+                width: 140px;
+                height: 140px;
+            }
+
+            .profile-placeholder {
+                font-size: 4rem;
+            }
+        }
+    </style>
+}

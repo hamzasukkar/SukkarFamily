@@ -191,7 +191,18 @@ namespace SukkarFamily.Controllers
         // GET: Persone/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var persone = db.persones.Include("Parent").Include("children").FirstOrDefault(p => p.Id == id);
+            if (persone == null)
+            {
+                TempData["ErrorMessage"] = "الشخص المطلوب غير موجود.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Get all children
+            var children = db.persones.Where(p => p.Parent != null && p.Parent.Id == id).ToList();
+            ViewBag.Children = children;
+
+            return View(persone);
         }
 
         // GET: Persone/Create

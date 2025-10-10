@@ -44,7 +44,7 @@ namespace SukkarFamily.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("News");
+                    b.ToTable("News", (string)null);
                 });
 
             modelBuilder.Entity("SukkarFamily.Models.Persone", b =>
@@ -83,7 +83,7 @@ namespace SukkarFamily.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("persones");
+                    b.ToTable("persones", (string)null);
                 });
 
             modelBuilder.Entity("SukkarFamily.Models.Persone", b =>

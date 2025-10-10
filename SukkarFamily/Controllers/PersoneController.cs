@@ -233,6 +233,7 @@ namespace SukkarFamily.Controllers
                 var childTitles = collection["ChildTitles"].ToList();
                 var childImages = collection["ChildImages"].ToList();
                 var childCountries = collection["ChildCountries"].ToList();
+                var childPlacesOfRegistration = collection["ChildPlacesOfRegistration"].ToList();
 
                 if (childNames.Any() && childNames.Any(name => !string.IsNullOrWhiteSpace(name)))
                 {
@@ -264,6 +265,7 @@ namespace SukkarFamily.Controllers
                             title = i < childTitles.Count ? childTitles[i] : null,
                             image = i < childImages.Count ? childImages[i] : null,
                             Country = i < childCountries.Count ? childCountries[i] : null,
+                            PlaceOfRegistration = i < childPlacesOfRegistration.Count ? childPlacesOfRegistration[i] : null,
                             Parent = parent,
                             Generation = parent.Generation + 1,
                             DateOfBirth = null, // Can be set later through Edit
@@ -293,6 +295,7 @@ namespace SukkarFamily.Controllers
                     persone.title = collection["title"];
                     persone.image = collection["image"];
                     persone.Country = collection["Country"];
+                    persone.PlaceOfRegistration = collection["PlaceOfRegistration"];
 
                     // Handle DateOfBirth
                     if (!string.IsNullOrEmpty(collection["DateOfBirth"]))
@@ -411,6 +414,7 @@ namespace SukkarFamily.Controllers
                 persone.title = collection["title"];
                 persone.image = collection["image"];
                 persone.Country = collection["Country"];
+                persone.PlaceOfRegistration = collection["PlaceOfRegistration"];
 
                 // Update DateOfBirth
                 if (!string.IsNullOrEmpty(collection["DateOfBirth"]))

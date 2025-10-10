@@ -102,6 +102,10 @@
                                         <span class="info-label">البلد:</span>
                                         <span class="info-value">@(Model.Country ?? "غير محدد")</span>
                                     </div>
+                                    <div class="info-item">
+                                        <span class="info-label">مكان القيد:</span>
+                                        <span class="info-value">@(Model.PlaceOfRegistration ?? "غير محدد")</span>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="info-item">
@@ -193,6 +197,19 @@
                                         </div>
 
                                         <div class="col-md-6">
+                                            <div class="form-group-islamic mb-4">
+                                                <label asp-for="PlaceOfRegistration" class="form-label-islamic">
+                                                    <i class="fas fa-map-marker-alt me-2 text-gold"></i>مكان القيد
+                                                </label>
+                                                <input asp-for="PlaceOfRegistration" class="form-control-islamic" placeholder="مثال: الرياض، جدة، دبي">
+                                                <span asp-validation-for="PlaceOfRegistration" class="validation-message"></span>
+                                                <div class="form-help">مكان القيد أو التسجيل (اختياري)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12">
                                             <div class="form-group-islamic mb-4">
                                                 <label asp-for="Generation" class="form-label-islamic">
                                                     <i class="fas fa-layer-group me-2 text-gold"></i>الجيل

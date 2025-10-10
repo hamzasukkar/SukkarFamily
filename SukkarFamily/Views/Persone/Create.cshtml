@@ -90,7 +90,14 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <!-- Empty column for spacing -->
+                                        <div class="form-group mb-3">
+                                            <label asp-for="PlaceOfRegistration" class="form-label">
+                                                <i class="fas fa-map-marker-alt me-2 text-gold"></i>مكان القيد
+                                            </label>
+                                            <input asp-for="PlaceOfRegistration" class="form-control arabic-input" placeholder="مثال: الرياض، جدة، دبي">
+                                            <span asp-validation-for="PlaceOfRegistration" class="text-danger"></span>
+                                            <div class="form-text">مكان القيد أو التسجيل (اختياري)</div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -828,6 +835,17 @@
                         </div>
                     </div>
                     <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-map-marker-alt me-2 text-gold"></i>مكان القيد
+                            </label>
+                            <input name="ChildPlacesOfRegistration" class="form-control arabic-input" placeholder="مثال: الرياض، جدة">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
                         <div class="form-group mb-3">
                             <label class="form-label">
                                 <i class="fas fa-image me-2 text-gold"></i>رابط الصورة

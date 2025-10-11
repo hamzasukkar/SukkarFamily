@@ -250,7 +250,7 @@ namespace SukkarFamily.Controllers
                 {
                     // Multiple children creation
                     Persone parent = null;
-                    
+
                     // Handle parent selection
                     if (!string.IsNullOrEmpty(collection["Parent"]) && int.TryParse(collection["Parent"], out int parentId))
                     {
@@ -264,7 +264,45 @@ namespace SukkarFamily.Controllers
                         return View();
                     }
 
-                    // Create children
+                    // First, create the main person (from top form fields) as the first child
+                    if (!string.IsNullOrWhiteSpace(collection["name"]))
+                    {
+                        var mainPerson = new Persone
+                        {
+                            name = collection["name"],
+                            title = collection["title"],
+                            image = collection["image"],
+                            Country = collection["Country"],
+                            PlaceOfRegistration = collection["PlaceOfRegistration"],
+                            Parent = parent,
+                            Generation = parent.Generation + 1,
+                            DateOfBirth = null,
+                            DateOfDeath = null
+                        };
+
+                        // Handle DateOfBirth for main person
+                        if (!string.IsNullOrEmpty(collection["DateOfBirth"]))
+                        {
+                            if (DateTime.TryParse(collection["DateOfBirth"], out DateTime birthDate))
+                            {
+                                mainPerson.DateOfBirth = birthDate;
+                            }
+                        }
+
+                        // Handle DateOfDeath for main person
+                        if (!string.IsNullOrEmpty(collection["DateOfDeath"]))
+                        {
+                            if (DateTime.TryParse(collection["DateOfDeath"], out DateTime deathDate))
+                            {
+                                mainPerson.DateOfDeath = deathDate;
+                            }
+                        }
+
+                        db.persones.Add(mainPerson);
+                        createdPersons.Add(mainPerson);
+                    }
+
+                    // Then create additional children (siblings)
                     for (int i = 0; i < childNames.Count; i++)
                     {
                         if (string.IsNullOrWhiteSpace(childNames[i]))

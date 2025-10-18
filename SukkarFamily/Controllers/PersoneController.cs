@@ -245,6 +245,8 @@ namespace SukkarFamily.Controllers
                 var childImages = collection["ChildImages"].ToList();
                 var childCountries = collection["ChildCountries"].ToList();
                 var childPlacesOfRegistration = collection["ChildPlacesOfRegistration"].ToList();
+                var childDatesOfBirth = collection["ChildDatesOfBirth"].ToList();
+                var childDatesOfDeath = collection["ChildDatesOfDeath"].ToList();
 
                 if (childNames.Any() && childNames.Any(name => !string.IsNullOrWhiteSpace(name)))
                 {
@@ -317,9 +319,27 @@ namespace SukkarFamily.Controllers
                             PlaceOfRegistration = i < childPlacesOfRegistration.Count ? childPlacesOfRegistration[i] : null,
                             Parent = parent,
                             Generation = parent.Generation + 1,
-                            DateOfBirth = null, // Can be set later through Edit
+                            DateOfBirth = null,
                             DateOfDeath = null
                         };
+
+                        // Handle DateOfBirth for child
+                        if (i < childDatesOfBirth.Count && !string.IsNullOrEmpty(childDatesOfBirth[i]))
+                        {
+                            if (DateTime.TryParse(childDatesOfBirth[i], out DateTime birthDate))
+                            {
+                                child.DateOfBirth = birthDate;
+                            }
+                        }
+
+                        // Handle DateOfDeath for child
+                        if (i < childDatesOfDeath.Count && !string.IsNullOrEmpty(childDatesOfDeath[i]))
+                        {
+                            if (DateTime.TryParse(childDatesOfDeath[i], out DateTime deathDate))
+                            {
+                                child.DateOfDeath = deathDate;
+                            }
+                        }
 
                         db.persones.Add(child);
                         createdPersons.Add(child);

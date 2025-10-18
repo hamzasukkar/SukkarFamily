@@ -606,7 +606,7 @@ namespace SukkarFamily.Controllers
 
                 db.SaveChanges();
 
-                TempData["SuccessMessage"] = $"تم حذف {persone.name} وجميع الأطفال المرتبطين بنجاح.";
+                TempData["SuccessMessage"] = $"تم حذف {persone.name} وجميع الأبناء المرتبطين بنجاح.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception)

@@ -18,10 +18,37 @@ namespace SukkarFamily.Controllers
             this.db = db;
         }
         // GET: Persone
-        public ActionResult Index()
+        public ActionResult Index(int page = 1, int pageSize = 20)
         {
+            // Get all persons for statistics (we still need full count)
+            var allPersones = db.persones.Include("Parent").ToList();
 
-            return View(db.persones.ToList());
+            // Calculate pagination
+            var totalCount = allPersones.Count;
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            // Ensure page is within valid range
+            if (page < 1) page = 1;
+            if (page > totalPages && totalPages > 0) page = totalPages;
+
+            // Get paginated data - ordered by Generation, then by DateOfBirth
+            var paginatedPersones = allPersones
+                .OrderBy(p => p.Generation)
+                .ThenBy(p => p.Parent?.name ?? "")
+                .ThenBy(p => p.DateOfBirth ?? DateTime.MaxValue)
+                .ThenBy(p => p.name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Pass pagination info to view
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.AllPersones = allPersones; // For statistics
+
+            return View(paginatedPersones);
         }
         public ActionResult Root()
         {

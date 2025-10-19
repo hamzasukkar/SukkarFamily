@@ -18,13 +18,40 @@ namespace SukkarFamily.Controllers
             this.db = db;
         }
         // GET: Persone
-        public ActionResult Index(int page = 1, int pageSize = 20)
+        public ActionResult Index(int page = 1, int pageSize = 20, string searchTerm = "", int? searchId = null, int? generation = null)
         {
             // Get all persons for statistics (we still need full count)
             var allPersones = db.persones.Include("Parent").ToList();
 
-            // Calculate pagination
-            var totalCount = allPersones.Count;
+            // Apply filters
+            var filteredPersones = allPersones.AsEnumerable();
+
+            // Search by name or title
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower().Trim();
+                filteredPersones = filteredPersones.Where(p =>
+                    (p.name != null && p.name.ToLower().Contains(searchTerm)) ||
+                    (p.title != null && p.title.ToLower().Contains(searchTerm))
+                );
+            }
+
+            // Search by ID
+            if (searchId.HasValue)
+            {
+                filteredPersones = filteredPersones.Where(p => p.Id == searchId.Value);
+            }
+
+            // Filter by generation
+            if (generation.HasValue)
+            {
+                filteredPersones = filteredPersones.Where(p => p.Generation == generation.Value);
+            }
+
+            var filteredList = filteredPersones.ToList();
+
+            // Calculate pagination based on filtered results
+            var totalCount = filteredList.Count;
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
             // Ensure page is within valid range
@@ -32,7 +59,7 @@ namespace SukkarFamily.Controllers
             if (page > totalPages && totalPages > 0) page = totalPages;
 
             // Get paginated data - ordered by Generation, then by DateOfBirth
-            var paginatedPersones = allPersones
+            var paginatedPersones = filteredList
                 .OrderBy(p => p.Generation)
                 .ThenBy(p => p.Parent?.name ?? "")
                 .ThenBy(p => p.DateOfBirth ?? DateTime.MaxValue)
@@ -41,12 +68,15 @@ namespace SukkarFamily.Controllers
                 .Take(pageSize)
                 .ToList();
 
-            // Pass pagination info to view
+            // Pass pagination and search info to view
             ViewBag.CurrentPage = page;
             ViewBag.PageSize = pageSize;
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalCount = totalCount;
-            ViewBag.AllPersones = allPersones; // For statistics
+            ViewBag.AllPersones = allPersones; // For statistics (all persons, not filtered)
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.SearchId = searchId;
+            ViewBag.Generation = generation;
 
             return View(paginatedPersones);
         }

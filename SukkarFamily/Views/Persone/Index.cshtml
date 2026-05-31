@@ -236,10 +236,10 @@
                                             <i class="fas fa-crown me-2"></i>اللقب
                                         </th>
                                         <th>
-                                            <i class="fas fa-flag me-2"></i>البلد
+                                            <i class="fas fa-map-marker-alt me-2"></i>مكان القيد
                                         </th>
                                         <th>
-                                            <i class="fas fa-map-marker-alt me-2"></i>مكان القيد
+                                            <i class="fas fa-id-card-alt me-2"></i>الرقم الوطني
                                         </th>
                                         <th class="text-center">
                                             <i class="fas fa-birthday-cake me-2"></i>الميلاد
@@ -294,10 +294,10 @@
                                                 <span class="member-title-text">@(person.title ?? "غير محدد")</span>
                                             </td>
                                             <td>
-                                                @if (!string.IsNullOrEmpty(person.Country))
+                                                @if (!string.IsNullOrEmpty(person.PlaceOfRegistration))
                                                 {
-                                                    <span class="country-badge-islamic">
-                                                        <i class="fas fa-flag me-1"></i>@person.Country
+                                                    <span class="place-badge-islamic">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>@person.PlaceOfRegistration
                                                     </span>
                                                 }
                                                 else
@@ -306,10 +306,10 @@
                                                 }
                                             </td>
                                             <td>
-                                                @if (!string.IsNullOrEmpty(person.PlaceOfRegistration))
+                                                @if (!string.IsNullOrEmpty(person.NationalNumber))
                                                 {
-                                                    <span class="place-badge-islamic">
-                                                        <i class="fas fa-map-marker-alt me-1"></i>@person.PlaceOfRegistration
+                                                    <span class="national-number-badge-islamic">
+                                                        <i class="fas fa-id-card-alt me-1"></i>@person.NationalNumber
                                                     </span>
                                                 }
                                                 else
@@ -494,6 +494,13 @@
                                             <div class="detail-item place-detail">
                                                 <i class="fas fa-map-marker-alt"></i>
                                                 <span>@person.PlaceOfRegistration</span>
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(person.NationalNumber))
+                                        {
+                                            <div class="detail-item national-number-detail">
+                                                <i class="fas fa-id-card-alt"></i>
+                                                <span>@person.NationalNumber</span>
                                             </div>
                                         }
                                         @if (person.DateOfBirth.HasValue)
@@ -1376,6 +1383,18 @@
             align-items: center;
         }
 
+        .national-number-badge-islamic {
+            background: rgba(111, 66, 193, 0.1);
+            border: 1px solid rgba(111, 66, 193, 0.3);
+            color: #6f42c1;
+            padding: 0.4rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+
         .date-info-islamic {
             text-align: center;
         }
@@ -1654,6 +1673,10 @@
 
         .place-detail {
             color: #0d6efd;
+        }
+
+        .national-number-detail {
+            color: #6f42c1;
         }
 
         .member-actions-islamic {

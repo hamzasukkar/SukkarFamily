@@ -26,13 +26,14 @@ namespace SukkarFamily.Controllers
             // Apply filters
             var filteredPersones = allPersones.AsEnumerable();
 
-            // Search by name or title
+            // Search by name, title, or national number
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 searchTerm = searchTerm.ToLower().Trim();
                 filteredPersones = filteredPersones.Where(p =>
                     (p.name != null && p.name.ToLower().Contains(searchTerm)) ||
-                    (p.title != null && p.title.ToLower().Contains(searchTerm))
+                    (p.title != null && p.title.ToLower().Contains(searchTerm)) ||
+                    (p.NationalNumber != null && p.NationalNumber.ToLower().Contains(searchTerm))
                 );
             }
 
@@ -302,6 +303,7 @@ namespace SukkarFamily.Controllers
                 var childImages = collection["ChildImages"].ToList();
                 var childCountries = collection["ChildCountries"].ToList();
                 var childPlacesOfRegistration = collection["ChildPlacesOfRegistration"].ToList();
+                var childNationalNumbers = collection["ChildNationalNumbers"].ToList();
                 var childDatesOfBirth = collection["ChildDatesOfBirth"].ToList();
                 var childDatesOfDeath = collection["ChildDatesOfDeath"].ToList();
 
@@ -333,6 +335,7 @@ namespace SukkarFamily.Controllers
                             image = collection["image"],
                             Country = collection["Country"],
                             PlaceOfRegistration = collection["PlaceOfRegistration"],
+                            NationalNumber = collection["NationalNumber"],
                             Parent = parent,
                             Generation = parent.Generation + 1,
                             DateOfBirth = null,
@@ -374,6 +377,7 @@ namespace SukkarFamily.Controllers
                             image = i < childImages.Count ? childImages[i] : null,
                             Country = i < childCountries.Count ? childCountries[i] : null,
                             PlaceOfRegistration = i < childPlacesOfRegistration.Count ? childPlacesOfRegistration[i] : null,
+                            NationalNumber = i < childNationalNumbers.Count ? childNationalNumbers[i] : null,
                             Parent = parent,
                             Generation = parent.Generation + 1,
                             DateOfBirth = null,
@@ -422,6 +426,7 @@ namespace SukkarFamily.Controllers
                     persone.image = collection["image"];
                     persone.Country = collection["Country"];
                     persone.PlaceOfRegistration = collection["PlaceOfRegistration"];
+                    persone.NationalNumber = collection["NationalNumber"];
 
                     // Handle DateOfBirth
                     if (!string.IsNullOrEmpty(collection["DateOfBirth"]))
@@ -541,6 +546,7 @@ namespace SukkarFamily.Controllers
                 persone.image = collection["image"];
                 persone.Country = collection["Country"];
                 persone.PlaceOfRegistration = collection["PlaceOfRegistration"];
+                persone.NationalNumber = collection["NationalNumber"];
 
                 // Update DateOfBirth
                 if (!string.IsNullOrEmpty(collection["DateOfBirth"]))
